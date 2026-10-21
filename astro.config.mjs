@@ -13,6 +13,8 @@ export default defineConfig({
     // CSP stabil (nu `experimental.csp`), fără niciun domeniu extern.
     csp: true,
   },
+  // Shiki folosește stiluri inline, pe care style-src din CSP le-ar bloca oricum.
+  markdown: { syntaxHighlight: false },
   vite: {
     define: {
       __DRAFT__: JSON.stringify(isDraft),
