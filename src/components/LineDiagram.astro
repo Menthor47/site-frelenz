@@ -1,0 +1,156 @@
+---
+// „De unde pornești?” (§4.3 punctul 3): schema de linie din vagonul de metrou. Fiecare rând e un tronson scurt:
+// stația cu problema, segmentul în culoarea grupului și capătul de linie, cu serviciul ca link text, fără chenar.
+// Semantic e o listă `<ul>` de linkuri, în ordinea primită (pagina o sortează după `ordine`); nu e o secvență, deci nu are numere (§9.2).
+// Desenul (stațiile și segmentul) e doar forma listei, ascuns din arborele de accesibilitate.
+// - Rândul e `<li class="linie-rand" data-grup="…">` (ruling R11); culoarea vine din `data-grup`, în CSS (CSP: fără `style`).
+// - Segmentul poartă clasa `vt-<slug>` (ruling R5): `transitions.css` îi dă `view-transition-name: segment-<slug>`,
+//   același nume ca banda paginii de serviciu. Declarația nu e aici.
+import type { Grup } from '../form-rules';
+import { parseMarker } from '../lib/marker';
+import Placeholder from './Placeholder.astro';
+
+interface Props {
+  randuri: { problema: string; slug: string; nume: string; grup: Grup }[];
+}
+
+const { randuri } = Astro.props;
+---
+
+<ul class="linie">
+  {
+    randuri.map((rand) => {
+      const marcaj = parseMarker(rand.problema);
+      return (
+        <li class="linie-rand" data-grup={rand.grup}>
+          <p class="linie-rand__problema">{marcaj === null ? rand.problema : <Placeholder nr={marcaj} />}</p>
+          <span class={`linie-rand__segment vt-${rand.slug}`} aria-hidden="true" />
+          <a class="linie-rand__capat" href={`/servicii/${rand.slug}/`}>{rand.nume}</a>
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  .linie {
+    /* Grosimea segmentului și diametrul stației; tot desenul se calculează din ele. */
+    --t: 0.5rem;
+    --d: 1.25rem;
+    max-width: 60rem;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--rule);
+    list-style: none;
+  }
+
+  /* Culorile grupurilor (§5.2). Segmentul e grafică cu sens: galbenul tare are 1,86:1 pe alb, deci construcția
+     folosește galbenul închis (5,77:1); albastrul, verdele și roșul trec de 3:1. Numele serviciului e și el text. */
+  .linie-rand[data-grup='vizibilitate'] {
+    --culoare: var(--blue);
+  }
+
+  .linie-rand[data-grup='diagnostic'] {
+    --culoare: var(--green);
+  }
+
+  .linie-rand[data-grup='constructie'] {
+    --culoare: var(--yellow-dark);
+  }
+
+  .linie-rand[data-grup='reparatie'] {
+    --culoare: var(--red);
+  }
+
+  /* Pe mobil: problema pe un rând, dedesubt stația, segmentul și capătul de linie. */
+  .linie-rand {
+    display: grid;
+    grid-template-columns: var(--d) minmax(1.5rem, 1fr) auto;
+    align-items: center;
+    max-width: none;
+    padding-block: 0.75rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .linie-rand__problema {
+    grid-column: 1 / -1;
+    margin: 0 0 0.5rem;
+  }
+
+  /* Stația și capătul de linie sunt cercuri albe cu contur, ca pe hartă (§5.6). Cercurile sunt singurele colțuri rotunjite (§5.8). */
+  .linie-rand::before,
+  .linie-rand__capat::before {
+    content: '';
+    position: relative;
+    z-index: 1;
+    flex: none;
+    width: var(--d);
+    height: var(--d);
+    border: 3px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+  }
+
+  .linie-rand::before {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  /* Segmentul intră sub cele două cercuri, ca linia să nu aibă un spațiu între ele și stații. */
+  .linie-rand__segment {
+    grid-column: 2;
+    grid-row: 2;
+    height: var(--t);
+    margin-inline: calc(var(--d) / -2);
+    background: var(--culoare);
+  }
+
+  /* Capătul de linie: link text, fără chenar, cu zona de atingere de 44×44px (§5.8). */
+  .linie-rand__capat {
+    grid-column: 3;
+    grid-row: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 44px;
+    min-height: 44px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  /* De la 768px: problema, stația, segmentul și capătul de linie pe același rând, în coloane care se aliniază de la un rând la altul. */
+  @media (min-width: 48rem) {
+    .linie-rand {
+      grid-template-columns: minmax(0, 1fr) var(--d) 7rem 16rem;
+    }
+
+    .linie-rand__problema {
+      grid-column: 1;
+      grid-row: 1;
+      margin: 0;
+      padding-right: 1.5rem;
+    }
+
+    .linie-rand::before {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .linie-rand__segment {
+      grid-column: 3;
+      grid-row: 1;
+    }
+
+    .linie-rand__capat {
+      grid-column: 4;
+      grid-row: 1;
+    }
+  }
+
+  /* Cu culorile forțate (modul de contrast ridicat), fundalurile dispar: segmentul trece pe culoarea textului. */
+  @media (forced-colors: active) {
+    .linie-rand__segment {
+      background: CanvasText;
+    }
+  }
+</style>
