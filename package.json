@@ -10,7 +10,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview:draft": "cross-env DRAFT=1 astro build",
-    "test:unit": "vitest run"
+    "test:unit": "vitest run",
+    "report:placeholders": "node scripts/report-placeholders.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "3.7.4",

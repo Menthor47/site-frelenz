@@ -1,11 +1,12 @@
 import { defineConfig } from 'astro/config';
+import { site } from './src/site.config.ts';
 
 const isDraft = process.env.DRAFT === '1';
 
 export default defineConfig({
   output: 'static',
-  // Provizoriu; Task 2 îl înlocuiește cu `site.url` din src/site.config.ts.
-  site: 'https://site-provizoriu.example',
+  // Domeniul vine dintr-o singură sursă: src/site.config.ts (suprascris cu SITE_URL doar pentru QA local).
+  site: site.url,
   outDir: isDraft ? './dist-draft' : './dist',
   compressHTML: true,
   trailingSlash: 'always',
