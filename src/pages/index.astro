@@ -1,5 +1,19 @@
 ---
 import Base from '../layouts/Base.astro';
+import { nodFaq, nodWebPage } from '../lib/jsonld';
+
+// Pagină provizorie, înlocuită la Task 11. Are totuși tot ce cere `qa:page` pe Acasă (§6.3): WebPage și FAQPage.
+// Întrebările și răspunsurile sunt doar faptele din §1 și §4.5, fără nimic nou; schema FAQPage oglindește textul vizibil.
+const intrebari = [
+  {
+    intrebare: 'Cu cine lucrezi?',
+    raspuns: 'Lucrez doar cu firme, PFA-uri și alte entități profesionale, din toată țara. Eu sunt din București.',
+  },
+  {
+    intrebare: 'Cu ce te pot ajuta?',
+    raspuns: 'Cu SEO, audit SEO, creare de site de prezentare, redesign, mentenanță și optimizare pentru căutarea AI (AEO și GEO).',
+  },
+];
 ---
 
 <Base
@@ -7,9 +21,19 @@ import Base from '../layouts/Base.astro';
   descriere="Sunt Alex Ionescu, consultant SEO. Pe acest site găsești ce fac, cum lucrez și cum mă poți contacta, ca să afli dacă te pot ajuta cu site-ul tău."
   cale="/"
   aprobat={false}
+  jsonld={[nodWebPage('/', { despreAlex: true }), nodFaq(intrebari)]}
 >
   <div class="contener">
     <h1>Alex Ionescu, consultant SEO</h1>
     <p>Pagina de pornire se construiește acum. Revino curând și vei găsi aici serviciile mele și cum poți cere o ofertă.</p>
+    <h2>Întrebări frecvente</h2>
+    {
+      intrebari.map((i) => (
+        <div>
+          <h3>{i.intrebare}</h3>
+          <p>{i.raspuns}</p>
+        </div>
+      ))
+    }
   </div>
 </Base>

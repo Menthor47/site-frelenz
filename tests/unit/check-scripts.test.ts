@@ -59,6 +59,17 @@ describe('check-cedilla.mjs', () => {
   test('iese cu 1 când dist/ lipsește', () => {
     expect(ruleaza(join(SCRIPTURI, 'check-cedilla.mjs')).cod).toBe(1);
   });
+
+  test('verifică directorul primit ca argument (previzualizarea dist-draft), nu dist/', () => {
+    fixtura('<p>așț</p>');
+    mkdirSync(join(radacina, 'dist-draft'));
+    writeFileSync(join(radacina, 'dist-draft', 'index.html'), '<p>aş</p>');
+    expect(ruleaza(join(SCRIPTURI, 'check-cedilla.mjs')).cod).toBe(0);
+    const r = ruleaza(join(SCRIPTURI, 'check-cedilla.mjs'), ['dist-draft']);
+    expect(r.cod).toBe(1);
+    expect(r.iesire).toContain('dist-draft');
+    expect(ruleaza(join(SCRIPTURI, 'check-cedilla.mjs'), ['lipsa']).iesire).toContain('lipsa/ lipsește');
+  });
 });
 
 describe('check-font-glyphs.mjs', () => {

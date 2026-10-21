@@ -1,6 +1,7 @@
 // Build-ul cade dacă găsește sedile în loc de virgulă (spec §5.3):
 // U+015E Ş, U+015F ş, U+0162 Ţ, U+0163 ţ. Forma corectă are virgulă: Ș ș Ț ț (U+0218–U+021B).
 // Se verifică dist/**/*.{html,txt,xml} și tot ce e sub src/. Ieșire cu cod 1 la prima sedilă.
+// Folosire: node scripts/check-cedilla.mjs [director-dist]   (implicit „dist”; qa:page trece „dist-draft” pentru previzualizare)
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -50,11 +51,11 @@ export function primaSedila(caiFisiere) {
   return null;
 }
 
-function main(radacina) {
-  const dist = join(radacina, 'dist');
+function main(radacina, numeDist = 'dist') {
+  const dist = join(radacina, numeDist);
   const src = join(radacina, 'src');
   if (!existsSync(dist)) {
-    console.error('check-cedilla: dist/ lipsește. Rulează întâi `npm run build`.');
+    console.error(`check-cedilla: ${numeDist}/ lipsește. Rulează întâi \`npm run build\`.`);
     return 1;
   }
   const caiDist = [...fisiere(dist)].filter((f) => ['.html', '.txt', '.xml'].includes(extname(f)));
@@ -67,11 +68,11 @@ function main(radacina) {
     );
     return 1;
   }
-  console.log(`check-cedilla: fără sedile în ${caiDist.length} fișiere din dist/ și ${caiSrc.length} din src/.`);
+  console.log(`check-cedilla: fără sedile în ${caiDist.length} fișiere din ${numeDist}/ și ${caiSrc.length} din src/.`);
   return 0;
 }
 
 // realpath pe ambele părți: printr-un symlink/junction argv[1] nu e realpath-uit, iar import.meta.url da.
 if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))) {
-  process.exit(main(process.cwd()));
+  process.exit(main(process.cwd(), process.argv[2]));
 }

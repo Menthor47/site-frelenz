@@ -9,7 +9,7 @@ test('datele fixe ale site-ului', () => {
   expect(site.nume).toBe('Alex Ionescu');
   expect(site.logoScurt).toBe('consultant SEO');
   expect(site.descriere).toBe('Alex Ionescu – consultant SEO și web design, București');
-  expect(site.telefonAfisat).toBe('0724 230 051');
+  expect(site.telefonAfisat).toBe('0724\u00a0230\u00a0051');
   expect(site.telefonE164).toBe('+40724230051');
   expect(site.whatsapp).toBe('https://wa.me/40724230051');
   expect(site.oras).toBe('București');

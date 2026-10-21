@@ -9,7 +9,8 @@ export const site = {
   descriere: 'Alex Ionescu – consultant SEO și web design, București',
   // Adresa de destinație a formularului nu stă aici, ci în form-rules.ts (o folosește și Worker-ul).
   email: `contact@${new URL(url).hostname}`,
-  telefonAfisat: '0724 230 051',
+  // Spații fără rupere (U+00A0), ca numărul să nu se rupă pe două rânduri; html-validate cere asta (tel-non-breaking).
+  telefonAfisat: '0724\u00a0230\u00a0051',
   telefonE164: '+40724230051',
   whatsapp: 'https://wa.me/40724230051',
   oras: 'București',
