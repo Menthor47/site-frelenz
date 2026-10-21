@@ -1,0 +1,6 @@
+dist/
+dist-draft/
+reports/
+.wrangler/
+node_modules/
+.astro/
