@@ -1,0 +1,57 @@
+// Regulile formularului și lista serviciilor, într-un singur loc (§3.5).
+// Le citesc ContactForm (atributele HTML), schema colecției `servicii` și Worker-ul de pe Cloudflare.
+// De aceea fișierul nu importă nimic: nici din Astro, nici din altă parte.
+
+/** Valorile din cod sunt ASCII, iar numele afișate (cu diacritice) se pun în componente. */
+export const GRUPURI = ['vizibilitate', 'diagnostic', 'constructie', 'reparatie'] as const;
+export type Grup = (typeof GRUPURI)[number];
+
+export interface Serviciu {
+  readonly slug: string;
+  readonly nume: string;
+  readonly grup: Grup;
+  /** Ordinea fixă din „De unde pornești?”, /servicii/, subsol, llms.txt și lista din formular. */
+  readonly ordine: number;
+}
+
+export const SERVICII: readonly Serviciu[] = [
+  { slug: 'seo', nume: 'SEO', grup: 'vizibilitate', ordine: 1 },
+  { slug: 'optimizare-aeo-geo', nume: 'Optimizare AEO și GEO', grup: 'vizibilitate', ordine: 2 },
+  { slug: 'audit-seo', nume: 'Audit SEO', grup: 'diagnostic', ordine: 3 },
+  { slug: 'creare-site', nume: 'Creare site', grup: 'constructie', ordine: 4 },
+  { slug: 'redesign-site', nume: 'Redesign site', grup: 'reparatie', ordine: 5 },
+  { slug: 'mentenanta-site', nume: 'Mentenanță site', grup: 'reparatie', ordine: 6 },
+];
+
+/** Adresa la care ajunge cererea trimisă din formular. */
+export const DESTINATAR = 'idealserv51@gmail.com';
+
+/** Câmpul ascuns: dacă vine completat, cererea e de la un robot. */
+export const CAPCANA = 'confirmare_url';
+
+export type NumeCamp = 'nume' | 'email' | 'telefon' | 'firma' | 'site' | 'mesaj' | 'serviciu';
+
+export interface RegulaCamp {
+  readonly required: boolean;
+  /** Numărul maxim de caractere, după ce `\r\n` a devenit `\n`. Lipsește la `serviciu` (select). */
+  readonly maxLength?: number;
+  readonly type?: 'email' | 'tel';
+  /** Numărul maxim de linkuri; doar la `mesaj`. */
+  readonly maxLinkuri?: number;
+  /** Valorile permise; doar la `serviciu`. */
+  readonly optiuni?: readonly string[];
+}
+
+export const CAMPURI: Readonly<Record<NumeCamp, RegulaCamp>> = {
+  nume: { required: true, maxLength: 100 },
+  email: { required: true, maxLength: 254, type: 'email' },
+  telefon: { required: false, maxLength: 30, type: 'tel' },
+  firma: { required: false, maxLength: 120 },
+  site: { required: false, maxLength: 200 },
+  mesaj: { required: true, maxLength: 3000, maxLinkuri: 3 },
+  serviciu: { required: false, optiuni: [...SERVICII.map((s) => s.slug), 'nu-stiu'] },
+};
+
+/** Algoritmul WHATWG pentru „valid email address”, cel pe care îl aplică browserul la `type=email`. */
+export const EMAIL_RE =
+  /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
