@@ -77,8 +77,8 @@ const ghiduri = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/ghiduri' }),
   schema: z.object({
     slug: z.string().min(1),
-    // Sub formă de întrebare.
-    titlu: z.string().min(1).endsWith('?'),
+    // Sub formă de întrebare (judecată de conținut, nu regulă de punctuație).
+    titlu: z.string().min(1),
     // Primul paragraf, cel pe care îl citesc motoarele AI.
     raspuns: z.string().min(1),
     publicat: z.coerce.date(),

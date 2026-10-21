@@ -130,8 +130,11 @@ describe('colecția proiecte', () => {
 
 describe('colecția ghiduri', () => {
   test('o intrare completă trece', () => expect(cadere('ghiduri', ghid).success).toBe(true));
-  test('titlul trebuie să fie o întrebare', () =>
-    expect(caiCuErori('ghiduri', { ...ghid, titlu: 'Cât durează SEO' })).toEqual(['titlu']));
+  test.each(['De ce nu apare site-ul meu în Google', 'Ce este GEO și prin ce diferă de SEO și AEO'])(
+    'titlul ghidului de lansare „%s” trece, și fără semnul întrebării',
+    (titlu) => expect(cadere('ghiduri', { ...ghid, titlu }).success).toBe(true),
+  );
+  test('titlul gol pică', () => expect(caiCuErori('ghiduri', { ...ghid, titlu: '' })).toEqual(['titlu']));
   test('serviciuLegat necunoscut pică', () =>
     expect(caiCuErori('ghiduri', { ...ghid, serviciuLegat: 'nu-exista' })).toEqual(['serviciuLegat']));
   test('publicat și actualizat devin Date', () => {
