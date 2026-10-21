@@ -1,8 +1,8 @@
 // Build-ul cade dacă găsește sedile în loc de virgulă (spec §5.3):
 // U+015E Ş, U+015F ş, U+0162 Ţ, U+0163 ţ. Forma corectă are virgulă: Ș ș Ț ț (U+0218–U+021B).
 // Se verifică dist/**/*.{html,txt,xml} și tot ce e sub src/. Ieșire cu cod 1 la prima sedilă.
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { extname, join, resolve } from 'node:path';
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SEDILE = /[\u015E\u015F\u0162\u0163]/g;
@@ -71,6 +71,7 @@ function main(radacina) {
   return 0;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// realpath pe ambele părți: printr-un symlink/junction argv[1] nu e realpath-uit, iar import.meta.url da.
+if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))) {
   process.exit(main(process.cwd()));
 }

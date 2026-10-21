@@ -2,7 +2,7 @@
 // Subsetul „latin-ext” se recunoaște după `unicode-range` din @font-face (numele fișierelor sunt hash-uri):
 // orice fișier al cărui interval acoperă U+0218 trebuie să aibă toate cele patru glife.
 // Folosire: node scripts/check-font-glyphs.mjs [director-dist]
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
 import { basename, extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { create } from 'fontkit';
@@ -76,7 +76,8 @@ export function verifica(dist) {
   return { erori, latinExt, total: woff2.length };
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// realpath pe ambele părți: printr-un symlink/junction argv[1] nu e realpath-uit, iar import.meta.url da.
+if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))) {
   const dist = resolve(process.argv[2] ?? 'dist');
   if (!existsSync(dist)) {
     console.error(`check-font-glyphs: ${dist} lipsește. Rulează întâi \`npm run build\`.`);
