@@ -1,4 +1,4 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import { site } from './src/site.config.ts';
 
 const isDraft = process.env.DRAFT === '1';
@@ -16,6 +16,20 @@ export default defineConfig({
   },
   // Shiki folosește stiluri inline, pe care style-src din CSP le-ar bloca oricum.
   markdown: { syntaxHighlight: false },
+  fonts: [
+    {
+      // Fontsource: woff2 se descarcă la build și se servesc de pe site (zero cereri spre alte domenii).
+      provider: fontProviders.fontsource(),
+      name: 'Atkinson Hyperlegible Next',
+      cssVariable: '--font-sans',
+      // Variabil doar pe axa de greutate, fără italic.
+      weights: ['400 800'],
+      styles: ['normal'],
+      // latin-ext e obligatoriu pentru ș și ț (U+0218–U+021B).
+      subsets: ['latin', 'latin-ext'],
+      display: 'swap',
+    },
+  ],
   vite: {
     define: {
       __DRAFT__: JSON.stringify(isDraft),

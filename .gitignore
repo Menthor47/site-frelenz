@@ -4,3 +4,5 @@ reports/
 .wrangler/
 node_modules/
 .astro/
+test-results/
+playwright-report/

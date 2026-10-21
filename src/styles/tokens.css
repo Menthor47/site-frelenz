@@ -1,0 +1,39 @@
+/* Tokenurile din spec §5.2 (culori) și §5.3 (scara tipografică). Nume și valori exact ca în spec. */
+:root {
+  /* Culori */
+  --ink: #14161A;
+  --ink-2: #3F4650;
+  --paper: #FFFFFF;
+  --blue: #2D6CDF;
+  --blue-dark: #1A4FB8;
+  --green: #1F9D61;
+  --green-dark: #157347;
+  --yellow: #F5B21B;
+  --yellow-dark: #8A5A00;
+  --red: #E0533D;
+  --red-dark: #B8382A;
+  --tint-blue: #EAF0FB;
+  --tint-yellow: #FEF3D7;
+  --tint-green: #E8F5EE;
+  --tint-red: #FCEDEA;
+  --rule: #E6E8EC;
+  --field-border: #8A8F98;
+
+  /* Scara tipografică (raport ~1,25; rădăcina rămâne 16px, textul de bază e 18px) */
+  --text-sm: 0.9rem;
+  --text-base: 1.125rem;
+  --text-md: 1.40625rem;
+  --text-lg: 1.75rem;
+  --text-xl: 2.1875rem;
+  --text-h1: clamp(2.25rem, 5vw, 3.5rem);
+
+  /* Layout (§5.8): container de 72rem, margini de 16px pe mobil și 24px pe desktop */
+  --container: 72rem;
+  --gutter: 1rem;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --gutter: 1.5rem;
+  }
+}

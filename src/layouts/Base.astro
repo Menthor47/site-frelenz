@@ -1,0 +1,40 @@
+---
+import { Font } from 'astro:assets';
+import { site } from '../site.config';
+import '../styles/tokens.css';
+import '../styles/base.css';
+
+interface Props {
+  titlu: string;
+  descriere: string;
+  /** Calea paginii, cu slash la început și la sfârșit (ex. `/servicii/`). Din ea se face canonical-ul. */
+  cale: string;
+  /** Aprobarea lui Alex pentru textul paginii; `check:launch` o citește din `<meta name="aprobat">`. */
+  aprobat: boolean;
+  noindex?: boolean;
+}
+
+const { titlu, descriere, cale, aprobat, noindex = false } = Astro.props;
+const canonical = new URL(cale, site.url).href;
+---
+
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>{titlu}</title>
+    <meta name="description" content={descriere} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="aprobat" content={aprobat ? 'true' : 'false'} />
+    <Font cssVariable="--font-sans" preload />
+  </head>
+  <body>
+    <a class="sari" href="#continut">Sari la conținut</a>
+    <main id="continut" tabindex="-1">
+      <slot />
+    </main>
+  </body>
+</html>

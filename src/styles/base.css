@@ -1,0 +1,161 @@
+/* Stilurile de bază: reset minim, tipografia din §5.3, focusul și linkurile din §5.2, layoutul din §5.8. */
+
+/* Doar temă luminoasă (§5.1): și temele întunecate ale telefonului primesc pagina și câmpurile luminoase. */
+:root {
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  /* Colțuri drepte peste tot; doar stațiile, capetele de linie și „Ești aici” se rotunjesc, în componentele lor. */
+  border-radius: 0;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 400;
+  line-height: 1.6;
+  /* Fără italic în fontul livrat: nu lăsăm browserul să-l falsifice. */
+  font-synthesis: none;
+  /* Cuvintele românești lungi nu au voie să iasă din pagină la 320px. */
+  overflow-wrap: break-word;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0 0 0.5em;
+  font-weight: 800;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--text-h1);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: var(--text-xl);
+  letter-spacing: -0.015em;
+}
+
+h3 {
+  font-size: var(--text-lg);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+h4 {
+  font-size: var(--text-md);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+p,
+li {
+  /* Cel mult ~70 de caractere pe rând. */
+  max-width: 70ch;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+strong,
+b {
+  font-weight: 700;
+}
+
+/* Fără italic: accentul se marchează prin greutate. */
+em,
+i,
+cite,
+dfn {
+  font-style: normal;
+  font-weight: 700;
+}
+
+small {
+  font-size: var(--text-sm);
+}
+
+/* Linkurile din text sunt mereu subliniate (§5.2). */
+a {
+  color: var(--blue-dark);
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-thickness: 0.14em;
+}
+
+/* Focus (§5.2, tehnica WCAG C40): contur închis de 2px plus halou alb care se vede 2px în afara conturului. */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 0;
+  box-shadow: 0 0 0 4px var(--paper);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* Linkul „Sari la conținut”: ascuns până primește focus de la tastatură. */
+.sari {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
+  transform: translateY(-100%);
+}
+
+.sari:focus {
+  transform: none;
+}
+
+/* <main> primește focus doar din linkul de salt; nu are rost să-l încadrăm. */
+main:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Container de maximum 72rem, cu margini laterale de 16px (mobil) și 24px (desktop). */
+.contener {
+  width: min(100% - 2 * var(--gutter), var(--container));
+  margin-inline: auto;
+}
+
+/* Marcajul [DE COMPLETAT:#nr], vizibil doar în previzualizarea DRAFT=1 (componenta Placeholder). */
+.marcaj {
+  padding: 0 0.25em;
+  background: var(--tint-yellow);
+  color: var(--ink);
+  font-weight: 700;
+  outline: 2px dashed var(--red-dark);
+  outline-offset: 1px;
+}
