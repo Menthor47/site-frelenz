@@ -107,9 +107,12 @@ export function asteptariPentru(cale) {
   return { tipuri: { ...PE_TOATE, ...intrare?.tipuri }, pagina: intrare?.pagina };
 }
 
-/** Câte `<script>` fără JSON-LD are voie pagina: 1 pe Acasă (trenurile) și pe `/proiecte/acest-site/` (fișa), 0 în rest (§9.1). */
+/**
+ * Câte `<script>` fără JSON-LD are voie pagina: 1 pe Acasă (trenurile) și pe `/proiecte/acest-site/` (fișa), 0 în rest (§9.1).
+ * `/_test/harta/`, pagina internă care arată harta animată ca pe Acasă, are tot scriptul trenurilor.
+ */
 export function scripturiPermise(cale) {
-  return cale === '/' || cale === '/proiecte/acest-site/' ? 1 : 0;
+  return cale === '/' || cale === '/proiecte/acest-site/' || cale === '/_test/harta/' ? 1 : 0;
 }
 
 /**

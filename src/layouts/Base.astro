@@ -5,7 +5,9 @@ import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import JsonLd from '../components/JsonLd.astro';
+import MetroMap from '../components/MetroMap.astro';
 import SeoHead from '../components/SeoHead.astro';
+import type { Grup } from '../form-rules';
 import { DRAFT } from '../lib/env';
 import { nodBreadcrumb, type PasFirimitura } from '../lib/jsonld';
 import { areProiecte, ghiduriDeConstruit, proiectePublicabile } from '../lib/publish';
@@ -26,9 +28,15 @@ interface Props {
   jsonld?: object[];
   /** Pașii de la Acasă până la pagina curentă. Se văd ca firimituri și intră în JSON-LD ca `BreadcrumbList`. Acasă și paginile fără firimituri nu îl dau. */
   firimituri?: PasFirimitura[];
+  /**
+   * Banda de sus cu harta de metrou statică (§4.4, §5.6), deasupra firimiturilor. Cu `line`, linia grupului e plină și are
+   * „Ești aici”; fără, toate liniile sunt la fel de estompate. Paginile fără hartă (legale, 404, răspunsurile formularului)
+   * nu o dau. Harta animată nu vine de aici: Acasă o pune în zona ei de sus.
+   */
+  harta?: { line?: Grup };
 }
 
-const { titlu, descriere, cale, noindex = false, jsonld = [], firimituri = [] } = Astro.props;
+const { titlu, descriere, cale, noindex = false, jsonld = [], firimituri = [], harta } = Astro.props;
 
 // Ce secțiuni există în producție (§3.4). Antetul și subsolul primesc doar rezultatul, nu colecțiile.
 const proiecte = (await getCollection('proiecte')).map((intrare) => intrare.data);
@@ -54,6 +62,7 @@ const noduri = firimituri.length > 0 ? [...jsonld, nodBreadcrumb(firimituri)] : 
     <a class="sari" href="#continut">Sari la conținut</a>
     <Header cale={cale} arataProiecte={arataProiecte} arataGhiduri={arataGhiduri} />
     <main id="continut" tabindex="-1">
+      {harta && <MetroMap variant="static" line={harta.line} />}
       {
         firimituri.length > 0 && (
           <div class="contener">

@@ -14,7 +14,8 @@ describe('schema-expectations', () => {
   test('scripturiPermise: 1 pe Acasă și pe fișa paginii, 0 în rest (§9.1)', () => {
     expect(scripturiPermise('/')).toBe(1);
     expect(scripturiPermise('/proiecte/acest-site/')).toBe(1);
-    for (const cale of ['/contact/', '/servicii/', '/servicii/seo/', '/proiecte/', '/404/']) expect(scripturiPermise(cale)).toBe(0);
+    expect(scripturiPermise('/_test/harta/')).toBe(1);
+    for (const cale of ['/contact/', '/servicii/', '/servicii/seo/', '/proiecte/', '/404/', '/_test/diacritice/']) expect(scripturiPermise(cale)).toBe(0);
   });
 
   test('esteNoindex: paginile noindex din §6.1 și cele interne, nimic altceva', () => {
