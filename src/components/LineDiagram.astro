@@ -65,7 +65,8 @@ const { randuri } = Astro.props;
   /* Pe mobil: problema pe un rând, dedesubt stația, segmentul și capătul de linie. */
   .linie-rand {
     display: grid;
-    grid-template-columns: var(--d) minmax(1.5rem, 1fr) auto;
+    /* A treia coloană se poate strânge (`minmax(0, auto)`), ca un serviciu cu nume lung să încapă și cu textul mărit la 200%. */
+    grid-template-columns: var(--d) minmax(1rem, 1fr) minmax(0, auto);
     align-items: center;
     max-width: none;
     padding-block: 0.75rem;
@@ -116,6 +117,8 @@ const { randuri } = Astro.props;
     min-height: 44px;
     font-weight: 700;
     line-height: 1.25;
+    /* Textul e un element flex: fără `anywhere`, cel mai lung cuvânt îi dă lățimea minimă și iese din coloană. */
+    overflow-wrap: anywhere;
   }
 
   /* De la 768px: problema, stația, segmentul și capătul de linie pe același rând, în coloane care se aliniază de la un rând la altul. */

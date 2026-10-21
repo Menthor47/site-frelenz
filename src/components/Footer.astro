@@ -99,6 +99,8 @@ const legale = [
 
   .subsol__grila {
     display: grid;
+    /* `minmax(0, 1fr)`, nu coloana implicită `auto`: cu textul mărit la 200%, adresa de e-mail lungă ar lărgi coloana peste ecran. */
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.5rem 2rem;
   }
 
@@ -134,6 +136,8 @@ const legale = [
     align-items: center;
     min-height: 44px;
     min-width: 44px;
+    /* Textul linkului e un element flex: `anywhere` îi lasă adresa de e-mail să se rupă în loc să iasă din coloană. */
+    overflow-wrap: anywhere;
   }
 
   .legale {

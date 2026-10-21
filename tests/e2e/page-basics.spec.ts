@@ -100,3 +100,23 @@ test('zero cookie-uri și zero cereri către alte domenii', async ({ page, conte
   expect.soft(await context.cookies(), 'cookie-uri setate').toEqual([]);
   expect.soft(await cereriExterne(page), 'cereri spre alte origini').toEqual([]);
 });
+
+// Text mărit (WCAG 1.4.4, Review Focus #5): la 320px, cu textul la 150% și la 200%, nimic nu iese din pagină.
+// Mărirea se face prin `font-size` pe <html> (ca setarea de text a browserului); toate mărimile sunt în rem.
+// Se pune din CSSOM, nu din `<style>`: CSP-ul paginii blochează stilurile inline.
+test('textul mărit nu produce derulare orizontală la 320px', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  const raspuns = await page.goto(cale);
+  expect(stariOk, `${cale} a răspuns cu ${raspuns?.status()}`).toContain(raspuns?.status());
+  await page.waitForLoadState('networkidle');
+  await page.evaluate(() => document.fonts.ready);
+
+  for (const procent of [100, 150, 200]) {
+    await page.evaluate((p) => {
+      document.documentElement.style.fontSize = `${p}%`;
+    }, procent);
+    const fara = await faraDerulareOrizontala(page);
+    const latimi = await page.evaluate(() => `scrollWidth ${document.documentElement.scrollWidth}, innerWidth ${window.innerWidth}`);
+    expect.soft(fara, fara ? '' : `derulare orizontală la 320px cu textul la ${procent}% (${latimi}): ${(await elementeCareDepasesc(page)).join('; ') || 'niciun element nu iese din pagină, dar pagina se derulează'}`).toBe(true);
+  }
+});
