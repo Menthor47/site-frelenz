@@ -1,0 +1,52 @@
+/* M3 (§5.7, ruling R5): la clic pe un rând din „De unde pornești?”, segmentul colorat devine banda de sus a paginii de
+   serviciu. CSS nativ, fără ClientRouter și fără JavaScript: ambele pagini declară tranziția între documente, iar cele
+   două capete au același `view-transition-name`, dat prin clasa `vt-<slug>` (LineDiagram pe segment, Base pe bandă).
+   Cu „reduced motion” sau într-un browser fără suport (Firefox, Samsung Internet), navigarea e cea obișnuită. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* Pe celelalte navigări nu se vede nimic: cross-fade-ul implicit al paginii e oprit, ca singura mișcare să fie segmentul. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* Câte un nume pe serviciu (slug-urile din src/form-rules.ts): pe o pagină, fiecare nume apare o singură dată. */
+.vt-seo {
+  view-transition-name: segment-seo;
+}
+
+.vt-optimizare-aeo-geo {
+  view-transition-name: segment-optimizare-aeo-geo;
+}
+
+.vt-audit-seo {
+  view-transition-name: segment-audit-seo;
+}
+
+.vt-creare-site {
+  view-transition-name: segment-creare-site;
+}
+
+.vt-redesign-site {
+  view-transition-name: segment-redesign-site;
+}
+
+.vt-mentenanta-site {
+  view-transition-name: segment-mentenanta-site;
+}
+
+/* Segmentul se mută și se lărgește până la bandă în 300ms, într-un strat peste pagină, deci fără să miște conținutul.
+   Imaginile din grup (vechea și noua) moștenesc durata. */
+::view-transition-group(segment-seo),
+::view-transition-group(segment-optimizare-aeo-geo),
+::view-transition-group(segment-audit-seo),
+::view-transition-group(segment-creare-site),
+::view-transition-group(segment-redesign-site),
+::view-transition-group(segment-mentenanta-site) {
+  animation-duration: 300ms;
+  animation-timing-function: ease-in-out;
+}

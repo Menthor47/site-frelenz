@@ -45,11 +45,11 @@ describe('verificaGraf: paginile reale din §6.3 trec', () => {
   const pasi = (...pe: { nume: string; cale: string }[]) => nodBreadcrumb([acasa, ...pe]);
 
   const pagini: [string, string, object[]][] = [
-    ['/', 'Acasă', [nodWebPage('/', { despreAlex: true }), nodFaq(FAQ)]],
+    ['/', 'Acasă', [nodWebPage('/', { despreAlex: true }), nodFaq(FAQ, false)]],
     [
       '/servicii/seo/',
       'serviciu',
-      [nodService(serviciu), nodFaq(FAQ), pasi({ nume: 'Servicii', cale: '/servicii/' }, { nume: 'SEO', cale: '/servicii/seo/' })],
+      [nodService(serviciu), nodFaq(FAQ, false), pasi({ nume: 'Servicii', cale: '/servicii/' }, { nume: 'SEO', cale: '/servicii/seo/' })],
     ],
     [
       '/servicii/',
@@ -166,12 +166,12 @@ describe('verificaGraf: câmpuri, legături și interdicții', () => {
 
   test('un câmp obligatoriu lipsă e numit', () => {
     const { areaServed: _scos, ...faraZona } = serviciu;
-    expect(verificaGraf(pagina(faraZona, nodFaq(FAQ), pasi), '/servicii/seo/')).toContain('Service: lipsește câmpul „areaServed”');
+    expect(verificaGraf(pagina(faraZona, nodFaq(FAQ, false), pasi), '/servicii/seo/')).toContain('Service: lipsește câmpul „areaServed”');
   });
 
   test('un câmp gol (text, listă sau obiect) nu ține loc de valoare', () => {
     const gol = { ...serviciu, description: '  ', serviceType: [], name: {} };
-    const erori = verificaGraf(pagina(gol, nodFaq(FAQ), pasi), '/servicii/seo/');
+    const erori = verificaGraf(pagina(gol, nodFaq(FAQ, false), pasi), '/servicii/seo/');
     expect(erori).toEqual(
       expect.arrayContaining([
         'Service: lipsește câmpul „description”',
@@ -183,14 +183,14 @@ describe('verificaGraf: câmpuri, legături și interdicții', () => {
 
   test('url-ul nodului principal trebuie să fie al paginii', () => {
     const altul = { ...serviciu, url: 'https://exemplu.test/servicii/audit-seo/' };
-    expect(verificaGraf(pagina(altul, nodFaq(FAQ), pasi), '/servicii/seo/')).toContain(
+    expect(verificaGraf(pagina(altul, nodFaq(FAQ, false), pasi), '/servicii/seo/')).toContain(
       'Service: url-ul ține de /servicii/audit-seo/, nu de pagina /servicii/seo/',
     );
   });
 
   test('provider trebuie să trimită la un Person', () => {
     const catreSite = { ...serviciu, provider: { '@id': nodWebSite()['@id'] } };
-    expect(verificaGraf(pagina(catreSite, nodFaq(FAQ), pasi), '/servicii/seo/')).toContain(
+    expect(verificaGraf(pagina(catreSite, nodFaq(FAQ, false), pasi), '/servicii/seo/')).toContain(
       `Service.provider trebuie să trimită la un Person, nu la ${nodWebSite()['@id']}`,
     );
   });
@@ -231,7 +231,7 @@ describe('verificaGraf: câmpuri, legături și interdicții', () => {
 
 describe('verificaGraf: BreadcrumbList, ItemList, FAQPage', () => {
   const serviciu = nodService({ slug: 'seo', titlu: 'SEO', raspunsDirect: 'Răspuns.' });
-  const verifica = (...noduri: object[]) => verificaGraf(paginaReala(serviciu, nodFaq(FAQ), ...noduri), '/servicii/seo/');
+  const verifica = (...noduri: object[]) => verificaGraf(paginaReala(serviciu, nodFaq(FAQ, false), ...noduri), '/servicii/seo/');
   const bun = nodBreadcrumb([acasa, { nume: 'Servicii', cale: '/servicii/' }, { nume: 'SEO', cale: '/servicii/seo/' }]);
 
   test('firimituri corecte nu dau erori', () => {

@@ -14,6 +14,7 @@ import { areProiecte, ghiduriDeConstruit, proiectePublicabile } from '../lib/pub
 import '../styles/tokens.css';
 import '../styles/base.css';
 import '../styles/butoane.css';
+import '../styles/transitions.css';
 
 interface Props {
   /** Titlul paginii, fără sufixul „ – Alex Ionescu” (îl adaugă `SeoHead`, dacă încape în 60 de caractere). */
@@ -32,8 +33,10 @@ interface Props {
    * Banda de sus cu harta de metrou statică (§4.4, §5.6), deasupra firimiturilor. Cu `line`, linia grupului e plină și are
    * „Ești aici”; fără, toate liniile sunt la fel de estompate. Paginile fără hartă (legale, 404, răspunsurile formularului)
    * nu o dau. Harta animată nu vine de aici: Acasă o pune în zona ei de sus.
+   * `tranzitie` e slug-ul serviciului: banda primește clasa `vt-<slug>`, aceeași ca segmentul din „De unde pornești?”,
+   * iar src/styles/transitions.css le dă același `view-transition-name` (M3 din §5.7, ruling R5).
    */
-  harta?: { line?: Grup };
+  harta?: { line?: Grup | undefined; tranzitie?: string | undefined };
 }
 
 const { titlu, descriere, cale, noindex = false, jsonld = [], firimituri = [], harta } = Astro.props;
@@ -62,7 +65,13 @@ const noduri = firimituri.length > 0 ? [...jsonld, nodBreadcrumb(firimituri)] : 
     <a class="sari" href="#continut">Sari la conținut</a>
     <Header cale={cale} arataProiecte={arataProiecte} arataGhiduri={arataGhiduri} />
     <main id="continut" tabindex="-1">
-      {harta && <MetroMap variant="static" line={harta.line} />}
+      {
+        harta && (
+          <div class:list={['banda', harta.tranzitie !== undefined && `vt-${harta.tranzitie}`]}>
+            <MetroMap variant="static" line={harta.line} />
+          </div>
+        )
+      }
       {
         firimituri.length > 0 && (
           <div class="contener">

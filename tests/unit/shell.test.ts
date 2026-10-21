@@ -273,6 +273,25 @@ describe('Base', () => {
     expect(hrefuri(parte(await pagina(), 'header'))).toContain('/ghiduri/');
   });
 
+  test('banda cu harta stă înaintea firimiturilor; cu `tranzitie`, poartă clasa vt-<slug> (R5)', async () => {
+    const firimituri = [
+      { nume: 'Acasă', cale: '/' },
+      { nume: 'Servicii', cale: '/servicii/' },
+      { nume: 'SEO', cale: '/servicii/seo/' },
+    ];
+    const main = parte(await pagina({ cale: '/servicii/seo/', firimituri, harta: { line: 'vizibilitate', tranzitie: 'seo' } }), 'main');
+    const pozitii = ['class="banda vt-seo"', 'class="harta harta--statica"', 'aria-label="Firimituri"'].map((e) => main.indexOf(e));
+    expect(pozitii.every((p) => p >= 0)).toBe(true);
+    expect(pozitii).toEqual([...pozitii].sort((a, b) => a - b));
+    expect(main.match(/vt-/g)).toHaveLength(1);
+  });
+
+  test('fără `tranzitie`, banda nu are nicio clasă vt-, iar fără `harta` nu există nici banda', async () => {
+    expect(await pagina({ harta: {} })).toContain('class="banda"');
+    expect(await pagina({ harta: {} })).not.toContain('vt-');
+    expect(await pagina()).not.toContain('class="banda');
+  });
+
   test('ghidurile nu au link în subsol', async () => {
     colectii.ghiduri = [ghid(true), ghid(true)];
     expect(hrefuri(parte(await pagina(), 'footer'))).not.toContain('/ghiduri/');

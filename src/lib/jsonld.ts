@@ -2,6 +2,7 @@
 // Pe fiecare pagină nodurile se adună într-un singur `@graph` prin `graf(...)`, legate prin `@id`.
 import { SERVICII } from '../form-rules';
 import { site } from '../site.config';
+import { intrebariVizibile, type IntrebareFrecventa } from './faq';
 import { hasMarker } from './marker';
 
 export const ID_WEBSITE = `${site.url}/#website`;
@@ -110,20 +111,23 @@ export function nodBreadcrumb(pasi: readonly PasFirimitura[]) {
   };
 }
 
-export interface IntrebareFrecventa {
-  intrebare: string;
-  raspuns: string;
-}
-
-export function nodFaq(faq: readonly IntrebareFrecventa[]) {
-  return {
-    '@type': 'FAQPage',
-    mainEntity: faq.map((f) => ({
-      '@type': 'Question',
-      name: f.intrebare,
-      acceptedAnswer: { '@type': 'Answer', text: f.raspuns },
-    })),
-  };
+/**
+ * `FAQPage` din perechile pe care le arată și pagina (`intrebariVizibile`, aceeași regulă ca în `Faq`): în producție, o pereche
+ * cu marcaj nu intră în JSON-LD. Întoarce o listă de noduri, ca `nodColectie`: goală dacă nu rămâne nicio pereche.
+ */
+export function nodFaq(faq: readonly IntrebareFrecventa[], draft: boolean) {
+  const vizibile = intrebariVizibile(faq, draft);
+  if (vizibile.length === 0) return [];
+  return [
+    {
+      '@type': 'FAQPage',
+      mainEntity: vizibile.map((f) => ({
+        '@type': 'Question',
+        name: f.intrebare,
+        acceptedAnswer: { '@type': 'Answer', text: f.raspuns },
+      })),
+    },
+  ];
 }
 
 export interface DateArticol {

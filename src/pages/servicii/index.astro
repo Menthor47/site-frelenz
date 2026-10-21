@@ -1,0 +1,190 @@
+---
+// /servicii/ (§4.5): pagina de trecere spre cele 6 servicii, grupate pe cele 4 linii, fiecare cu răspunsul direct și
+// „Ce primești” pe scurt. Nu repetă „De unde pornești?” de pe Acasă (problemele nu apar aici). Harta din bandă are toate
+// liniile la fel de estompate (§5.6). JSON-LD: CollectionPage și ItemList cu serviciile; BreadcrumbList vine din Base.
+import { getCollection } from 'astro:content';
+import { paginaAprobata } from '../../approvals';
+import Cta from '../../components/Cta.astro';
+import { SERVICII, type Grup } from '../../form-rules';
+import Base from '../../layouts/Base.astro';
+import { nodColectie } from '../../lib/jsonld';
+
+const CALE = '/servicii/';
+
+/** Numele liniilor, cu diacritice (în form-rules.ts valorile sunt ASCII). */
+const NUME_LINIE: Readonly<Record<Grup, string>> = {
+  vizibilitate: 'Vizibilitate',
+  diagnostic: 'Diagnostic',
+  constructie: 'Construcție',
+  reparatie: 'Reparație',
+};
+
+/** Câte livrabile intră în „Ce primești” pe scurt; lista întreagă e pe pagina serviciului. */
+const LIVRABILE_PE_SCURT = 3;
+
+const servicii = (await getCollection('servicii'))
+  .map((intrare) => intrare.data)
+  .sort((a, b) => a.ordine - b.ordine)
+  .map((s) => ({ ...s, nume: SERVICII.find((x) => x.slug === s.slug)?.nume ?? s.titlu, cale: `/servicii/${s.slug}/` }));
+
+// Liniile, în ordinea în care apar primele lor servicii.
+const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, servicii: servicii.filter((s) => s.grup === grup) }));
+---
+
+<Base
+  titlu="Servicii"
+  descriere="Serviciile lui Alex Ionescu, pe patru linii: SEO și căutarea AI, audit, site-uri noi, redesign și mentenanță. Vezi pe scurt ce primești la fiecare."
+  cale={CALE}
+  aprobat={paginaAprobata(CALE)}
+  jsonld={nodColectie('servicii', servicii.map((s) => ({ nume: s.nume, cale: s.cale })))}
+  firimituri={[
+    { nume: 'Acasă', cale: '/' },
+    { nume: 'Servicii', cale: CALE },
+  ]}
+  harta={{}}
+>
+  <div class="contener servicii">
+    <h1>Servicii</h1>
+    <p class="servicii__intro">
+      Eu, Alex Ionescu, lucrez pe patru linii: vizibilitate (SEO și căutarea AI), diagnostic (auditul SEO), construcție (site-uri
+      de prezentare noi) și reparație (redesign și mentenanță). Pe pagina fiecărui serviciu vezi pentru cine e, ce primești și cum
+      se desfășoară.
+    </p>
+
+    {
+      linii.map((linie) => (
+        <section class="linie-grup" data-grup={linie.grup}>
+          <h2 class="linie-grup__titlu">{NUME_LINIE[linie.grup]}</h2>
+          {linie.servicii.map((s) => (
+            <article class="serviciu">
+              <h3>
+                <a href={s.cale}>{s.nume}</a>
+              </h3>
+              <p>{s.raspunsDirect}</p>
+              <p class="serviciu__eticheta">Ce primești, pe scurt:</p>
+              <ul>
+                {s.livrabile.slice(0, LIVRABILE_PE_SCURT).map((t) => (
+                  <li>{t}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </section>
+      ))
+    }
+
+    <div class="servicii__final">
+      <p>Nu știi de unde să începi? Spune-mi ce site ai sau de ce ai nevoie și îți spun ce serviciu ți se potrivește.</p>
+      <Cta />
+    </div>
+  </div>
+</Base>
+
+<style>
+  /* Culorile liniilor (§5.2), pe segmentul din fața titlului: grafică cu sens, deci construcția ia galbenul închis. */
+  .linie-grup[data-grup='vizibilitate'] {
+    --culoare: var(--blue);
+  }
+
+  .linie-grup[data-grup='diagnostic'] {
+    --culoare: var(--green);
+  }
+
+  .linie-grup[data-grup='constructie'] {
+    --culoare: var(--yellow-dark);
+  }
+
+  .linie-grup[data-grup='reparatie'] {
+    --culoare: var(--red);
+  }
+
+  .servicii {
+    padding-block: 1rem 3rem;
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+  }
+
+  .servicii__intro {
+    font-size: var(--text-md);
+    line-height: 1.45;
+  }
+
+  .linie-grup {
+    margin-top: 3rem;
+  }
+
+  /* Titlul liniei are în față un tronson drept în culoarea ei, ca segmentele de pe harta de metrou.
+     Desenul e decor: numele liniei e textul titlului. */
+  .linie-grup__titlu {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    /* Textul e un element flex: fără `anywhere`, cu textul mărit la 200%, „Construcție” ar ieși din pagină la 320px. */
+    overflow-wrap: anywhere;
+  }
+
+  .linie-grup__titlu::before {
+    content: '';
+    flex: none;
+    width: 3rem;
+    height: 0.5rem;
+    background: var(--culoare);
+  }
+
+  .serviciu {
+    padding-block: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Pe desktop, numele serviciului stă în stânga, iar textul în dreapta, pe aceeași grilă. */
+  @media (min-width: 48rem) {
+    .serviciu {
+      display: grid;
+      grid-template-columns: 16rem minmax(0, 1fr);
+      column-gap: 2rem;
+    }
+
+    .serviciu > :not(h3) {
+      grid-column: 2;
+    }
+
+    .serviciu h3 {
+      grid-row: 1 / span 3;
+    }
+  }
+
+  h3 {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Numele serviciului e linkul spre pagina lui, cu zona de atingere de 44px (§5.8). */
+  h3 a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    /* La fel: „Mentenanță” sau „Optimizare”, mărite la 200%, nu încap altfel într-un ecran de 320px. */
+    overflow-wrap: anywhere;
+  }
+
+  .serviciu__eticheta {
+    margin-bottom: 0.25rem;
+    font-weight: 700;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+
+  li::marker {
+    color: var(--culoare);
+  }
+
+  .servicii__final {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+  }
+</style>

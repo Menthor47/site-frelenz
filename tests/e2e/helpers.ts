@@ -4,6 +4,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { test as base, type Page } from '@playwright/test';
 
 export { esteNoindex, scripturiPermise } from '../../scripts/schema-expectations.mjs';
+// Regula de text din §8 (ruling R3) stă în tests/shared, ca s-o poată folosi și testele de conținut, fără Playwright.
+export { adresareFormala } from '../shared/adresare';
 
 // ——— Ascultarea de la încărcare ———
 
@@ -155,17 +157,4 @@ export async function cssPePagina(page: Page): Promise<number> {
     octeti += (await raspuns.body()).length;
   }
   return octeti;
-}
-
-/**
- * Adresarea formală și promisiunile interzise (§8, ruling R3). Limite Unicode: `\b` din JS e doar ASCII și n-ar prinde „vă”.
- */
-const ADRESARE_FORMALA = /(?<!\p{L})(?:vă|dumneavoastr\p{L}*|cereți|trimiteți)(?!\p{L})|garantat|prima pagină/giu;
-
-/** Fragmentele din `text` care adresează formal sau promit ceva interzis, cu puțin context. Gol = textul e curat. */
-export function adresareFormala(text: string): string[] {
-  return [...text.matchAll(ADRESARE_FORMALA)].map((m) => {
-    const de = m.index ?? 0;
-    return `„${m[0]}” în „…${text.slice(Math.max(0, de - 25), de + m[0].length + 25).replace(/\s+/g, ' ')}…”`;
-  });
 }

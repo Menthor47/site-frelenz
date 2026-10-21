@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { DRAFT } from '../lib/env';
 import { nodFaq, nodWebPage } from '../lib/jsonld';
 
 // Pagină provizorie, înlocuită la Task 11. Are totuși tot ce cere `qa:page` pe Acasă (§6.3): WebPage și FAQPage.
@@ -21,7 +22,7 @@ const intrebari = [
   descriere="Sunt Alex Ionescu, consultant SEO. Pe acest site găsești ce fac, cum lucrez și cum mă poți contacta, ca să afli dacă te pot ajuta cu site-ul tău."
   cale="/"
   aprobat={false}
-  jsonld={[nodWebPage('/', { despreAlex: true }), nodFaq(intrebari)]}
+  jsonld={[nodWebPage('/', { despreAlex: true }), ...nodFaq(intrebari, DRAFT)]}
 >
   <div class="contener">
     <h1>Alex Ionescu, consultant SEO</h1>

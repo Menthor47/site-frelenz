@@ -4,19 +4,21 @@
 // nivelul titlurilor paginii. Componenta nu adaugă JSON-LD: nodul FAQPage îl pune pagina (`nodFaq`), din aceleași perechi.
 // Un câmp cu marcaj [DE COMPLETAT] (de ex. un răspuns care așteaptă aprobarea lui Alex, #13) trece prin `Placeholder` și nu
 // apare niciodată ca text brut (§3.4). În producție, perechea cu marcaj nu se afișează deloc, ca să nu rămână o întrebare
-// fără răspuns; la fel face `LegalId` cu un câmp fără valoare. Dacă nu rămâne nimic, nu se scrie nici lista.
+// fără răspuns; la fel face `LegalId` cu un câmp fără valoare. Regula e `intrebariVizibile` (src/lib/faq.ts), aceeași pe care
+// o aplică `nodFaq`, ca FAQPage să aibă exact perechile de pe pagină. Dacă nu rămâne nimic, nu se scrie nici lista.
 import { DRAFT } from '../lib/env';
-import { hasMarker, parseMarker } from '../lib/marker';
+import { intrebariVizibile, type IntrebareFrecventa } from '../lib/faq';
+import { parseMarker } from '../lib/marker';
 import Placeholder from './Placeholder.astro';
 
 interface Props {
   /** Aceeași formă ca `faq` din colecția `servicii` și ca argumentul lui `nodFaq`. */
-  intrebari: { intrebare: string; raspuns: string }[];
+  intrebari: readonly IntrebareFrecventa[];
 }
 
 const { intrebari } = Astro.props;
 
-const afisate = DRAFT ? intrebari : intrebari.filter((i) => !hasMarker(i.intrebare) && !hasMarker(i.raspuns));
+const afisate = intrebariVizibile(intrebari, DRAFT);
 ---
 
 {

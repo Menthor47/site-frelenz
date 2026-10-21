@@ -141,10 +141,15 @@ describe('BreadcrumbList', () => {
 });
 
 test('FAQPage: întrebări și răspunsuri', () => {
-  const f = nodFaq([
-    { intrebare: 'Cât durează?', raspuns: 'Depinde.' },
-    { intrebare: 'Cât costă?', raspuns: 'Îți spun după ce văd site-ul.' },
-  ]);
+  const noduri = nodFaq(
+    [
+      { intrebare: 'Cât durează?', raspuns: 'Depinde.' },
+      { intrebare: 'Cât costă?', raspuns: 'Îți spun după ce văd site-ul.' },
+    ],
+    false,
+  );
+  expect(noduri).toHaveLength(1);
+  const f = noduri[0]!;
   expect(f['@type']).toBe('FAQPage');
   expect(f.mainEntity).toEqual([
     { '@type': 'Question', name: 'Cât durează?', acceptedAnswer: { '@type': 'Answer', text: 'Depinde.' } },
@@ -280,7 +285,8 @@ describe('graf', () => {
   });
 
   test('nodurile fără @id nu se unesc între ele', () => {
-    const g = graf(nodFaq([]), nodFaq([])) as Record<string, any>;
+    const pereche = [{ intrebare: 'x', raspuns: 'y' }];
+    const g = graf(nodFaq(pereche, false), nodFaq(pereche, false)) as Record<string, any>;
     expect(g['@graph']).toHaveLength(2);
   });
 });
@@ -292,7 +298,7 @@ describe('serializeaza', () => {
   });
 
   test('< devine \\u003c, deci nu poate închide eticheta <script>', () => {
-    const text = serializeaza(graf(nodFaq([{ intrebare: 'x', raspuns: '</script><script>alert(1)</script>' }])));
+    const text = serializeaza(graf(nodFaq([{ intrebare: 'x', raspuns: '</script><script>alert(1)</script>' }], false)));
     expect(text).not.toContain('<');
     expect(text).toContain('\\u003c/script>');
     // După parsare, textul inițial se recuperează întreg.
