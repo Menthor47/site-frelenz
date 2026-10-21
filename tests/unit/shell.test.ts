@@ -135,33 +135,7 @@ describe('Footer', () => {
   });
 });
 
-describe('LegalId', () => {
-  test('LegalId scurt: fără adresă, cu link', async () => {
-    const h = await render(LegalId, { variant: 'scurt' });
-    expect(h).toContain('href="/contact/#date-firma"');
-    expect(h).toContain('București');
-    expect(h).not.toContain('tel:');
-    expect(h).not.toContain('mailto:');
-  });
-
-  test('LegalId complet nu are link spre el însuși', async () =>
-    expect(await render(LegalId, { variant: 'complet' })).not.toContain('Date de identificare</a>'));
-
-  test('LegalId complet are telefonul și e-mailul', async () => {
-    const h = await render(LegalId, { variant: 'complet' });
-    expect(h).toContain(`href="tel:${site.telefonE164}"`);
-    expect(h).toContain(`href="mailto:${site.email}"`);
-    expect(textOf(h)).toContain(site.telefonAfisat);
-  });
-
-  test('în producție, câmpurile cu marcaj dispar cu tot cu etichetă, iar marcajul nu ajunge în HTML', async () => {
-    for (const variant of ['scurt', 'complet']) {
-      const h = await render(LegalId, { variant });
-      expect(h, variant).not.toContain('DE COMPLETAT');
-      expect(textOf(h), variant).not.toContain('CUI');
-    }
-  });
-});
+// LegalId (câmpurile, varianta scurtă/completă, marcajele, DRAFT) are fișierul lui: tests/unit/legal-id.test.ts.
 
 describe('Breadcrumbs', () => {
   const pasi = [
