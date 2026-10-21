@@ -1,21 +1,24 @@
 ---
 import { Font } from 'astro:assets';
-import { site } from '../site.config';
+import JsonLd from '../components/JsonLd.astro';
+import SeoHead from '../components/SeoHead.astro';
 import '../styles/tokens.css';
 import '../styles/base.css';
 
 interface Props {
+  /** Titlul paginii, fără sufixul „ – Alex Ionescu” (îl adaugă `SeoHead`, dacă încape în 60 de caractere). */
   titlu: string;
   descriere: string;
   /** Calea paginii, cu slash la început și la sfârșit (ex. `/servicii/`). Din ea se face canonical-ul. */
   cale: string;
-  /** Aprobarea lui Alex pentru textul paginii; `check:launch` o citește din `<meta name="aprobat">`. */
+  /** Aprobarea lui Alex pentru textul paginii. Nu ajunge în HTML: `check:launch` o citește din `src/approvals.ts` și din frontmatter. */
   aprobat: boolean;
   noindex?: boolean;
+  /** Nodurile JSON-LD ale paginii; `WebSite` și `Person` minimal se adaugă singure (vezi `JsonLd`). */
+  jsonld?: object[];
 }
 
-const { titlu, descriere, cale, aprobat, noindex = false } = Astro.props;
-const canonical = new URL(cale, site.url).href;
+const { titlu, descriere, cale, noindex = false, jsonld = [] } = Astro.props;
 ---
 
 <!doctype html>
@@ -24,11 +27,8 @@ const canonical = new URL(cale, site.url).href;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
-    <title>{titlu}</title>
-    <meta name="description" content={descriere} />
-    <link rel="canonical" href={canonical} />
-    {noindex && <meta name="robots" content="noindex" />}
-    <meta name="aprobat" content={aprobat ? 'true' : 'false'} />
+    <SeoHead titlu={titlu} descriere={descriere} cale={cale} noindex={noindex} />
+    <JsonLd noduri={jsonld} />
     <Font cssVariable="--font-sans" preload />
   </head>
   <body>

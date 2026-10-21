@@ -1,4 +1,6 @@
+import sitemap from '@astrojs/sitemap';
 import { defineConfig, fontProviders } from 'astro/config';
+import { inSitemap } from './src/lib/seo.ts';
 import { site } from './src/site.config.ts';
 
 const isDraft = process.env.DRAFT === '1';
@@ -10,6 +12,8 @@ export default defineConfig({
   outDir: isDraft ? './dist-draft' : './dist',
   compressHTML: true,
   trailingSlash: 'always',
+  // Excluderile din sitemap (paginile noindex, 404, /_test/) sunt în src/lib/seo.ts, ca să le poată testa vitest.
+  integrations: [sitemap({ filter: inSitemap })],
   security: {
     // CSP stabil (nu `experimental.csp`), fără niciun domeniu extern.
     csp: true,

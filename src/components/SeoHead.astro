@@ -1,0 +1,31 @@
+---
+// Etichetele din <head> care țin de indexare și de partajare (§4.2, §6.1, §6.2).
+// `lang="ro"` stă pe <html>, în Base. `og:image` și `twitter:card` vin la Task 19.
+import { titluPagina } from '../lib/seo';
+import { site } from '../site.config';
+
+interface Props {
+  /** Titlul paginii, fără sufix: „ – Alex Ionescu” se adaugă doar dacă totalul are cel mult 60 de caractere. */
+  titlu: string;
+  /** 140–160 de caractere, unică pe pagină. */
+  descriere: string;
+  /** Calea paginii, cu slash la început și la sfârșit (ex. `/servicii/`). Din ea se face canonical-ul absolut. */
+  cale: string;
+  noindex?: boolean;
+}
+
+const { titlu, descriere, cale, noindex = false } = Astro.props;
+const titluComplet = titluPagina(titlu);
+const canonical = new URL(cale, site.url).href;
+---
+
+<title>{titluComplet}</title>
+<meta name="description" content={descriere} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex" />}
+<meta property="og:title" content={titluComplet} />
+<meta property="og:description" content={descriere} />
+<meta property="og:url" content={canonical} />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="ro_RO" />
+<meta property="og:site_name" content={site.nume} />
