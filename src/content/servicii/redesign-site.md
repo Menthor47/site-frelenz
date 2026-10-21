@@ -10,7 +10,7 @@ secundare:
 grup: reparatie
 ordine: 5
 problema: "Site-ul arată învechit și nu mai seamănă cu firma de acum."
-raspunsDirect: "Eu, Alex Ionescu, fac redesign site-urilor de firmă care arată învechit sau nu mai spun ce face firma acum. Refacerea site-ului înseamnă design nou, structură mai clară și viteză pe telefon, cu grijă la ce aduce deja vizite din Google. Adresele vechi trimit spre paginile noi, ca vizitatorii și Google să nu ajungă pe pagini care nu mai există."
+raspunsDirect: "Eu, Alex Ionescu, fac redesign site-urilor de firmă care arată învechite sau nu mai spun ce face firma acum. Refacerea site-ului înseamnă design nou, structură mai clară și viteză pe telefon, cu grijă la ce aduce deja vizite din Google. Adresele vechi trimit spre paginile noi, ca vizitatorii și Google să nu ajungă pe pagini care nu mai există."
 pentruCine:
   - "Firme al căror site a fost făcut demult și nu mai arată ca firma de azi."
   - "Firme care și-au schimbat serviciile, numele sau clienții și au nevoie de o modernizare a site-ului."

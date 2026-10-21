@@ -2,7 +2,7 @@
 slug: mentenanta-site
 titlu: "Mentenanță site și întreținere WordPress"
 h1: "Mentenanță site și întreținere WordPress"
-descriere: "Mentenanță site pentru firme: aduc site-ul la zi, îl verific și repar ce se strică, ca să rămână rapid pe telefon. Lucrez și pe site-uri WordPress."
+descriere: "Mentenanță site pentru firme: aduc site-ul la zi, îl verific și repar ce se strică sau îl încetinește pe telefon. Lucrez și pe site-uri WordPress."
 cuvantCheie: "mentenanță site"
 secundare:
   - "actualizare site"
@@ -11,7 +11,7 @@ secundare:
 grup: reparatie
 ordine: 6
 problema: "Site-ul n-a mai fost actualizat de mult și se încarcă greu pe telefon."
-raspunsDirect: "Prin mentenanță site-ul firmei tale rămâne la zi: eu, Alex Ionescu, îl actualizez, verific că funcționează și repar ce se strică. Începem cu o remediere, care aduce site-ul la zi și repară ce îl încetinește, apoi lucrul poate continua cu un abonament de mentenanță lunar. Mă ocup și de site-uri făcute de alții, de exemplu de cele în WordPress."
+raspunsDirect: "Cu serviciul de mentenanță site, eu, Alex Ionescu, țin site-ul firmei tale la zi: îl actualizez, verific că funcționează și repar ce se strică. Începem cu o remediere, care aduce site-ul la zi și repară ce îl încetinește, apoi lucrul poate continua cu un abonament de mentenanță lunar. Mă ocup și de site-uri făcute de alții, de exemplu de cele în WordPress."
 pentruCine:
   - "Firme care au un site, dar nu au pe cine să se ocupe de el."
   - "Firme cu site făcut în WordPress, care primește actualizări rar sau deloc."

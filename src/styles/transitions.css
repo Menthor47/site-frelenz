@@ -50,3 +50,20 @@
   animation-duration: 300ms;
   animation-timing-function: ease-in-out;
 }
+
+/* O bandă fără pereche pe cealaltă pagină (venind de la /servicii/ sau de la un serviciu înrudit) n-are în ce se
+   transforma: apare și dispare pe loc, ca root-ul, în loc să se estompeze 300ms. */
+::view-transition-old(segment-seo):only-child,
+::view-transition-new(segment-seo):only-child,
+::view-transition-old(segment-optimizare-aeo-geo):only-child,
+::view-transition-new(segment-optimizare-aeo-geo):only-child,
+::view-transition-old(segment-audit-seo):only-child,
+::view-transition-new(segment-audit-seo):only-child,
+::view-transition-old(segment-creare-site):only-child,
+::view-transition-new(segment-creare-site):only-child,
+::view-transition-old(segment-redesign-site):only-child,
+::view-transition-new(segment-redesign-site):only-child,
+::view-transition-old(segment-mentenanta-site):only-child,
+::view-transition-new(segment-mentenanta-site):only-child {
+  animation: none;
+}

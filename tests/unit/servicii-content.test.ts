@@ -91,11 +91,14 @@ test.each(SLUGURI)('%s: niciun proiect legat, niciun marcaj și nicio cifră inv
   expect(texte(s).filter((t) => /\d/.test(t))).toEqual([]);
 });
 
-test.each(SLUGURI)('%s: cuvintele-cheie din §4.1, cel principal în H1, iar primul paragraf îl numește pe Alex Ionescu', async (slug) => {
+test.each(SLUGURI)('%s: cuvintele-cheie din §4.1, cel principal în H1 și în primul paragraf, care îl numește pe Alex Ionescu', async (slug) => {
   const s = await serviciu(slug);
   const asteptat = CUVINTE[slug]!;
+  const mic = (t: string) => t.toLocaleLowerCase('ro');
   expect({ cuvantCheie: s.cuvantCheie, secundare: s.secundare }).toEqual({ cuvantCheie: asteptat.principal, secundare: asteptat.secundare });
-  expect(s.h1.toLocaleLowerCase('ro')).toContain(s.cuvantCheie.toLocaleLowerCase('ro'));
+  expect(mic(s.h1)).toContain(mic(s.cuvantCheie));
+  // Primul paragraf e `raspunsDirect` (§4.4 punctul 2, §6.4): cuvântul principal, exact, și numele lui Alex.
+  expect(mic(s.raspunsDirect)).toContain(mic(s.cuvantCheie));
   expect(s.raspunsDirect).toContain('Alex Ionescu');
 });
 

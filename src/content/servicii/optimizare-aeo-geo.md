@@ -11,7 +11,7 @@ secundare:
 grup: vizibilitate
 ordine: 2
 problema: "Firma ta nu apare când cineva întreabă ChatGPT despre domeniul tău."
-raspunsDirect: "Optimizarea pentru ChatGPT și pentru celelalte motoare AI înseamnă că eu, Alex Ionescu, pregătesc site-ul firmei tale ca aceste unelte să-l poată citi, înțelege și cita corect atunci când răspund la întrebări despre domeniul tău. Munca are două nume, AEO și GEO, și pornește de la un SEO bun, la care adaugă texte care răspund direct, informații clare despre firmă și date structurate. Îți folosește dacă firma ta are deja un site și vrei să lucrezi la vizibilitatea ei în căutarea AI, nu doar în Google."
+raspunsDirect: "Prin optimizare pentru ChatGPT și pentru celelalte motoare AI, eu, Alex Ionescu, pregătesc site-ul firmei tale ca aceste unelte să-l poată citi, înțelege și cita corect atunci când răspund la întrebări despre domeniul tău. Munca are două nume, AEO și GEO, și pornește de la un SEO bun, la care adaugă texte care răspund direct, informații clare despre firmă și date structurate. Îți folosește dacă firma ta are deja un site și vrei să lucrezi la vizibilitatea ei în căutarea AI, nu doar în Google."
 pentruCine:
   - "Firme care vor ca ChatGPT și alți asistenți AI să le descrie corect atunci când cineva întreabă despre domeniul lor."
   - "Firme care au deja SEO făcut și vor să pregătească site-ul și pentru răspunsurile scrise de motoarele AI."

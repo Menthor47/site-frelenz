@@ -148,6 +148,15 @@ describe('transitions.css (M3, §5.7, ruling R5)', () => {
   test('cross-fade-ul implicit al paginii e oprit', () =>
     expect(css).toMatch(/::view-transition-old\(root\),\s*::view-transition-new\(root\)\s*\{\s*animation: none;\s*\}/));
 
+  // Banda fără pereche pe cealaltă pagină (de la /servicii/ sau de la un serviciu înrudit) nu are cu ce se transforma:
+  // fără regula asta s-ar estompa 300ms, deci ar fi încă o mișcare pe lângă segment.
+  test.each(SERVICII.map((s) => s.slug))('segment-%s fără pereche apare și dispare fără animație', (slug) => {
+    const reguli = [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)].filter((m) => /animation: none;/.test(m[2] ?? '')).map((m) => m[1] ?? '');
+    for (const parte of ['old', 'new']) {
+      expect(reguli.some((s) => s.includes(`::view-transition-${parte}(segment-${slug}):only-child`))).toBe(true);
+    }
+  });
+
   test.each(SERVICII.map((s) => s.slug))('.vt-%s are numele segment-<slug> și durează 300ms, ease-in-out', (slug) => {
     expect(css).toMatch(new RegExp(`\\.vt-${slug}\\s*\\{\\s*view-transition-name: segment-${slug};\\s*\\}`));
     const grup = new RegExp(`::view-transition-group\\(segment-${slug}\\)[^{]*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
