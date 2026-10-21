@@ -1,9 +1,17 @@
 ---
 import { Font } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
 import JsonLd from '../components/JsonLd.astro';
 import SeoHead from '../components/SeoHead.astro';
+import { DRAFT } from '../lib/env';
+import { nodBreadcrumb, type PasFirimitura } from '../lib/jsonld';
+import { areProiecte, ghiduriDeConstruit, proiectePublicabile } from '../lib/publish';
 import '../styles/tokens.css';
 import '../styles/base.css';
+import '../styles/butoane.css';
 
 interface Props {
   /** Titlul paginii, fără sufixul „ – Alex Ionescu” (îl adaugă `SeoHead`, dacă încape în 60 de caractere). */
@@ -16,9 +24,20 @@ interface Props {
   noindex?: boolean;
   /** Nodurile JSON-LD ale paginii; `WebSite` și `Person` minimal se adaugă singure (vezi `JsonLd`). */
   jsonld?: object[];
+  /** Pașii de la Acasă până la pagina curentă. Se văd ca firimituri și intră în JSON-LD ca `BreadcrumbList`. Acasă și paginile fără firimituri nu îl dau. */
+  firimituri?: PasFirimitura[];
 }
 
-const { titlu, descriere, cale, noindex = false, jsonld = [] } = Astro.props;
+const { titlu, descriere, cale, noindex = false, jsonld = [], firimituri = [] } = Astro.props;
+
+// Ce secțiuni există în producție (§3.4). Antetul și subsolul primesc doar rezultatul, nu colecțiile.
+const proiecte = (await getCollection('proiecte')).map((intrare) => intrare.data);
+const ghiduri = (await getCollection('ghiduri')).map((intrare) => intrare.data);
+const arataProiecte = areProiecte(proiecte, DRAFT);
+const arataGhiduri = ghiduriDeConstruit(ghiduri, DRAFT).length > 0;
+const arataAcestSite = proiectePublicabile(proiecte, DRAFT).some((proiect) => proiect.slug === 'acest-site');
+
+const noduri = firimituri.length > 0 ? [...jsonld, nodBreadcrumb(firimituri)] : jsonld;
 ---
 
 <!doctype html>
@@ -28,13 +47,22 @@ const { titlu, descriere, cale, noindex = false, jsonld = [] } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
     <SeoHead titlu={titlu} descriere={descriere} cale={cale} noindex={noindex} />
-    <JsonLd noduri={jsonld} />
+    <JsonLd noduri={noduri} />
     <Font cssVariable="--font-sans" preload />
   </head>
   <body>
     <a class="sari" href="#continut">Sari la conținut</a>
+    <Header cale={cale} arataProiecte={arataProiecte} arataGhiduri={arataGhiduri} />
     <main id="continut" tabindex="-1">
+      {
+        firimituri.length > 0 && (
+          <div class="contener">
+            <Breadcrumbs pasi={firimituri} />
+          </div>
+        )
+      }
       <slot />
     </main>
+    <Footer arataAcestSite={arataAcestSite} arataProiecte={arataProiecte} />
   </body>
 </html>

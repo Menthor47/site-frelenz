@@ -1,0 +1,164 @@
+---
+// Subsolul negru (§3.3, §4.3 punctul 8, §5.2): servicii, pagini, contact, datele firmei (LegalId scurt) și linkurile legale.
+// Fraza despre cum e făcut site-ul apare doar după ce /proiecte/acest-site/ există. Ghidurile nu au loc în subsol (§3.4).
+import { SERVICII } from '../form-rules';
+import { site } from '../site.config';
+import LegalId from './LegalId.astro';
+
+interface Props {
+  /** `/proiecte/acest-site/` se construiește (are scoruri reale, §3.4). */
+  arataAcestSite?: boolean;
+  /** Există cel puțin un proiect publicabil. */
+  arataProiecte?: boolean;
+}
+
+const { arataAcestSite = false, arataProiecte = false } = Astro.props;
+
+const servicii = [...SERVICII].sort((a, b) => a.ordine - b.ordine);
+
+const pagini = [
+  { href: '/servicii/', text: 'Servicii', arata: true },
+  { href: '/cum-lucrez/', text: 'Cum lucrez', arata: true },
+  { href: '/proiecte/', text: 'Proiecte', arata: arataProiecte },
+  { href: '/despre/', text: 'Despre', arata: true },
+  { href: '/contact/', text: 'Contact', arata: true },
+].filter((pagina) => pagina.arata);
+
+const legale = [
+  { href: '/politica-de-confidentialitate/', text: 'Politica de confidențialitate' },
+  { href: '/politica-cookies/', text: 'Politica de cookie-uri' },
+  { href: '/termeni-si-conditii/', text: 'Termeni și condiții' },
+];
+---
+
+<footer class="subsol">
+  <div class="contener subsol__grila">
+    <div>
+      <h2 class="subsol__titlu">Servicii</h2>
+      <ul>
+        {
+          servicii.map((serviciu) => (
+            <li>
+              <a href={`/servicii/${serviciu.slug}/`} data-grup={serviciu.grup}>{serviciu.nume}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <div>
+      <h2 class="subsol__titlu">Pagini</h2>
+      <ul>
+        {
+          pagini.map((pagina) => (
+            <li>
+              <a href={pagina.href}>{pagina.text}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <div>
+      <h2 class="subsol__titlu">Contact</h2>
+      <ul>
+        <li><a href={`tel:${site.telefonE164}`}>{site.telefonAfisat}</a></li>
+        <li><a href={site.whatsapp}>WhatsApp</a></li>
+        <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="contener subsol__jos">
+    <LegalId variant="scurt" />
+    <ul class="legale">
+      {
+        legale.map((pagina) => (
+          <li>
+            <a href={pagina.href}>{pagina.text}</a>
+          </li>
+        ))
+      }
+    </ul>
+    {
+      arataAcestSite && (
+        <p class="subsol__fraza">Fără cookie-uri de urmărire și fără scripturi terțe. <a href="/proiecte/acest-site/">Vezi cum e făcut site-ul</a>.</p>
+      )
+    }
+  </div>
+</footer>
+
+<style>
+  /* Textul e alb la 92% opacitate; linkurile din subsol sunt albe și subliniate, cele spre servicii în culoarea grupului (§5.2). */
+  .subsol {
+    padding-block: 2.5rem 1.5rem;
+    background: var(--ink);
+    color: rgb(255 255 255 / 0.92);
+  }
+
+  .subsol :global(a) {
+    color: var(--paper);
+  }
+
+  .subsol__grila {
+    display: grid;
+    gap: 1.5rem 2rem;
+  }
+
+  @media (min-width: 48rem) {
+    .subsol__grila {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .subsol__jos {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgb(255 255 255 / 0.24);
+  }
+
+  .subsol__titlu {
+    margin: 0 0 0.25rem;
+    color: var(--paper);
+    font-size: var(--text-base);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Zona de atingere de 44px pentru linkurile din subsol (§5.8). */
+  li a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .legale {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.5rem;
+  }
+
+  .subsol__fraza {
+    margin: 0.5rem 0 0;
+  }
+
+  /* Culorile liniilor de metrou pe --ink: galben 9,72:1, verde 5,22:1, roșu 4,72:1, albastru deschis 6,53:1. */
+  .subsol a[data-grup='vizibilitate'] {
+    color: #6b9bf0;
+  }
+
+  .subsol a[data-grup='diagnostic'] {
+    color: var(--green);
+  }
+
+  .subsol a[data-grup='constructie'] {
+    color: var(--yellow);
+  }
+
+  .subsol a[data-grup='reparatie'] {
+    color: var(--red);
+  }
+</style>

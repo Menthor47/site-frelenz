@@ -1,0 +1,306 @@
+import Breadcrumbs from '../../src/components/Breadcrumbs.astro';
+import Cta from '../../src/components/Cta.astro';
+import Footer from '../../src/components/Footer.astro';
+import Header from '../../src/components/Header.astro';
+import LegalId from '../../src/components/LegalId.astro';
+import { SERVICII } from '../../src/form-rules';
+import Base from '../../src/layouts/Base.astro';
+import { site } from '../../src/site.config';
+import { render, textOf } from './helpers';
+
+// Base citește colecțiile prin `astro:content`; în teste le înlocuim cu date de probă, ca rezultatul să nu depindă de src/content.
+const colectii = vi.hoisted(() => ({ proiecte: [] as object[], ghiduri: [] as object[] }));
+vi.mock('astro:content', () => ({
+  getCollection: async (nume: 'proiecte' | 'ghiduri') => colectii[nume].map((data, i) => ({ id: `${nume}-${i}`, data })),
+}));
+
+/** Valorile `href` din HTML, în ordinea în care apar. */
+const hrefuri = (html: string): string[] => [...html.matchAll(/<a\b[^>]*\bhref="([^"]+)"/g)].map((m) => m[1] ?? '');
+
+const FRAZA_SUBSOL = 'Fără cookie-uri de urmărire și fără scripturi terțe. Vezi cum e făcut site-ul.';
+
+describe('Header', () => {
+  test('Acasă și Contact nu au buton în antet', async () => {
+    for (const cale of ['/', '/contact/']) expect(await render(Header, { cale })).not.toContain('class="buton-cta"');
+    expect(await render(Header, { cale: '/servicii/seo/' })).toContain('Cere o ofertă');
+  });
+
+  test('pe celelalte pagini butonul are clasa buton-cta și duce la /contact/', async () => {
+    const h = await render(Header, { cale: '/servicii/seo/' });
+    expect(h).toContain('class="buton-cta"');
+    expect(hrefuri(h).at(-1)).toBe('/contact/');
+  });
+
+  test('logo-ul', async () =>
+    expect(textOf(await render(Header, { cale: '/' }))).toContain('Alex Ionescu, consultant SEO'));
+
+  test('logo-ul duce la Acasă, iar virgula și „consultant SEO” au clase proprii', async () => {
+    const h = await render(Header, { cale: '/despre/' });
+    expect(hrefuri(h)[0]).toBe('/');
+    expect(h).toMatch(/<span class="logo__virgula"[^>]*>,<\/span>/);
+    expect(h).toMatch(/<span class="logo__rol"[^>]*>consultant SEO<\/span>/);
+  });
+
+  test('meniul fără Proiecte și Ghiduri, când nu există', async () => {
+    const h = await render(Header, { cale: '/despre/' });
+    expect(hrefuri(h)).toEqual(['/', '/servicii/', '/cum-lucrez/', '/despre/', '/contact/', '/contact/']);
+  });
+
+  test('meniul complet, în ordinea din spec', async () => {
+    const h = await render(Header, { cale: '/despre/', arataProiecte: true, arataGhiduri: true });
+    expect(hrefuri(h)).toEqual([
+      '/',
+      '/servicii/',
+      '/cum-lucrez/',
+      '/proiecte/',
+      '/ghiduri/',
+      '/despre/',
+      '/contact/',
+      '/contact/',
+    ]);
+  });
+
+  test('Proiecte și Ghiduri apar independent unul de altul', async () => {
+    const doarProiecte = hrefuri(await render(Header, { cale: '/', arataProiecte: true }));
+    expect(doarProiecte).toContain('/proiecte/');
+    expect(doarProiecte).not.toContain('/ghiduri/');
+    const doarGhiduri = hrefuri(await render(Header, { cale: '/', arataGhiduri: true }));
+    expect(doarGhiduri).toContain('/ghiduri/');
+    expect(doarGhiduri).not.toContain('/proiecte/');
+  });
+
+  test('pagina curentă și secțiunea ei sunt marcate în meniu', async () => {
+    const pagina = await render(Header, { cale: '/despre/' });
+    expect(pagina).toMatch(/<a\b[^>]*href="\/despre\/"[^>]*aria-current="page"/);
+    const sectiune = await render(Header, { cale: '/servicii/seo/' });
+    expect(sectiune).toMatch(/<a\b[^>]*href="\/servicii\/"[^>]*aria-current="true"/);
+    expect(sectiune).not.toContain('aria-current="page"');
+  });
+
+  test('meniul are nume pentru cititoarele de ecran', async () =>
+    expect(await render(Header, { cale: '/' })).toContain('aria-label="Meniu principal"'));
+});
+
+describe('Footer', () => {
+  test('subsolul fără acest-site nu are fraza', async () =>
+    expect(await render(Footer, { arataAcestSite: false, arataProiecte: false })).not.toContain(
+      'Vezi cum e făcut site-ul',
+    ));
+
+  test('cu acest-site are fraza exactă din §4.3, cu link spre pagină', async () => {
+    const h = await render(Footer, { arataAcestSite: true, arataProiecte: true });
+    expect(textOf(h)).toContain(FRAZA_SUBSOL);
+    expect(h).toMatch(/<a\b[^>]*href="\/proiecte\/acest-site\/"[^>]*>Vezi cum e făcut site-ul<\/a>/);
+  });
+
+  test('serviciile apar în ordinea din form-rules, fiecare cu grupul lui', async () => {
+    const h = await render(Footer, { arataAcestSite: false, arataProiecte: false });
+    const asteptate = [...SERVICII].sort((a, b) => a.ordine - b.ordine);
+    for (const s of asteptate) {
+      const link = new RegExp(`<a(?=[^>]*href="/servicii/${s.slug}/")(?=[^>]*data-grup="${s.grup}")[^>]*>${s.nume}</a>`);
+      expect(h, s.slug).toMatch(link);
+    }
+    const pozitii = asteptate.map((s) => h.indexOf(`href="/servicii/${s.slug}/"`));
+    expect(pozitii).toEqual([...pozitii].sort((a, b) => a - b));
+    expect(pozitii.every((p) => p >= 0)).toBe(true);
+  });
+
+  test('Proiecte apare în subsol doar cu proiecte publicabile', async () => {
+    expect(hrefuri(await render(Footer, { arataAcestSite: false, arataProiecte: true }))).toContain('/proiecte/');
+    expect(hrefuri(await render(Footer, { arataAcestSite: false, arataProiecte: false }))).not.toContain('/proiecte/');
+  });
+
+  test('paginile, contactul și linkurile legale', async () => {
+    const h = await render(Footer, { arataAcestSite: false, arataProiecte: false });
+    const linkuri = hrefuri(h);
+    for (const cale of [
+      '/servicii/',
+      '/cum-lucrez/',
+      '/despre/',
+      '/contact/',
+      '/politica-de-confidentialitate/',
+      '/politica-cookies/',
+      '/termeni-si-conditii/',
+      `tel:${site.telefonE164}`,
+      site.whatsapp,
+      `mailto:${site.email}`,
+    ])
+      expect(linkuri, cale).toContain(cale);
+  });
+
+  test('conține LegalId în varianta scurtă', async () => {
+    const h = await render(Footer, { arataAcestSite: false, arataProiecte: false });
+    expect(h).toContain('href="/contact/#date-firma"');
+    expect(textOf(h)).toContain('București');
+  });
+});
+
+describe('LegalId', () => {
+  test('LegalId scurt: fără adresă, cu link', async () => {
+    const h = await render(LegalId, { variant: 'scurt' });
+    expect(h).toContain('href="/contact/#date-firma"');
+    expect(h).toContain('București');
+    expect(h).not.toContain('tel:');
+    expect(h).not.toContain('mailto:');
+  });
+
+  test('LegalId complet nu are link spre el însuși', async () =>
+    expect(await render(LegalId, { variant: 'complet' })).not.toContain('Date de identificare</a>'));
+
+  test('LegalId complet are telefonul și e-mailul', async () => {
+    const h = await render(LegalId, { variant: 'complet' });
+    expect(h).toContain(`href="tel:${site.telefonE164}"`);
+    expect(h).toContain(`href="mailto:${site.email}"`);
+    expect(textOf(h)).toContain(site.telefonAfisat);
+  });
+
+  test('în producție, câmpurile cu marcaj dispar cu tot cu etichetă, iar marcajul nu ajunge în HTML', async () => {
+    for (const variant of ['scurt', 'complet']) {
+      const h = await render(LegalId, { variant });
+      expect(h, variant).not.toContain('DE COMPLETAT');
+      expect(textOf(h), variant).not.toContain('CUI');
+    }
+  });
+});
+
+describe('Breadcrumbs', () => {
+  const pasi = [
+    { nume: 'Acasă', cale: '/' },
+    { nume: 'Servicii', cale: '/servicii/' },
+  ];
+
+  test('firimiturile', async () => {
+    const h = await render(Breadcrumbs, { pasi });
+    expect(h).toContain('aria-label="Firimituri"');
+    expect(h).toContain('aria-current="page"');
+  });
+
+  test('sunt o listă ordonată, iar doar ultimul pas nu e link', async () => {
+    const h = await render(Breadcrumbs, { pasi });
+    expect(h).toContain('<ol');
+    expect(hrefuri(h)).toEqual(['/']);
+    expect(h).toMatch(/<span\b[^>]*aria-current="page"[^>]*>Servicii<\/span>/);
+    expect(textOf(h)).toBe('Acasă Servicii');
+  });
+});
+
+describe('Cta', () => {
+  test('„Cere o ofertă”, spre /contact/, cu clasa buton-cta', async () => {
+    const h = await render(Cta);
+    expect(h).toMatch(/<a\b[^>]*class="buton-cta"/);
+    expect(hrefuri(h)).toEqual(['/contact/']);
+    expect(textOf(h)).toBe('Cere o ofertă');
+  });
+});
+
+describe('fără atribute style (CSP, §3.6)', () => {
+  test.each([
+    ['Header', () => render(Header, { cale: '/servicii/', arataProiecte: true, arataGhiduri: true })],
+    ['Footer', () => render(Footer, { arataAcestSite: true, arataProiecte: true })],
+    ['LegalId', () => render(LegalId, { variant: 'complet' })],
+    ['Breadcrumbs', () => render(Breadcrumbs, { pasi: [{ nume: 'Acasă', cale: '/' }] })],
+    ['Cta', () => render(Cta)],
+  ])('%s', async (_nume, randare) => {
+    const h = await randare();
+    expect(h).not.toMatch(/\sstyle=/);
+    expect(h).not.toMatch(/\son[a-z]+=/);
+  });
+});
+
+describe('Base', () => {
+  const pagina = (props: Record<string, unknown> = {}) =>
+    render(Base, { titlu: 'Titlu', descriere: 'Descriere', cale: '/despre/', aprobat: false, ...props });
+  /** Partea din HTML dintre două etichete (ex. antetul sau subsolul). */
+  const parte = (html: string, eticheta: string) => html.slice(html.indexOf(`<${eticheta}`), html.indexOf(`</${eticheta}>`));
+
+  const anonim = { slug: 'magazin-online', client: 'anonim', acord: false, aprobat: true };
+  const acestSite = { slug: 'acest-site', client: 'Alex Ionescu', acord: true, aprobat: true, scoruri: [{ valoare: 100 }] };
+  const ghid = (aprobat: boolean) => ({ aprobat });
+
+  beforeEach(() => {
+    colectii.proiecte = [];
+    colectii.ghiduri = [];
+  });
+
+  test('ordinea în pagină: linkul de salt, antetul, conținutul, subsolul', async () => {
+    const h = await pagina();
+    const pozitii = ['class="sari"', '<header', '<main', '<footer'].map((e) => h.indexOf(e));
+    expect(pozitii.every((p) => p >= 0)).toBe(true);
+    expect(pozitii).toEqual([...pozitii].sort((a, b) => a - b));
+  });
+
+  test('antetul primește calea paginii: pe Acasă nu are buton, pe celelalte are', async () => {
+    expect(parte(await pagina({ cale: '/' }), 'header')).not.toContain('buton-cta');
+    expect(parte(await pagina({ cale: '/despre/' }), 'header')).toContain('buton-cta');
+  });
+
+  test('fără firimituri, pagina nu are nici navigația, nici BreadcrumbList', async () => {
+    const h = await pagina();
+    expect(h).not.toContain('aria-label="Firimituri"');
+    expect(h).not.toContain('BreadcrumbList');
+  });
+
+  test('cu firimituri: se văd în <main> și intră în singurul JSON-LD al paginii', async () => {
+    const firimituri = [
+      { nume: 'Acasă', cale: '/' },
+      { nume: 'Despre', cale: '/despre/' },
+    ];
+    const h = await pagina({ firimituri });
+    expect(parte(h, 'main')).toContain('aria-label="Firimituri"');
+
+    const scripturi = [...h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+    expect(scripturi).toHaveLength(1);
+    const noduri = (JSON.parse(scripturi[0]?.[1] ?? '{}') as { '@graph': { '@type': string; itemListElement?: { name: string }[] }[] })['@graph'];
+    const lista = noduri.find((nod) => nod['@type'] === 'BreadcrumbList');
+    expect(lista?.itemListElement?.map((pas) => pas.name)).toEqual(['Acasă', 'Despre']);
+  });
+
+  test('firimiturile primite se adaugă la nodurile JSON-LD ale paginii, nu le înlocuiesc', async () => {
+    const h = await pagina({ jsonld: [{ '@type': 'WebPage', url: 'https://exemplu.test/' }], firimituri: [{ nume: 'Acasă', cale: '/' }] });
+    expect(h).toContain('"@type":"WebPage"');
+    expect(h).toContain('"@type":"BreadcrumbList"');
+  });
+
+  test('fără proiecte și ghiduri, meniul și subsolul nu le leagă', async () => {
+    const h = await pagina();
+    expect(hrefuri(parte(h, 'header'))).not.toContain('/proiecte/');
+    expect(hrefuri(parte(h, 'header'))).not.toContain('/ghiduri/');
+    expect(hrefuri(parte(h, 'footer'))).not.toContain('/proiecte/');
+    expect(h).not.toContain('Vezi cum e făcut site-ul');
+  });
+
+  test('un proiect publicabil pune Proiecte în antet și în subsol, dar nu și fraza', async () => {
+    colectii.proiecte = [anonim];
+    const h = await pagina();
+    expect(hrefuri(parte(h, 'header'))).toContain('/proiecte/');
+    expect(hrefuri(parte(h, 'footer'))).toContain('/proiecte/');
+    expect(h).not.toContain('Vezi cum e făcut site-ul');
+  });
+
+  test('un proiect nepublicabil (fără acord, cu nume) nu apare nicăieri', async () => {
+    colectii.proiecte = [{ ...anonim, client: 'szitrans.eu', acord: false }];
+    const h = await pagina();
+    expect(hrefuri(h)).not.toContain('/proiecte/');
+  });
+
+  test('fraza din subsol apare doar cu acest-site publicabil', async () => {
+    colectii.proiecte = [anonim, acestSite];
+    expect(parte(await pagina(), 'footer')).toContain('Vezi cum e făcut site-ul');
+
+    colectii.proiecte = [anonim, { ...acestSite, scoruri: [] }];
+    expect(await pagina()).not.toContain('Vezi cum e făcut site-ul');
+  });
+
+  test('Ghiduri apare în meniu doar cu cel puțin 2 ghiduri aprobate', async () => {
+    colectii.ghiduri = [ghid(true), ghid(false)];
+    expect(hrefuri(parte(await pagina(), 'header'))).not.toContain('/ghiduri/');
+
+    colectii.ghiduri = [ghid(true), ghid(true)];
+    expect(hrefuri(parte(await pagina(), 'header'))).toContain('/ghiduri/');
+  });
+
+  test('ghidurile nu au link în subsol', async () => {
+    colectii.ghiduri = [ghid(true), ghid(true)];
+    expect(hrefuri(parte(await pagina(), 'footer'))).not.toContain('/ghiduri/');
+  });
+});

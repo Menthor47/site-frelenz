@@ -7,7 +7,8 @@ export interface Proiect {
   readonly client: string;
   readonly acord: boolean;
   readonly aprobat: boolean;
-  readonly scoruri?: readonly unknown[];
+  /** Zod dă `undefined` la un câmp opțional absent, iar `exactOptionalPropertyTypes` cere să-l primim explicit. */
+  readonly scoruri?: readonly unknown[] | undefined;
 }
 
 export interface Ghid {

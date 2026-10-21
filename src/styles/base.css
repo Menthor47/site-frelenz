@@ -27,6 +27,15 @@ body {
   font-synthesis: none;
   /* Cuvintele românești lungi nu au voie să iasă din pagină la 320px. */
   overflow-wrap: break-word;
+  /* Pe paginile scurte, subsolul rămâne jos: antetul și subsolul au înălțimea lor, <main> ia restul. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+main {
+  flex: 1 0 auto;
 }
 
 img,
@@ -131,7 +140,8 @@ textarea {
   background: var(--ink);
   color: var(--paper);
   font-weight: 700;
-  transform: translateY(-100%);
+  /* Cu 110%, nu 100%: rotunjirea la pixeli nu mai lasă o linie subțire vizibilă sus. */
+  transform: translateY(-110%);
 }
 
 .sari:focus {
