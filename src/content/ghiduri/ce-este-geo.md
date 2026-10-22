@@ -2,7 +2,7 @@
 slug: ce-este-geo
 titlu: "Ce este GEO și prin ce diferă de SEO și AEO"
 descriere: "Ce este GEO, optimizarea pentru motoarele AI care scriu răspunsuri, prin ce diferă de SEO și AEO și ce poți face ca site-ul tău să fie citit și citat."
-raspuns: "GEO (generative engine optimization) înseamnă să-ți pregătești site-ul ca motoarele AI care scriu răspunsuri, ca ChatGPT, Gemini sau Perplexity, să-l poată citi, înțelege și cita. SEO lucrează pentru rezultatele obișnuite ale motoarelor de căutare, iar AEO pentru răspunsurile directe la o întrebare. Toate trei pornesc de la aceeași bază: un site pe care mașinile îl pot citi ușor."
+raspuns: "GEO (generative engine optimization) e numele dat pregătirii site-ului astfel încât motoarele AI care scriu răspunsuri, ca ChatGPT, Gemini sau Perplexity, să-l poată citi, înțelege și cita. SEO lucrează pentru rezultatele obișnuite ale motoarelor de căutare, iar AEO pentru răspunsurile directe la o întrebare. Toate trei pornesc de la aceeași bază: un site pe care mașinile îl pot citi ușor."
 publicat: 2026-10-22
 actualizat: 2026-10-22
 aprobat: false
@@ -19,7 +19,7 @@ Termenii nu au o definiție oficială și nu toți specialiștii îi folosesc la
 
 ## Ce au în comun
 
-Toate trei au nevoie ca site-ul să poată fi accesat și citit: pagini care se încarcă, text adevărat (nu doar imagini), titluri clare și informații corecte. Și Google spune că, pentru funcțiile lui AI, contează aceleași baze ca pentru căutarea obișnuită. De aceea GEO nu înlocuiește SEO-ul, ci pornește de la el.
+Toate trei au nevoie ca site-ul să poată fi accesat și citit: pagini care se încarcă, text adevărat (nu doar imagini), titluri clare și informații corecte. Și [Google spune](https://developers.google.com/search/docs/appearance/ai-features) că, pentru funcțiile lui AI, contează aceleași baze ca pentru căutarea obișnuită. De aceea GEO nu înlocuiește SEO-ul, ci pornește de la el.
 
 ## Prin ce diferă GEO
 

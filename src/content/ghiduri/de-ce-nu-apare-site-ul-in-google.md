@@ -1,7 +1,7 @@
 ---
 slug: de-ce-nu-apare-site-ul-in-google
 titlu: "De ce nu apare site-ul meu în Google"
-descriere: "De ce poate lipsi site-ul tău din Google: Google nu l-a găsit, nu poate citi paginile sau nu le vede ca un răspuns bun. Și cum verifici fiecare motiv, pe rând."
+descriere: "De ce poate lipsi site-ul tău din Google: nu l-a găsit, nu poate citi paginile, nu le vede ca un răspuns bun sau dau erori. Și cum verifici fiecare motiv."
 raspuns: "Site-ul tău poate lipsi din Google din câteva motive: Google nu l-a găsit încă, nu poate citi paginile sau i se cere să nu le indexeze, paginile nu răspund la ce caută oamenii ori site-ul are probleme tehnice. Le poți verifica pe rând."
 publicat: 2026-10-22
 actualizat: 2026-10-22
@@ -17,13 +17,13 @@ Ce poți face: adaugă site-ul în Google Search Console, trimite sitemap-ul și
 
 ## Google nu poate citi paginile sau i se cere să nu le indexeze
 
-Uneori chiar site-ul îl oprește pe Google, fără să știe proprietarul:
+Uneori chiar site-ul îl oprește pe Google:
 
 - o etichetă `noindex` rămasă din perioada în care site-ul era în lucru îi cere lui Google să nu arate pagina în rezultate;
 - un fișier robots.txt care blochează tot site-ul îl împiedică pe Google să citească paginile, deci nu are ce înțelege din ele;
 - o parolă pusă pe site, care n-a mai fost scoasă, ține și vizitatorii, și Google afară.
 
-`noindex` și robots.txt nu sunt același lucru: primul cere ca pagina să nu apară în rezultate, al doilea doar oprește citirea ei. În Google Search Console, raportul de indexare a paginilor arată ce pagini nu sunt indexate și motivul dat de Google.
+`noindex` și robots.txt nu sunt același lucru: primul cere ca pagina să nu apară în rezultate, al doilea doar oprește citirea ei. O pagină blocată din robots.txt poate apărea totuși în rezultate, fără descriere, dacă alte site-uri trimit spre ea. În Google Search Console, raportul de indexare a paginilor arată ce pagini nu sunt indexate și motivul dat de Google.
 
 ## Paginile nu răspund la ce caută oamenii
 
