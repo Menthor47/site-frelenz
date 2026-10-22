@@ -1,0 +1,20 @@
+---
+// Mesajul are peste limita de linkuri (§3.5 punctul 4): singura regulă pe care browserul n-o poate verifica.
+// Butonul Înapoi readuce textul scris (Review Focus #4), deci vizitatorul nu-și pierde mesajul.
+import RaspunsFormular from '../../components/RaspunsFormular.astro';
+import { CAMPURI } from '../../form-rules';
+
+const limita = CAMPURI.mesaj.maxLinkuri;
+---
+
+<RaspunsFormular
+  titlu="Mesajul are prea multe linkuri"
+  descriere="Mesajul trimis din formular are prea multe linkuri. Apasă Înapoi ca să-l recuperezi și scoate câteva, sau scrie-mi direct pe e-mail sau la telefon."
+  cale="/contact/prea-multe-linkuri/"
+  contacte
+>
+  <p>
+    Mesajul are mai mult de {limita} linkuri. Apasă Înapoi în browser ca să-l recuperezi și scoate câteva linkuri, sau scrie-mi
+    direct la:
+  </p>
+</RaspunsFormular>

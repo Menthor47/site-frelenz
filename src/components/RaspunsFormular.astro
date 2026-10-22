@@ -1,0 +1,37 @@
+---
+// Paginile de răspuns ale formularului (§3.5): statice, noindex, fără hartă (§5.6) și fără firimituri, lipsă din sitemap
+// (src/lib/seo.ts). Textul vine din pagină (slot); paginile de eroare adaugă și contactele directe.
+import { paginaAprobata } from '../approvals';
+import Base from '../layouts/Base.astro';
+import ContacteDirecte from './ContacteDirecte.astro';
+
+interface Props {
+  titlu: string;
+  descriere: string;
+  cale: '/contact/multumim/' | '/contact/eroare/' | '/contact/prea-multe-linkuri/';
+  /** Pe paginile de eroare: e-mailul, telefonul și WhatsApp, ca vizitatorul să poată scrie direct. */
+  contacte?: boolean;
+}
+
+const { titlu, descriere, cale, contacte = false } = Astro.props;
+---
+
+<Base titlu={titlu} descriere={descriere} cale={cale} aprobat={paginaAprobata(cale)} noindex>
+  <div class="contener raspuns">
+    <h1>{titlu}</h1>
+    <slot />
+    {contacte && <ContacteDirecte />}
+  </div>
+</Base>
+
+<style>
+  .raspuns {
+    max-width: min(100% - 2 * var(--gutter), 48rem);
+    padding-block: 3rem 4rem;
+  }
+
+  .raspuns :global(p) {
+    font-size: var(--text-md);
+    line-height: 1.45;
+  }
+</style>

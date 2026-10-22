@@ -229,3 +229,12 @@ export async function seSuprapun(page: Page, selectori: readonly string[]): Prom
   if ('lipsa' in rezultat) throw new Error(`seSuprapun: niciun element vizibil pentru ${rezultat.lipsa.join(', ')}`);
   return rezultat.suprapuse;
 }
+
+// ——— Contact (Task 14) ———
+
+/** Deschide /contact/ și completează câmpurile obligatorii (Nume, E-mail, Mesaj), cu `suprascrieri` pe deasupra. */
+export async function completeaza(page: Page, suprascrieri: Partial<Record<'nume' | 'email' | 'mesaj' | 'telefon' | 'firma' | 'site', string>> = {}): Promise<void> {
+  await page.goto('/contact/');
+  const valori = { nume: 'Ana Pop', email: 'ana@exemplu.ro', mesaj: 'Salut, am un site de prezentare.', ...suprascrieri };
+  for (const [nume, valoare] of Object.entries(valori)) await page.locator(`[name="${nume}"]`).fill(valoare);
+}

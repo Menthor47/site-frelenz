@@ -76,9 +76,13 @@ const randuri = date
     column-gap: 0.5rem;
   }
 
+  /* `dd` e element flex: fără `min-width: 0` și `anywhere`, adresa de e-mail (un singur „cuvânt”) iese din pagină la 320px
+     cu textul mărit la 200%. */
   dd {
+    min-width: 0;
     margin: 0;
     font-weight: 700;
+    overflow-wrap: anywhere;
   }
 
   /* În subsol datele stau pe rânduri scurte, unul lângă altul. */

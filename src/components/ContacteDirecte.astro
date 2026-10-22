@@ -1,0 +1,39 @@
+---
+// Contactele directe (§4.5): e-mailul, telefonul (`tel:`) și WhatsApp ca link simplu, fără widget. Pe /contact/ și pe
+// paginile de eroare ale formularului, ca vizitatorul să poată scrie direct dacă formularul nu merge. Totul din site.config.
+import { site } from '../site.config';
+---
+
+<ul class="contacte">
+  <li><span class="contacte__eticheta">E-mail:</span> <a href={`mailto:${site.email}`}>{site.email}</a></li>
+  <li><span class="contacte__eticheta">Telefon:</span> <a href={`tel:${site.telefonE164}`}>{site.telefonAfisat}</a></li>
+  <li><span class="contacte__eticheta">WhatsApp:</span> <a href={site.whatsapp}>scrie-mi pe WhatsApp</a></li>
+</ul>
+
+<style>
+  .contacte {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Zona de atingere de 44px pe fiecare rând (§5.8): linkurile nu sunt în text, ci singure pe rând. */
+  .contacte li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 0.5rem;
+    min-height: 44px;
+  }
+
+  .contacte a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    overflow-wrap: anywhere;
+  }
+
+  .contacte__eticheta {
+    font-weight: 700;
+  }
+</style>
