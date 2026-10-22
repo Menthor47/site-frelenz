@@ -11,7 +11,7 @@ export type Cerere = Readonly<Record<NumeCamp, string>>;
 export type Rezultat = { ok: true; date: Cerere } | { ok: false; motiv: 'capcana' | 'linkuri' | 'invalid' };
 
 /** Câmpurile care trebuie să rămână pe un singur rând. */
-const PE_UN_RAND: readonly NumeCamp[] = ['nume', 'email', 'telefon', 'firma', 'site'];
+export const PE_UN_RAND: readonly NumeCamp[] = ['nume', 'email', 'telefon', 'firma', 'site'];
 
 const CAMPURI_FORMULAR = Object.keys(CAMPURI) as NumeCamp[];
 

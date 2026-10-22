@@ -1,6 +1,6 @@
 // Contact și paginile de răspuns (§3.5, §4.5, Task 14), pe build-ul servit de `wrangler dev`: formularul ajunge la Worker.
-// Limitatorul din `wrangler dev` numără real (3 cereri la 60 s pe aceeași cheie), deci fișierul face cel mult 3 POST-uri
-// fără capcană; testele rulează în ordine, într-un singur worker.
+// Limitatorul din `wrangler dev` numără real (3 cereri la 60 s pe aceeași cheie): fișierul face doar 2 POST-uri fără
+// capcană (trimiterea fără JS și prea multe linkuri). Modul serial oprește restul dacă un test pică.
 import { completeaza, expect, test } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
@@ -27,11 +27,33 @@ test('capcana nu se vede, nu primește focus și nu apare în arborele de accesi
   await page.goto('/contact/');
   const capcana = page.locator('[name="confirmare_url"]');
   await expect(capcana).not.toBeInViewport();
-  await expect(page.getByRole('textbox', { name: /confirmare/i })).toHaveCount(0);
-  for (let i = 0; i < 30; i++) {
-    await page.keyboard.press('Tab');
-    expect(await page.evaluate(() => document.activeElement?.getAttribute('name'))).not.toBe('confirmare_url');
+  // Câmpul există și are eticheta lui (control), dar nu apare ca textbox în arborele de accesibilitate.
+  await expect(page.getByLabel('Nu completa acest câmp')).toHaveCount(1);
+  await expect(page.getByRole('textbox', { name: 'Nu completa acest câmp' })).toHaveCount(0);
+  await expect(page.getByRole('textbox', { name: /Mesaj/ })).toHaveCount(1);
+  // De la Mesaj, Tab sare peste capcană, direct la buton.
+  await page.locator('[name="mesaj"]').focus();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Trimite cererea' })).toBeFocused();
+});
+
+// Review Focus #2: pe un telefon cu temă întunecată, câmpurile rămân albe, cu text negru.
+test('cu tema întunecată, câmpurile formularului rămân luminoase', async ({ browser }) => {
+  const context = await browser.newContext({ colorScheme: 'dark' });
+  const p = await context.newPage();
+  await p.goto('/contact/');
+  for (const selector of ['[name="nume"]', '[name="serviciu"]', '[name="mesaj"]']) {
+    const { fundal, text } = await p.locator(selector).evaluate((el) => ({ fundal: getComputedStyle(el).backgroundColor, text: getComputedStyle(el).color }));
+    expect(fundal, selector).toBe('rgb(255, 255, 255)');
+    expect(text, selector).toBe('rgb(20, 22, 26)');
   }
+  await context.close();
+});
+
+test('banda de sus are harta statică, fără „Ești aici”', async ({ page }) => {
+  await page.goto('/contact/');
+  await expect(page.locator('.harta--statica')).toHaveCount(1);
+  await expect(page.getByText('Ești aici')).toHaveCount(0);
 });
 
 test('trimiterea fără JS ajunge la „Am primit cererea ta”', async ({ browser }) => {

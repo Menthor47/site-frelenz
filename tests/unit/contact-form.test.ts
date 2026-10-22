@@ -1,5 +1,6 @@
 import ContactForm from '../../src/components/ContactForm.astro';
 import { CAMPURI, CAPCANA, FARA_SERVICIU, SERVICII, type NumeCamp } from '../../src/form-rules';
+import { PE_UN_RAND } from '../../worker/validate';
 import { render, textOf } from './helpers';
 
 // Formularul de contact (§3.5): atributele HTML vin din aceleași reguli ca Worker-ul (src/form-rules.ts), fără JavaScript.
@@ -69,8 +70,16 @@ describe('ContactForm (§3.5)', () => {
     expect(atribut(e, 'tabindex')?.[1]).toBe('-1');
     expect(atribut(e, 'autocomplete')?.[1]).toBe('off');
     expect(atribut(e, 'required')).toBeNull();
-    const bloc = new RegExp(`<div\\b[^>]*\\baria-hidden="true"[^>]*>[\\s\\S]*?name="${CAPCANA}"`).exec(h);
-    expect(bloc, 'capcana stă într-un bloc aria-hidden').not.toBeNull();
+    // Blocul aria-hidden conține doar eticheta și câmpul-capcană, nimic altceva.
+    const bloc = new RegExp(`<div\\b[^>]*\\baria-hidden="true"[^>]*>\\s*<label\\b[^>]*>[^<]*</label>\\s*<input\\b[^>]*\\bname="${CAPCANA}"[^>]*>\\s*</div>`).exec(h);
+    expect(bloc, 'capcana stă singură într-un bloc aria-hidden').not.toBeNull();
+  });
+
+  // Câmpurile pe un rând din formular sunt exact cele în care Worker-ul respinge CR/LF (worker/validate.ts).
+  test('câmpurile <input> sunt cele pe un rând din validarea Worker-ului', async () => {
+    const h = await render(ContactForm);
+    const inputuri = [...h.matchAll(/<input\b[^>]*\bname="([^"]+)"/g)].map((m) => m[1]).filter((n) => n !== CAPCANA);
+    expect(inputuri.sort()).toEqual([...PE_UN_RAND].sort());
   });
 
   test('butonul „Trimite cererea” și nota despre date, cu link spre politica de confidențialitate', async () => {

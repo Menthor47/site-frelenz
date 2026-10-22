@@ -25,9 +25,13 @@ const { titlu, descriere, cale, contacte = false } = Astro.props;
 </Base>
 
 <style>
+  /* Aliniat la stânga, pe grila site-ului (§5.1); doar rândurile de text au lățime limitată. */
   .raspuns {
-    max-width: min(100% - 2 * var(--gutter), 48rem);
     padding-block: 3rem 4rem;
+  }
+
+  .raspuns > :global(*) {
+    max-width: 48rem;
   }
 
   .raspuns :global(p) {
