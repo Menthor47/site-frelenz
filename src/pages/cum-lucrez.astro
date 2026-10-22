@@ -11,12 +11,11 @@ import { nodWebPage } from '../lib/jsonld';
 
 const CALE = '/cum-lucrez/';
 
-/** Aceiași pași ca stațiile din RouteMap, în aceeași ordine. */
+/** Aceiași pași ca stațiile din RouteMap, în aceeași ordine (testul îi compară cu harta randată). Valabili pentru toate serviciile. */
 const PASI = [
   {
     nume: 'Evaluare',
-    explicatie:
-      'Mă uit la site-ul tău și la ce mi-ai scris în cerere: ce îl încurcă în Google, cum se vede pe telefon și ce îi lipsește. Îți spun pe înțeles ce am găsit.',
+    explicatie: 'Mă uit la site-ul tău și la ce mi-ai scris în cerere. Îți spun pe înțeles ce am găsit.',
   },
   {
     nume: 'Ofertă',
@@ -28,7 +27,7 @@ const PASI = [
   },
   {
     nume: 'Raport',
-    explicatie: 'La final îți trimit un raport pe înțeles, cu ce am schimbat și ce urmează. Cu abonament, lucrul continuă lunar după raport.',
+    explicatie: 'La final îți trimit un raport pe înțeles, cu ce am făcut și ce urmează. Cu abonament, lucrul continuă lunar după raport.',
   },
 ] as const;
 ---
@@ -85,7 +84,7 @@ const PASI = [
 
   <div class="indemn">
     <div class="contener indemn__rand">
-      <p class="indemn__text">Primul pas e evaluarea. Spune-mi ce site ai și ce te încurcă.</p>
+      <p class="indemn__text">Spune-mi ce site ai și ce te încurcă.</p>
       <Cta />
     </div>
   </div>

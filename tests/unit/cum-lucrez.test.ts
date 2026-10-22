@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import PaginaCumLucrez from '../../src/pages/cum-lucrez.astro';
 import { adresareFormala } from '../shared/adresare';
 import { render, textOf } from './helpers';
@@ -22,23 +23,32 @@ describe('/cum-lucrez/ (§4.5)', () => {
     expect(primul).toContain(FRAZA_B2B);
   });
 
-  test('traseele mari, pe albastru deschis', async () => {
+  test('traseele mari, într-o secțiune pe albastru deschis', async () => {
     const h = main(await render(PaginaCumLucrez));
-    expect(h).toMatch(/class="[^"]*trasee--mare/);
-    expect(h).toContain('Remediere unică');
-    expect(h).toContain('Remediere + abonament lunar');
+    const sectiune = /<section class="cum-trasee"[^>]*>([\s\S]*?)<\/section>/.exec(h)?.[1] ?? '';
+    expect(sectiune).toMatch(/class="[^"]*trasee--mare/);
+    expect(sectiune).toContain('Remediere unică');
+    expect(sectiune).toContain('Remediere + abonament lunar');
+    const sursa = readFileSync(new URL('../../src/pages/cum-lucrez.astro', import.meta.url), 'utf8');
+    expect(/\.cum-trasee\s*\{([^}]*)\}/.exec(sursa)?.[1]).toContain('background: var(--tint-blue);');
   });
 
-  test('cei patru pași, numerotați și explicați, în ordinea traseelor', async () => {
+  test('cei patru pași, numerotați și explicați, cu numele stațiilor din trasee, în aceeași ordine', async () => {
     const h = main(await render(PaginaCumLucrez));
     const lista = /<ol class="pasi-explicati"[^>]*>([\s\S]*?)<\/ol>/.exec(h)?.[1] ?? '';
     const pasi = [...lista.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)].map((m) => m[1] ?? '');
-    expect(pasi.map((p) => titluri(p, 3)[0])).toEqual(['Evaluare', 'Ofertă', 'Lucru', 'Raport']);
+    // Stațiile primului traseu (remedierea unică), cum le randează RouteMap.
+    const traseu = /<ol class="pasi\b[^"]*"[^>]*>([\s\S]*?)<\/ol>/.exec(h)?.[1] ?? '';
+    const statii = [...traseu.matchAll(/<li class="pas"[^>]*>([\s\S]*?)<\/li>/g)].map((m) => textOf(m[1] ?? ''));
+    expect(statii).toHaveLength(4);
+    expect(pasi.map((p) => titluri(p, 3)[0])).toEqual(statii);
     for (const p of pasi) expect(textOf(p.replace(/<h3[\s\S]*?<\/h3>/, '')).length).toBeGreaterThan(40);
   });
 
-  test('cele două formate, fără cifre, cu fraza exactă despre preț', async () => {
+  test('cele două formate, fiecare cu fraza lui, fără cifre, cu fraza exactă despre preț', async () => {
     const text = textOf(main(await render(PaginaCumLucrez)));
+    expect(text).toContain('Remedierea unică repară ce am găsit la evaluare și se încheie cu raportul.');
+    expect(text).toContain('Cu abonamentul lunar, remedierea costă mai puțin, iar lucrul continuă lună de lună după ea.');
     expect(text).toContain(FRAZA_PRET);
     expect(text).not.toMatch(/\d/);
   });
