@@ -41,7 +41,7 @@ describe.each(ASTEPTATE.map((g) => g.slug))('%s', (slug) => {
     expect(g().descriere.length).toBeLessThanOrEqual(160);
   });
 
-  test('răspunsul direct are 1–3 fraze și îl numește pe Alex Ionescu sau răspunde singur la întrebare', () => {
+  test('răspunsul direct are 1–3 fraze', () => {
     const fraze = g().raspuns.split(/(?<=[.!?])\s+/).filter((f) => f.trim() !== '');
     expect(fraze.length).toBeGreaterThanOrEqual(1);
     expect(fraze.length).toBeLessThanOrEqual(3);
@@ -58,4 +58,15 @@ describe.each(ASTEPTATE.map((g) => g.slug))('%s', (slug) => {
   test('fără ş/ţ cu sedilă', () => expect(`${g().raspuns} ${corp(slug)}`).not.toMatch(/[ŞşŢţ]/));
 
   test('corpul trimite la serviciul legat', () => expect(corp(slug)).toContain(`](/servicii/${g().serviciuLegat}/)`));
+
+  // §6.4: numele apare în paragrafele-cheie, ca pasajul să aibă sens și citit separat; aici, paragraful cu serviciul.
+  test('paragraful cu serviciul legat îl numește pe Alex Ionescu', () => {
+    const paragraf = corp(slug)
+      .split(/\n\s*\n/)
+      .find((p) => p.includes(`](/servicii/${g().serviciuLegat}/)`));
+    expect(paragraf).toContain('Alex Ionescu');
+  });
+
+  // Afirmații pe care documentația Google le contrazice sau pe care nu le susține nicio sursă (revizuirea Task 16).
+  test('fără afirmații de frecvență fără sursă', () => expect(`${g().descriere} ${g().raspuns} ${corp(slug)}`).not.toMatch(/de obicei|cele mai dese|cel mai des/i));
 });

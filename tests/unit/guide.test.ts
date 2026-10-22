@@ -60,6 +60,8 @@ describe('Guide (§4.5)', () => {
   test('banda are linia serviciului legat, cu „Ești aici”, apoi firimiturile Acasă › Ghiduri › titlu', async () => {
     const h = main(await render(Guide, { ghid: ghid() }, { default: CORP }));
     expect(h).toContain('Ești aici');
+    // audit-seo e în grupul diagnostic, adică linia M4 (§5.1).
+    expect(h).toMatch(/data-linie="M4" data-plina/);
     expect(textOf(/<nav class="firimituri"[\s\S]*?<\/nav>/.exec(h)?.[0] ?? '')).toBe('Acasă Ghiduri De ce nu apare site-ul meu în Google');
   });
 
