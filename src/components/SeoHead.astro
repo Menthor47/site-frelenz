@@ -18,7 +18,8 @@ interface Props {
 const { titlu, descriere, cale, noindex = false } = Astro.props;
 const titluComplet = titluPagina(titlu);
 const canonical = new URL(cale, site.url).href;
-const imagine = new URL(ogPentru(cale), site.url).href;
+// Paginile interne de test (/_test/…, doar în DRAFT=1) nu sunt în src/lib/routes.ts, deci n-au imagine OG.
+const imagine = cale.startsWith('/_test/') ? undefined : new URL(ogPentru(cale), site.url).href;
 ---
 
 <title>{titluComplet}</title>
@@ -31,8 +32,14 @@ const imagine = new URL(ogPentru(cale), site.url).href;
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="ro_RO" />
 <meta property="og:site_name" content={site.nume} />
-<meta property="og:image" content={imagine} />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content={titluComplet} />
-<meta name="twitter:card" content="summary_large_image" />
+{
+  imagine !== undefined && (
+    <>
+      <meta property="og:image" content={imagine} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={titluComplet} />
+      <meta name="twitter:card" content="summary_large_image" />
+    </>
+  )
+}

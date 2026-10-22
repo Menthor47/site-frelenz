@@ -90,6 +90,21 @@ test('capul paginii: canonical, JSON-LD, robots și Open Graph', async ({ page, 
   expect.soft(await og('og:type'), 'og:type').not.toBe('');
   expect.soft(await og('og:locale'), 'og:locale').toBe('ro_RO');
   expect.soft(await og('og:site_name'), 'og:site_name').toBe('Alex Ionescu');
+
+  // Imaginea OG (§6.2, Task 19): absolută, pe domeniul canonical-ului, 1200×630, și chiar există în build.
+  // Paginile interne de test (/_test/…) nu se publică și n-au imagine.
+  if (cale.startsWith('/_test/')) {
+    expect.soft(await page.locator('meta[property="og:image"]').count(), 'pagina internă n-are og:image').toBe(0);
+    return;
+  }
+  const imagine = await og('og:image');
+  expect.soft(new URL(imagine).origin, 'og:image pe domeniul site-ului').toBe(new URL(canonical).origin);
+  expect.soft(await og('og:image:width'), 'og:image:width').toBe('1200');
+  expect.soft(await og('og:image:height'), 'og:image:height').toBe('630');
+  expect.soft(await page.locator('meta[name="twitter:card"]').getAttribute('content'), 'twitter:card').toBe('summary_large_image');
+  const raspunsImagine = await page.request.get(new URL(imagine).pathname);
+  expect.soft(raspunsImagine.status(), `${new URL(imagine).pathname} există`).toBe(200);
+  expect.soft(raspunsImagine.headers()['content-type'], 'imaginea e PNG').toMatch(/^image\/png/);
 });
 
 test('zero cookie-uri și zero cereri către alte domenii', async ({ page, context }) => {
