@@ -10,7 +10,7 @@ import TextSauMarcaj from '../components/TextSauMarcaj.astro';
 import Base from '../layouts/Base.astro';
 import { DRAFT } from '../lib/env';
 import { nodPerson, nodProfilePage } from '../lib/jsonld';
-import { faraMarcaje, hasMarker } from '../lib/marker';
+import { areValoare, faraMarcaje, hasMarker } from '../lib/marker';
 import { site } from '../site.config';
 
 const CALE = '/despre/';
@@ -24,7 +24,8 @@ const SECTIUNI = [
 ] as const;
 
 const sectiuni = faraMarcaje(SECTIUNI, (s) => hasMarker(s.text), DRAFT);
-const profiluri = site.profiluri.filter((p) => p !== '');
+// Aceeași regulă ca `sameAs` din JSON-LD: fără valori goale sau marcaje.
+const profiluri = site.profiluri.filter(areValoare);
 ---
 
 <Base
@@ -43,7 +44,7 @@ const profiluri = site.profiluri.filter((p) => p !== '');
     <h1>{site.nume}</h1>
     <p class="despre__intro">
       Sunt Alex Ionescu, consultant SEO și web design din București. Lucrez cu firme, PFA-uri și alte entități profesionale din
-      toată țara: SEO, audituri, site-uri de prezentare, redesign, mentenanță și optimizare pentru căutarea AI.
+      toată țara: SEO, audit SEO, site-uri de prezentare, redesign, mentenanță și optimizare pentru căutarea AI.
     </p>
     <p>
       Pe pagina <a href="/cum-lucrez/">Cum lucrez</a> vezi pașii și cele două feluri în care putem lucra împreună.

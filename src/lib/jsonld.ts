@@ -3,7 +3,7 @@
 import { SERVICII } from '../form-rules';
 import { site } from '../site.config';
 import { intrebariVizibile, type IntrebareFrecventa } from './faq';
-import { hasMarker } from './marker';
+import { areValoare } from './marker';
 
 export const ID_WEBSITE = `${site.url}/#website`;
 export const ID_ALEX = `${site.url}/#alex`;
@@ -14,7 +14,6 @@ const ROMANIA = { '@type': 'Country', name: 'România' } as const;
 const absolut = (cale: string): string => new URL(cale, site.url).href;
 
 /** O valoare opțională există dacă nu e goală și nu e un marcaj `[DE COMPLETAT:#…]` (§2 #17). */
-const areValoare = (v: string | undefined): v is string => v !== undefined && v.trim() !== '' && !hasMarker(v);
 
 const numeServiciu = (slug: string): string | undefined => SERVICII.find((s) => s.slug === slug)?.nume;
 

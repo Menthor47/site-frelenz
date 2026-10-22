@@ -41,3 +41,6 @@ export function renderMarker(nr: number, draft: boolean): string {
 export function faraMarcaje<T>(lista: readonly T[], areMarcaj: (x: T) => boolean, draft: boolean): readonly T[] {
   return draft ? lista : lista.filter((x) => !areMarcaj(x));
 }
+
+/** O valoare care chiar există: nu lipsește, nu e goală și nu e încă un marcaj (ex. CUI-ul, un profil, o fotografie). */
+export const areValoare = (v: string | undefined): v is string => v !== undefined && v.trim() !== '' && !hasMarker(v);
