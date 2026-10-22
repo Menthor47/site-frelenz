@@ -1,8 +1,9 @@
 ---
 // Proiectele pe scurt (§4.3 punctul 5): titlul ca link, contextul, ce am făcut și rezultatul, cu sursa și data.
 // Pagina îi dă doar proiectele publicabile (`proiectePublicabile`) și decide câte. Niciun câmp cu marcaj [DE COMPLETAT]
-// nu se scrie ca text brut (§3.4): trece prin `Placeholder`, care în producție nu scrie nimic. Un rezultat cu marcaj
-// nu e verificabil, deci în producție rândul lipsește, ca la `Faq`. Titlul vine din pagina proiectului, care e aprobată.
+// nu se scrie ca text brut (§3.4): în previzualizare trece prin `Placeholder`, iar în producție câmpul lipsește cu tot cu
+// elementul lui (paragraf, rând de listă), ca la `Faq`. Un rezultat cu marcaj nu e verificabil, deci rândul lui lipsește;
+// un proiect al cărui titlu e încă marcaj nu apare deloc, pentru că linkul n-ar avea text.
 import { DRAFT } from '../lib/env';
 import { hasMarker } from '../lib/marker';
 import TextSauMarcaj from './TextSauMarcaj.astro';
@@ -22,37 +23,51 @@ const { proiecte } = Astro.props;
 /** Luna și anul rezultatului. `z.coerce.date()` dă miezul nopții UTC, deci luna se citește în UTC. */
 const luna = (data: Date) => data.toLocaleDateString('ro-RO', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 
-const rezultat = (p: Props['proiecte'][number]) =>
-  (DRAFT ? p.rezultate : p.rezultate.filter((r) => !hasMarker(r.text) && !hasMarker(r.sursa)))[0];
+/** În producție rămân doar valorile fără marcaj; în previzualizare rămân toate, iar marcajul se vede. */
+const deArata = <T,>(lista: readonly T[], areMarcaj: (x: T) => boolean): readonly T[] => (DRAFT ? lista : lista.filter((x) => !areMarcaj(x)));
+
+const vizibile = deArata(proiecte, (p) => hasMarker(p.titlu)).map((p) => ({
+  ...p,
+  context: deArata([p.context], hasMarker)[0],
+  ceAmFacut: deArata(p.ceAmFacut, hasMarker),
+  rezultat: deArata(p.rezultate, (r) => hasMarker(r.text) || hasMarker(r.sursa))[0],
+}));
 ---
 
 <ul class="proiecte">
   {
-    proiecte.map((p) => {
-      const r = rezultat(p);
-      return (
-        <li>
-          <h3>
-            <a href={`/proiecte/${p.slug}/`}>{p.titlu}</a>
-          </h3>
-          <p>
-            <TextSauMarcaj valoare={p.context} />
-          </p>
-          <ul>
-            {p.ceAmFacut.map((t) => (
-              <li>
-                <TextSauMarcaj valoare={t} />
-              </li>
-            ))}
-          </ul>
-          {r && (
-            <p class="proiecte__rezultat">
-              <TextSauMarcaj valoare={r.text} /> (<TextSauMarcaj valoare={r.sursa} />, {luna(r.data)})
+    vizibile.map((p) => (
+      <li>
+        <h3>
+          <a href={`/proiecte/${p.slug}/`}><TextSauMarcaj valoare={p.titlu} /></a>
+        </h3>
+        {
+          p.context !== undefined && (
+            <p>
+              <TextSauMarcaj valoare={p.context} />
             </p>
-          )}
-        </li>
-      );
-    })
+          )
+        }
+        {
+          p.ceAmFacut.length > 0 && (
+            <ul>
+              {p.ceAmFacut.map((t) => (
+                <li>
+                  <TextSauMarcaj valoare={t} />
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        {
+          p.rezultat && (
+            <p class="proiecte__rezultat">
+              <TextSauMarcaj valoare={p.rezultat.text} /> (<TextSauMarcaj valoare={p.rezultat.sursa} />, {luna(p.rezultat.data)})
+            </p>
+          )
+        }
+      </li>
+    ))
   }
 </ul>
 
