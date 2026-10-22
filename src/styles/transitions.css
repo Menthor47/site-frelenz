@@ -1,0 +1,69 @@
+/* M3 (§5.7, ruling R5): la clic pe un rând din „De unde pornești?”, segmentul colorat devine banda de sus a paginii de
+   serviciu. CSS nativ, fără ClientRouter și fără JavaScript: ambele pagini declară tranziția între documente, iar cele
+   două capete au același `view-transition-name`, dat prin clasa `vt-<slug>` (LineDiagram pe segment, Base pe bandă).
+   Cu „reduced motion” sau într-un browser fără suport (Firefox, Samsung Internet), navigarea e cea obișnuită. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* Pe celelalte navigări nu se vede nimic: cross-fade-ul implicit al paginii e oprit, ca singura mișcare să fie segmentul. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* Câte un nume pe serviciu (slug-urile din src/form-rules.ts): pe o pagină, fiecare nume apare o singură dată. */
+.vt-seo {
+  view-transition-name: segment-seo;
+}
+
+.vt-optimizare-aeo-geo {
+  view-transition-name: segment-optimizare-aeo-geo;
+}
+
+.vt-audit-seo {
+  view-transition-name: segment-audit-seo;
+}
+
+.vt-creare-site {
+  view-transition-name: segment-creare-site;
+}
+
+.vt-redesign-site {
+  view-transition-name: segment-redesign-site;
+}
+
+.vt-mentenanta-site {
+  view-transition-name: segment-mentenanta-site;
+}
+
+/* Segmentul se mută și se lărgește până la bandă în 300ms, într-un strat peste pagină, deci fără să miște conținutul.
+   Imaginile din grup (vechea și noua) moștenesc durata. */
+::view-transition-group(segment-seo),
+::view-transition-group(segment-optimizare-aeo-geo),
+::view-transition-group(segment-audit-seo),
+::view-transition-group(segment-creare-site),
+::view-transition-group(segment-redesign-site),
+::view-transition-group(segment-mentenanta-site) {
+  animation-duration: 300ms;
+  animation-timing-function: ease-in-out;
+}
+
+/* O bandă fără pereche pe cealaltă pagină (venind de la /servicii/ sau de la un serviciu înrudit) n-are în ce se
+   transforma: apare și dispare pe loc, ca root-ul, în loc să se estompeze 300ms. */
+::view-transition-old(segment-seo):only-child,
+::view-transition-new(segment-seo):only-child,
+::view-transition-old(segment-optimizare-aeo-geo):only-child,
+::view-transition-new(segment-optimizare-aeo-geo):only-child,
+::view-transition-old(segment-audit-seo):only-child,
+::view-transition-new(segment-audit-seo):only-child,
+::view-transition-old(segment-creare-site):only-child,
+::view-transition-new(segment-creare-site):only-child,
+::view-transition-old(segment-redesign-site):only-child,
+::view-transition-new(segment-redesign-site):only-child,
+::view-transition-old(segment-mentenanta-site):only-child,
+::view-transition-new(segment-mentenanta-site):only-child {
+  animation: none;
+}

@@ -1,0 +1,15 @@
+---
+// O valoare din conținut: textul, sau, dacă valoarea e un marcaj [DE COMPLETAT:#nr], `Placeholder` (§3.4), care în
+// producție nu scrie nimic. Așa niciun marcaj nu ajunge ca text brut în pagină.
+import { parseMarker } from '../lib/marker';
+import Placeholder from './Placeholder.astro';
+
+interface Props {
+  valoare: string;
+}
+
+const { valoare } = Astro.props;
+const marcaj = parseMarker(valoare);
+---
+
+{marcaj === null ? valoare : <Placeholder nr={marcaj} />}

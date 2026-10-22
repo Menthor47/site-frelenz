@@ -1,0 +1,20 @@
+// Configurarea Cloudflare (§3.6): site-ul static din dist/, plus Worker-ul formularului, rulat doar pe /api/*.
+// Comentariile stau doar pe rânduri proprii (worker/index.test.ts le scoate înainte să citească fișierul ca JSON).
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "siteulet",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash",
+    "run_worker_first": ["/api/*"]
+  },
+  // Fără jurnale (§3.5): dacă Alex le pornește, intră în Politica de confidențialitate.
+  "observability": { "enabled": false },
+  // Un singur destinatar permis: DESTINATAR din src/form-rules.ts.
+  "send_email": [{ "name": "EMAIL", "allowed_destination_addresses": ["idealserv51@gmail.com"] }],
+  // 3 cereri la 60 de secunde pe IP, doar ca protecție la rafale (§3.5 punctul 3).
+  "ratelimits": [{ "name": "RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 3, "period": 60 } }]
+}

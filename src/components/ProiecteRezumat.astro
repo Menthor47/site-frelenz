@@ -1,0 +1,94 @@
+---
+// Proiectele pe scurt (§4.3 punctul 5): titlul ca link, contextul, ce am făcut și rezultatul, cu sursa și data.
+// Pagina îi dă doar proiectele publicabile (`proiectePublicabile`) și decide câte. Niciun câmp cu marcaj [DE COMPLETAT]
+// nu se scrie ca text brut (§3.4): în previzualizare trece prin `Placeholder`, iar în producție câmpul lipsește cu tot cu
+// elementul lui (paragraf, rând de listă), ca la `Faq`. Un rezultat cu marcaj nu e verificabil, deci rândul lui lipsește;
+// un proiect al cărui titlu e încă marcaj nu apare deloc, pentru că linkul n-ar avea text.
+import { DRAFT } from '../lib/env';
+import { lunaAn } from '../lib/format';
+import { faraMarcaje, hasMarker } from '../lib/marker';
+import TextSauMarcaj from './TextSauMarcaj.astro';
+
+interface Props {
+  proiecte: readonly {
+    slug: string;
+    titlu: string;
+    context: string;
+    ceAmFacut: readonly string[];
+    rezultate: readonly { text: string; sursa: string; data: Date }[];
+  }[];
+  /** Nivelul titlului fiecărui proiect: 3 sub un H2 „Proiecte” (Acasă), 2 direct sub H1 (/proiecte/). */
+  nivelTitlu?: 2 | 3;
+}
+
+const { proiecte, nivelTitlu = 3 } = Astro.props;
+const Titlu = nivelTitlu === 2 ? 'h2' : 'h3';
+
+const rezultatCuMarcaj = (r: Props['proiecte'][number]['rezultate'][number]) => hasMarker(r.text) || hasMarker(r.sursa);
+
+const vizibile = faraMarcaje(proiecte, (p) => hasMarker(p.titlu), DRAFT).map((p) => ({
+  ...p,
+  context: faraMarcaje([p.context], hasMarker, DRAFT)[0],
+  ceAmFacut: faraMarcaje(p.ceAmFacut, hasMarker, DRAFT),
+  rezultat: faraMarcaje(p.rezultate, rezultatCuMarcaj, DRAFT)[0],
+}));
+---
+
+<ul class="proiecte">
+  {
+    vizibile.map((p) => (
+      <li>
+        <Titlu>
+          <a href={`/proiecte/${p.slug}/`}><TextSauMarcaj valoare={p.titlu} /></a>
+        </Titlu>
+        {
+          p.context !== undefined && (
+            <p>
+              <TextSauMarcaj valoare={p.context} />
+            </p>
+          )
+        }
+        {
+          p.ceAmFacut.length > 0 && (
+            <ul>
+              {p.ceAmFacut.map((t) => (
+                <li>
+                  <TextSauMarcaj valoare={t} />
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        {
+          p.rezultat && (
+            <p class="proiecte__rezultat">
+              {rezultatCuMarcaj(p.rezultat) ? (
+                <>
+                  <TextSauMarcaj valoare={p.rezultat.text} /> <TextSauMarcaj valoare={p.rezultat.sursa} />
+                </>
+              ) : (
+                `${p.rezultat.text} (${p.rezultat.sursa}, ${lunaAn(p.rezultat.data)})`
+              )}
+            </p>
+          )
+        }
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .proiecte {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .proiecte > li + li {
+    margin-top: 2rem;
+  }
+
+  .proiecte__rezultat {
+    font-weight: 700;
+  }
+</style>

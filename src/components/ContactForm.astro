@@ -1,0 +1,145 @@
+---
+// Formularul de contact (§3.5): fără JavaScript, trimis prin POST la Worker (/api/contact), care îl validează cu aceleași
+// reguli. `required`, `maxlength` și `type` vin din src/form-rules.ts, ca browserul și serverul să judece la fel.
+// Fiecare câmp are etichetă vizibilă; cele obligatorii spun asta în text. Nota de sub Mesaj e legată prin `aria-describedby`.
+// Capcana e un câmp pe care un om nu-l vede și nu-l atinge: scos din ecran, `tabindex=-1`, `autocomplete=off`,
+// într-un bloc `aria-hidden`. Fără CNP și fără bifă de acord.
+import { CAMPURI, CAPCANA, FARA_SERVICIU, SERVICII, type NumeCamp } from '../form-rules';
+
+/** Câmpurile pe un rând, în ordinea din formular. Serviciul și Mesajul au marcajul lor, mai jos. */
+const CAMPURI_TEXT: readonly { nume: Exclude<NumeCamp, 'serviciu' | 'mesaj'>; eticheta: string; autocomplete?: string; inputmode?: 'url' }[] = [
+  { nume: 'nume', eticheta: 'Nume', autocomplete: 'name' },
+  { nume: 'email', eticheta: 'E-mail', autocomplete: 'email' },
+  { nume: 'telefon', eticheta: 'Telefon', autocomplete: 'tel' },
+  { nume: 'firma', eticheta: 'Firmă', autocomplete: 'organization' },
+  // Text liber, ca să meargă și „exemplu.ro” fără https:// (§3.5); `inputmode` aduce doar tastatura potrivită.
+  { nume: 'site', eticheta: 'Adresa site-ului', inputmode: 'url' },
+];
+
+const servicii = [...SERVICII].sort((a, b) => a.ordine - b.ordine);
+const id = (nume: string) => `formular-${nume}`;
+const ID_NOTA_MESAJ = 'formular-mesaj-nota';
+---
+
+<form class="formular" method="post" action="/api/contact">
+  {
+    CAMPURI_TEXT.map((c) => (
+      <div class="formular__camp">
+        <label for={id(c.nume)}>
+          {c.eticheta}
+          {CAMPURI[c.nume].required && <span class="formular__obligatoriu">(obligatoriu)</span>}
+        </label>
+        <input
+          id={id(c.nume)}
+          name={c.nume}
+          type={CAMPURI[c.nume].type ?? 'text'}
+          required={CAMPURI[c.nume].required}
+          maxlength={CAMPURI[c.nume].maxLength}
+          autocomplete={c.autocomplete}
+          inputmode={c.inputmode}
+        />
+      </div>
+    ))
+  }
+
+  <div class="formular__camp">
+    <label for={id('serviciu')}>
+      Serviciul de care ai nevoie
+      {CAMPURI.serviciu.required && <span class="formular__obligatoriu">(obligatoriu)</span>}
+    </label>
+    <select id={id('serviciu')} name="serviciu" required={CAMPURI.serviciu.required}>
+      <option value="">Alege un serviciu</option>
+      {servicii.map((s) => <option value={s.slug}>{s.nume}</option>)}
+      <option value={FARA_SERVICIU.slug}>{FARA_SERVICIU.nume}</option>
+    </select>
+  </div>
+
+  <div class="formular__camp">
+    <label for={id('mesaj')}>
+      Mesaj
+      {CAMPURI.mesaj.required && <span class="formular__obligatoriu">(obligatoriu)</span>}
+    </label>
+    <textarea id={id('mesaj')} name="mesaj" required={CAMPURI.mesaj.required} maxlength={CAMPURI.mesaj.maxLength} rows="8" aria-describedby={ID_NOTA_MESAJ}
+    ></textarea>
+    <p class="formular__nota" id={ID_NOTA_MESAJ}>Cel mult {CAMPURI.mesaj.maxLength} de caractere și cel mult {CAMPURI.mesaj.maxLinkuri} linkuri.</p>
+  </div>
+
+  <div class="formular__capcana" aria-hidden="true">
+    <label for={id(CAPCANA)}>Nu completa acest câmp</label>
+    <input id={id(CAPCANA)} name={CAPCANA} type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="formular__trimite">
+    <button type="submit" class="buton-cta">Trimite cererea</button>
+    <p class="formular__nota">
+      Folosesc datele trimise ca să-ți răspund la cerere și pentru discuțiile care urmează. Detalii în <a
+        href="/politica-de-confidentialitate/">Politica de confidențialitate</a
+      >.
+    </p>
+  </div>
+</form>
+
+<style>
+  .formular {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 40rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 700;
+  }
+
+  .formular__obligatoriu {
+    color: var(--ink-2);
+    font-weight: 400;
+  }
+
+  /* Câmpurile: contur de 1px #8A8F98 (3,25:1, §5.2), colțuri drepte, zona de atingere de 44px (§5.8). Focusul e cel global. */
+  input,
+  select,
+  textarea {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--field-border);
+    border-radius: 0;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  textarea {
+    min-height: 12rem;
+    resize: vertical;
+  }
+
+  .formular__nota {
+    max-width: 60ch;
+    margin: 0.35rem 0 0;
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+  }
+
+  /* Capcana: în afara ecranului, nu `display: none`, ca un robot care ignoră câmpurile ascunse s-o completeze totuși. */
+  .formular__capcana {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .formular__trimite {
+    display: grid;
+    justify-items: start;
+    gap: 0.5rem;
+  }
+
+  .formular__trimite .buton-cta {
+    border: 0;
+    cursor: pointer;
+  }
+</style>

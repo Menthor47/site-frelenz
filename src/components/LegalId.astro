@@ -1,0 +1,101 @@
+---
+// Datele firmei cerute de Legea 365/2002, art. 5 (§7.1). Totul vine din `site.config`.
+//   scurt:   subsolul fiecărei pagini. Denumirea PFA, numărul de la Registrul Comerțului, CUI, „București”
+//            și linkul „Date de identificare”. Fără adresă, fără telefon, fără e-mail.
+//   complet: `/contact/#date-firma`, Termeni, Confidențialitate. Aceleași date, fără link spre el însuși,
+//            plus adresa completă a sediului profesional, telefonul și e-mailul.
+// `id="date-firma"` stă pe secțiunea din pagina Contact, nu aici: componenta apare și în alte pagini.
+import { DRAFT } from '../lib/env';
+import { parseMarker } from '../lib/marker';
+import { site } from '../site.config';
+import Placeholder from './Placeholder.astro';
+
+interface Props {
+  variant: 'scurt' | 'complet';
+}
+
+const { variant } = Astro.props;
+const { pfa } = site;
+
+const date = [
+  { eticheta: 'Denumire', valoare: pfa.denumire },
+  { eticheta: 'Număr la Registrul Comerțului', valoare: pfa.nrRegCom },
+  { eticheta: 'CUI', valoare: pfa.cui },
+  variant === 'scurt'
+    ? { eticheta: 'Oraș', valoare: site.oras }
+    : { eticheta: 'Sediu profesional', valoare: pfa.sediu },
+];
+
+// Un câmp cu marcaj [DE COMPLETAT] se vede doar în previzualizarea DRAFT=1. În producție dispare cu tot cu etichetă,
+// ca să nu rămână un „CUI” fără valoare (lansarea oricum e blocată de `check:launch` cât timp lipsesc, §7.1).
+const randuri = date
+  .map(({ eticheta, valoare }) => ({ eticheta, valoare, marcaj: parseMarker(valoare) }))
+  .filter((rand) => rand.marcaj === null || DRAFT);
+---
+
+<div class:list={['date-firma', `date-firma--${variant}`]}>
+  <dl>
+    {
+      randuri.map((rand) => (
+        <div class="rand">
+          <dt>{rand.eticheta}</dt>
+          <dd>{rand.marcaj === null ? rand.valoare : <Placeholder nr={rand.marcaj} />}</dd>
+        </div>
+      ))
+    }
+    {
+      variant === 'complet' && (
+        <>
+          <div class="rand">
+            <dt>Telefon</dt>
+            <dd>
+              <a href={`tel:${site.telefonE164}`}>{site.telefonAfisat}</a>
+            </dd>
+          </div>
+          <div class="rand">
+            <dt>E-mail</dt>
+            <dd>
+              <a href={`mailto:${site.email}`}>{site.email}</a>
+            </dd>
+          </div>
+        </>
+      )
+    }
+  </dl>
+  {variant === 'scurt' && <a class="legatura" href="/contact/#date-firma">Date de identificare</a>}
+</div>
+
+<style>
+  dl {
+    margin: 0;
+  }
+
+  .rand {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 0.5rem;
+  }
+
+  /* `dd` e element flex: fără `min-width: 0` și `anywhere`, adresa de e-mail (un singur „cuvânt”) iese din pagină la 320px
+     cu textul mărit la 200%. */
+  dd {
+    min-width: 0;
+    margin: 0;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  /* În subsol datele stau pe rânduri scurte, unul lângă altul. */
+  .date-firma--scurt dl {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.5rem;
+  }
+
+  /* Zona de atingere de 44px (§5.8). */
+  .legatura {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+</style>

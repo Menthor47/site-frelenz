@@ -1,0 +1,20 @@
+---
+// Studiile de caz (§4.5), câte unul pentru fiecare proiect publicabil (§3.4): cu acord sau anonim, și aprobat; pentru
+// acest-site, doar cu scoruri măsurate. În previzualizarea DRAFT=1 se construiesc toate, ca Alex să le citească.
+import { getCollection } from 'astro:content';
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import CaseStudy from '../../layouts/CaseStudy.astro';
+import { DRAFT } from '../../lib/env';
+import { proiectePublicabile } from '../../lib/publish';
+
+export const getStaticPaths = (async () => {
+  const proiecte = proiectePublicabile((await getCollection('proiecte')).map((intrare) => intrare.data), DRAFT);
+  return proiecte.map((proiect) => ({ params: { slug: proiect.slug }, props: { proiect } }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { proiect } = Astro.props;
+---
+
+<CaseStudy proiect={proiect} />

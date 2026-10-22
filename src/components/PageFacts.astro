@@ -1,0 +1,92 @@
+---
+// Fișa paginii (§5.5), doar pe /proiecte/acest-site/: o listă <dl> pe --tint-blue, fiecare rând cu o explicație pe
+// înțeles. Greutatea, cererile, cookie-urile și scripturile terțe se măsoară în browser (src/client/page-facts.ts);
+// fără JavaScript, rândurile acelea spun asta. Tipurile de date structurate vin din aceleași noduri ca JSON-LD-ul paginii.
+// Nicio cifră nu e scrisă de mână. Fără animații; cifrele au lățime fixă, iar valorile au o înălțime minimă rezervată.
+interface Props {
+  /** Tipurile din `@graph`-ul paginii, în ordine (ex. WebSite, Person, Article, BreadcrumbList). */
+  tipuriSchema: readonly string[];
+}
+
+const { tipuriSchema } = Astro.props;
+
+const MASURAT = 'se măsoară în browserul tău, dacă JavaScript e pornit';
+
+const randuri: readonly { termen: string; masura?: string; valoare?: string; explicatie: string }[] = [
+  { termen: 'Greutate', masura: 'greutate', explicatie: 'Cât a descărcat telefonul tău ca să-ți arate pagina asta. Mai puțin înseamnă mai rapid.' },
+  { termen: 'Cereri', masura: 'cereri', explicatie: 'De câte ori a cerut browserul ceva de la server.' },
+  { termen: 'Cookie-uri setate de site', masura: 'cookieuri', explicatie: 'Site-ul nu te urmărește.' },
+  { termen: 'Scripturi terțe', masura: 'scripturi', explicatie: 'Niciun cod de la alte firme nu rulează aici.' },
+  { termen: 'Date structurate', valoare: tipuriSchema.join(', '), explicatie: 'Eticheta pe care o citesc Google și motoarele AI ca să înțeleagă pagina.' },
+];
+---
+
+<dl class="fisa">
+  {
+    randuri.map((r) => (
+      <div class="fisa__rand">
+        <dt>{r.termen}</dt>
+        <dd class="fisa__valoare" data-masura={r.masura}>
+          {r.valoare ?? <span class="fisa__fara-js">{MASURAT}</span>}
+        </dd>
+        <dd class="fisa__explicatie">{r.explicatie}</dd>
+      </div>
+    ))
+  }
+</dl>
+
+<script>
+  import { completeazaFisa } from '../client/page-facts';
+
+  // După `load`, când timpii resurselor sunt completi; Safari n-are requestIdleCallback.
+  addEventListener('load', () => {
+    const cand = (cb: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(cb) : setTimeout(cb, 200));
+    cand(() => {
+      for (const fisa of document.querySelectorAll<HTMLElement>('.fisa')) completeazaFisa(fisa);
+    });
+  });
+</script>
+
+<style>
+  /* `minmax(0, 1fr)`, nu coloana implicită: cu textul mărit la 200%, „BreadcrumbList” ar lărgi fișa peste ecran. */
+  .fisa {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    margin: 0;
+    padding: 1.5rem;
+    background: var(--tint-blue);
+  }
+
+  dt {
+    font-weight: 700;
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* Înălțime rezervată (§5.5) și cifre de aceeași lățime: valoarea măsurată nu mută nimic când apare. 2,75rem încape
+     un rând de valoare (22,5px × 1,6) sau două rânduri din textul de rezervă (14,4px × 1,5), cât are acesta la 320px. */
+  .fisa__valoare {
+    min-block-size: 2.75rem;
+    font-size: var(--text-md);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
+  /* Bloc, nu inline: altfel rândurile lui ar avea înălțimea rândului valorii (22,5px × 1,6), nu pe a lui. */
+  .fisa__fara-js {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .fisa__explicatie {
+    max-width: 60ch;
+    color: var(--ink-2);
+  }
+</style>

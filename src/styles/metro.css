@@ -1,0 +1,190 @@
+/* Harta de metrou (§5.6), mișcările M1 și M2 (§5.7) și colțurile cu sens (§5.8). O importă doar MetroMap.astro. */
+
+/* Pe mobil, harta ține toată lățimea ecranului și liniile ies din el; pe desktop se aliniază cu containerul. */
+.harta {
+  position: relative;
+}
+
+@media (min-width: 48rem) {
+  .harta {
+    width: min(100% - 2 * var(--gutter), var(--container));
+    margin-inline: auto;
+  }
+}
+
+/* Desenul are 1200×240 de unități. De la 720px în sus se vede întreg; sub, înălțimea rămâne 144px (scara 0,6),
+   iar `preserveAspectRatio="xMidYMid slice"` taie marginile: la 320px se vede mijlocul, x între 333 și 867. */
+.harta__desen {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 9rem;
+}
+
+/* Culorile liniilor M1–M4 din București (§5.1). Tabelul din §5.2 dă galbenul tare liniei M1; desenul e decorativ
+   (`aria-hidden`), deci nu e grafică cu sens, care ar cere #8A5A00. */
+.harta [data-linie='M1'] {
+  --culoare: var(--yellow);
+}
+
+.harta [data-linie='M2'] {
+  --culoare: var(--blue);
+}
+
+.harta [data-linie='M3'] {
+  --culoare: var(--red);
+}
+
+.harta [data-linie='M4'] {
+  --culoare: var(--green);
+}
+
+/* Liniile sunt estompate; pe harta statică, linia grupului paginii e plină (§5.6). Opacitatea pe grup estompează
+   și stațiile, care își acoperă linia înainte de compunere, deci linia nu se vede prin ele. */
+.harta__linie {
+  opacity: 0.28;
+}
+
+.harta__linie[data-plina] {
+  opacity: 1;
+}
+
+.harta--animata .harta__linie {
+  opacity: 0.5;
+}
+
+/* Capetele de linie se rotunjesc (§5.8); unghiurile sunt de 45°, din desen. */
+.harta__traseu {
+  fill: none;
+  stroke: var(--culoare);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.harta__statie {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+
+/* „Ești aici” (§5.4): o stație plină albastră, cu inel alb. */
+.harta__aici {
+  fill: var(--blue);
+  stroke: var(--paper);
+  stroke-width: 5;
+}
+
+/* Eticheta are un contur alb sub litere, ca să rămână lizibilă peste liniile estompate. */
+.harta__eticheta {
+  fill: var(--ink);
+  font-size: 22px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 6px;
+  stroke-linejoin: round;
+}
+
+/* Trenurile (§5.6): ascunse până le pornește scriptul. `hidden` nu ar ajunge aici: regula implicită pentru [hidden]
+   e doar pentru HTML, nu pentru SVG. Fără JavaScript sau cu „reduced motion”, harta rămâne fără trenuri. */
+.trenuri {
+  display: none;
+}
+
+.trenuri-pornite .trenuri {
+  display: block;
+}
+
+/* Un punct cu miez alb și halou în culoarea liniei. Haloul e transparent, ca trenul să nu semene cu o stație. */
+.tren__halou {
+  fill: var(--culoare);
+  opacity: 0.3;
+}
+
+.tren__miez {
+  fill: var(--paper);
+  stroke: var(--culoare);
+  stroke-width: 5;
+}
+
+/* Sub 640px, harta animată păstrează doar M2 și M3, fiecare cu trenul ei. Harta statică le arată pe toate patru. */
+@media (max-width: 639.98px) {
+  .harta--animata [data-linie='M1'],
+  .harta--animata [data-linie='M4'] {
+    display: none;
+  }
+}
+
+/* Butonul „Oprește trenurile” (§5.6): mic și secundar, cu zona de atingere de 44×44px. Stă în colțul de sus din dreapta,
+   departe de titlu și de butonul principal la orice lățime: pe Acasă, plăcuța H1-ului acoperă marginea de jos a hărții.
+   Focusul e cel global, din base.css. Nu primește `display`, ca atributul `hidden` să-l ascundă în continuare. */
+.harta__buton {
+  position: absolute;
+  top: 0.5rem;
+  right: var(--gutter);
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--text-sm);
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+@media (min-width: 48rem) {
+  .harta__buton {
+    right: 0;
+  }
+}
+
+/* Hover: doar subliniere, fără să se închidă la culoare sub textul negru (§5.2). */
+.harta__buton:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+/* Anunțul pentru cititoarele de ecran („Trenurile s-au oprit.”): în arborele de accesibilitate, nu pe ecran. */
+.harta__anunt {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* M1: liniile hărții animate se desenează o dată, la încărcare; M2: trenurile apar după ce s-au desenat liniile.
+   Cu „reduced motion”, liniile apar desenate, iar scriptul nici nu pornește trenurile. `pathLength="1"` pe trasee
+   face ca lungimea liniuței să fie 1, oricât de lungă e linia. Se animă doar `stroke-dashoffset` și `opacity`. */
+@media (prefers-reduced-motion: no-preference) {
+  .harta--animata .harta__traseu {
+    stroke-dasharray: 1;
+    animation: harta-desen 600ms ease-out both;
+  }
+
+  .trenuri-pornite .trenuri {
+    animation: harta-apar 300ms ease-out 600ms both;
+  }
+}
+
+@keyframes harta-desen {
+  from {
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes harta-apar {
+  from {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,67 @@
+---
+// Paginile legale (§7): fără hartă (§5.6), cu firimituri, H1, data ultimei actualizări și textul în slot, pe ~70 de
+// caractere pe rând. Formulate precis, tot la „tu” (§8). JSON-LD: WebPage; BreadcrumbList vine din Base (ruling R10).
+import { paginaAprobata } from '../approvals';
+import { dataIso, ziLunaAn } from '../lib/format';
+import { nodWebPage } from '../lib/jsonld';
+import Base from './Base.astro';
+
+interface Props {
+  titlu: string;
+  descriere: string;
+  cale: '/politica-de-confidentialitate/' | '/politica-cookies/' | '/termeni-si-conditii/';
+  /** Data ultimei actualizări a textului (§7.2 punctul 10). */
+  actualizat: Date;
+}
+
+const { titlu, descriere, cale, actualizat } = Astro.props;
+---
+
+<Base
+  titlu={titlu}
+  descriere={descriere}
+  cale={cale}
+  aprobat={paginaAprobata(cale)}
+  jsonld={[nodWebPage(cale)]}
+  firimituri={[
+    { nume: 'Acasă', cale: '/' },
+    { nume: titlu, cale },
+  ]}
+>
+  <article class="contener legal">
+    <h1>{titlu}</h1>
+    <p class="legal__actualizat">Ultima actualizare: <time datetime={dataIso(actualizat)}>{ziLunaAn(actualizat)}</time></p>
+    <slot />
+  </article>
+</Base>
+
+<style>
+  .legal {
+    padding-block: 1rem 4rem;
+  }
+
+  .legal > :global(*) {
+    max-width: 70ch;
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+  }
+
+  .legal__actualizat {
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+  }
+
+  .legal :global(h2) {
+    margin-top: 2.5rem;
+  }
+
+  .legal :global(ul) {
+    padding-left: 1.5rem;
+  }
+
+  .legal :global(li + li) {
+    margin-top: 0.4rem;
+  }
+</style>

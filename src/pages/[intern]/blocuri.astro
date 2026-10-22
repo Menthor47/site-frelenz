@@ -1,0 +1,81 @@
+---
+// Pagina internă de test pentru „De unde pornești?”, cele două trasee și întrebările frecvente (§4.3 punctele 3, 4 și 6):
+// rândurile din spec, ambele mărimi ale traseelor, pe fundalul lor, și întrebări cu și fără marcaj, ca să se verifice în browser și cu `qa:page`.
+// Ruta `/_test/blocuri/` vine din segmentul dinamic, ca la `/_test/harta/`: Astro ignoră directoarele care încep cu `_`.
+// Se construiește doar în previzualizarea DRAFT=1 (dist-draft/); în producție getStaticPaths o exclude.
+import Faq from '../../components/Faq.astro';
+import LineDiagram from '../../components/LineDiagram.astro';
+import RouteMap from '../../components/RouteMap.astro';
+import { SERVICII } from '../../form-rules';
+import Base from '../../layouts/Base.astro';
+import { DRAFT } from '../../lib/env';
+
+export function getStaticPaths() {
+  return DRAFT ? [{ params: { intern: '_test' } }] : [];
+}
+
+// Ciornele rândurilor din §4.3 punctul 3, pe slug-urile din form-rules (sursa unică a ordinii și a grupurilor).
+const PROBLEME: Readonly<Record<string, string>> = {
+  seo: 'Clienții nu te găsesc în Google când caută ce vinzi.',
+  'optimizare-aeo-geo': 'Firma ta nu apare când cineva întreabă ChatGPT despre domeniul tău.',
+  'audit-seo': 'Vizitele din Google au scăzut și nu știi de ce.',
+  'creare-site': 'Nu ai încă un site sau ai doar o pagină de Facebook.',
+  'redesign-site': 'Site-ul arată învechit și nu mai seamănă cu firma de acum.',
+  'mentenanta-site': 'Site-ul n-a mai fost actualizat de mult și se încarcă greu pe telefon.',
+};
+
+const randuri = [...SERVICII]
+  .sort((a, b) => a.ordine - b.ordine)
+  .map((s) => ({ problema: PROBLEME[s.slug] ?? '', slug: s.slug, nume: s.nume, grup: s.grup }));
+
+const intrebari = [
+  { intrebare: 'Afișezi prețuri?', raspuns: 'Nu. Prețul depinde de site, așa că îl stabilim după ce mă uit la el.' },
+  { intrebare: 'Ce se întâmplă după ce trimit cererea?', raspuns: 'Citesc cererea și îți răspund pe e-mail.' },
+  { intrebare: 'Lucrezi și cu firme din afara Bucureștiului?', raspuns: '[DE COMPLETAT:#13]' },
+];
+---
+
+<Base
+  titlu="Test blocuri"
+  descriere="Pagină internă, nepublicată: arată schema „De unde pornești?”, cele două trasee în ambele mărimi și întrebările frecvente, ca să se verifice în browser."
+  cale="/_test/blocuri/"
+  aprobat={false}
+  noindex
+>
+  <div class="contener">
+    <h1>Test blocuri</h1>
+    <p>Pagină internă: schema de linie, cele două trasee și întrebările frecvente, așa cum le vor folosi paginile.</p>
+    <h2>De unde pornești?</h2>
+    <LineDiagram randuri={randuri} />
+  </div>
+  <section class="fond">
+    <div class="contener">
+      <h2>Cum lucrăm: două trasee</h2>
+      <h3>Compact, ca pe Acasă</h3>
+      <RouteMap marime="compact" />
+      <h3 class="dupa">Mare, ca pe Cum lucrez</h3>
+      <RouteMap marime="mare" />
+    </div>
+  </section>
+  <div class="contener">
+    <h2>Întrebări frecvente</h2>
+    <Faq intrebari={intrebari} />
+  </div>
+</Base>
+
+<style>
+  /* Fundalul traseelor e treaba paginii (§4.3 punctul 4), nu a componentei. */
+  .fond {
+    margin-block: 3rem;
+    padding-block: 2.5rem;
+    background: var(--tint-blue);
+  }
+
+  h2 {
+    margin-top: 2rem;
+  }
+
+  .dupa {
+    margin-top: 3rem;
+  }
+</style>

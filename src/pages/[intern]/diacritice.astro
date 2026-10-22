@@ -1,0 +1,48 @@
+---
+// Pagina internă de test pentru diacritice: „ȘȚĂÂÎ șțăâî „citat”” la 400, 700 și 800 (spec §5.3).
+// Astro ignoră directoarele care încep cu `_`, deci ruta `/_test/diacritice/` vine dintr-un segment dinamic.
+// Se construiește doar în previzualizarea DRAFT=1 (dist-draft/); în producție getStaticPaths o exclude.
+import Base from '../../layouts/Base.astro';
+import { DRAFT } from '../../lib/env';
+
+export function getStaticPaths() {
+  return DRAFT ? [{ params: { intern: '_test' } }] : [];
+}
+
+const greutati = [400, 700, 800] as const;
+---
+
+<Base
+  titlu="Test diacritice"
+  descriere="Pagină internă, nepublicată: verifică dacă literele ș, ț, ă, â și î se văd corect în fiecare greutate a fontului, în previzualizarea cu marcaje."
+  cale="/_test/diacritice/"
+  aprobat={false}
+  noindex
+>
+  <div class="contener">
+    <h1>Test diacritice</h1>
+    {
+      greutati.map((g) => (
+        <section>
+          <h2>Greutatea {g}</h2>
+          <p class={`g${g}`}>ȘȚĂÂÎ șțăâî „citat”</p>
+        </section>
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .g400 {
+    font-weight: 400;
+  }
+  .g700 {
+    font-weight: 700;
+  }
+  .g800 {
+    font-weight: 800;
+  }
+  p {
+    font-size: var(--text-lg);
+  }
+</style>

@@ -1,0 +1,10 @@
+# Fișierele text au LF în repo și pe disc, și pe Windows: fără avertismentele „LF will be replaced by CRLF” la fiecare commit.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

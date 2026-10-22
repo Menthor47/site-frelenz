@@ -1,0 +1,40 @@
+---
+// Banda cu îndemnul final (§4.4 punctul 10): o frază și butonul „Cere o ofertă”, pe albastru deschis, ca butonul albastru
+// să rămână vizibil pe ea. O folosesc paginile de serviciu, Cum lucrez, Proiecte și studiile de caz; Acasă are banda ei,
+// albastră plină (§4.3 punctul 7).
+import Cta from './Cta.astro';
+
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+<div class="indemn">
+  <div class="contener indemn__rand">
+    <p class="indemn__text">{text}</p>
+    <Cta />
+  </div>
+</div>
+
+<style>
+  .indemn {
+    padding-block: 2rem;
+    background: var(--tint-blue);
+  }
+
+  .indemn__rand {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 2rem;
+  }
+
+  .indemn__text {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+</style>

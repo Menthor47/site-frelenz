@@ -1,0 +1,271 @@
+---
+// „Cum lucrăm: două trasee” (§4.3 punctul 4, §4.5): remedierea unică și remedierea cu abonament lunar, desenate ca două linii de metrou.
+// Sunt HTML cu CSS, nu SVG: pașii sunt liste ordonate (`<ol>`, o secvență), textul se mărește și se rupe la orice lățime
+// (320px, text la 200%), iar etichetele stațiilor din buclă sunt text care se rupe ca restul paginii.
+// Desenul (stațiile și liniile) e făcut din pseudo-elemente, deci nu apare în arborele de accesibilitate.
+// Se vede întreg de la început: fără script, fără animație, fără desenare la derulare (§5.7).
+//   - Remedierea unică: linia în galbenul închis #8A5A00 (--yellow-dark); galbenul tare are 1,63:1 pe --tint-blue (§5.2).
+//   - Abonamentul: linia albastră, aceiași pași, apoi o buclă lunară. Etichetele stațiilor din buclă le-a ales Alex
+//     (#15, 2026-10-22): Verificare, Actualizări, Raport.
+//   - Diferența dintre trasee nu stă doar în culoare: fiecare are o etichetă text vizibilă.
+// Fundalul --tint-blue îl pune pagina. `marime` schimbă doar scara: `compact` pe Acasă, `mare` pe /cum-lucrez/ (pașii explicați vin de la pagină).
+interface Props {
+  marime: 'compact' | 'mare';
+}
+
+const { marime } = Astro.props;
+
+/** Stațiile ambelor trasee, în ordine. */
+const PASI = ['Evaluare', 'Ofertă', 'Lucru', 'Raport'] as const;
+
+/** Stațiile buclei lunare (#15, alese de Alex). Trei e cel mai mic număr care arată ca o buclă. */
+const BUCLA = ['Verificare', 'Actualizări', 'Raport'] as const;
+
+// Id-urile depind de mărime, ca `compact` și `mare` să poată sta pe aceeași pagină (pagina de test le arată împreună).
+const idUnic = `traseu-unic-${marime}`;
+const idAbonament = `traseu-abonament-${marime}`;
+---
+
+<div class:list={['trasee', `trasee--${marime}`]}>
+  <div class="traseu traseu--unic">
+    <p class="traseu__eticheta" id={idUnic}>Remediere unică</p>
+    <div class="traseu__linie">
+      <ol class="pasi" aria-labelledby={idUnic}>
+        {PASI.map((pas) => <li class="pas">{pas}</li>)}
+      </ol>
+    </div>
+  </div>
+  <div class="traseu traseu--abonament">
+    <p class="traseu__eticheta" id={idAbonament}>Remediere + abonament lunar</p>
+    <div class="traseu__linie">
+      <ol class="pasi pasi--spre-bucla" aria-labelledby={idAbonament}>
+        {PASI.map((pas) => <li class="pas">{pas}</li>)}
+      </ol>
+      <div class="bucla">
+        <ul class="pasi pasi--bucla" aria-label="Stațiile buclei lunare">
+          {BUCLA.map((statie) => <li class="pas">{statie}</li>)}
+        </ul>
+        <p class="bucla__nota">Se repetă lunar</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .trasee {
+    /* Grosimea liniei, diametrul stației și grosimea conturului ei; toată geometria se calculează din ele. */
+    --t: 0.5rem;
+    --d: 1.25rem;
+    --b: 3px;
+    display: grid;
+    /* `minmax(0, 1fr)`, nu coloana implicită `auto`: altfel un cuvânt lung (text mărit la 200%) lărgește coloana peste ecran. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+    color: var(--ink);
+  }
+
+  .trasee--mare {
+    --t: 0.75rem;
+    --d: 1.75rem;
+    --b: 4px;
+    gap: 3.5rem;
+    font-size: var(--text-md);
+  }
+
+  /* Culorile traseelor. Pe --tint-blue: #8A5A00 are 5,18:1, albastrul 4,2:1, ambele peste pragul de 3:1 pentru grafică. */
+  .traseu--unic {
+    --culoare: var(--yellow-dark);
+  }
+
+  .traseu--abonament {
+    --culoare: var(--blue);
+  }
+
+  /* Eticheta traseului: text vizibil, cu un eșantion din linie în față. */
+  .traseu__eticheta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    max-width: none;
+    margin: 0 0 1.25rem;
+    font-size: 1.25em;
+    font-weight: 800;
+    line-height: 1.2;
+    /* Cu `flex-wrap`, un text care nu încape lângă eșantionul de linie trece sub el, cu toată lățimea, și se rupe la spații;
+       `anywhere` rămâne plasa de siguranță pentru un cuvânt mai lung decât rândul (text mărit la 200%, la 320px). */
+    overflow-wrap: anywhere;
+  }
+
+  .traseu__eticheta::before {
+    content: '';
+    flex: none;
+    width: 2.5rem;
+    height: var(--t);
+    background: var(--culoare);
+  }
+
+  .pasi {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Pe mobil liniile sunt verticale: stația la stânga, eticheta la dreapta, segmentul spre stația următoare. */
+  .pas {
+    position: relative;
+    max-width: none;
+    padding: 0 0 1.5rem calc(var(--d) + 0.75rem);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  /* Stația: cerc alb cu contur, centrat pe prima linie a etichetei. */
+  .pas::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    top: calc((1lh - var(--d)) / 2);
+    left: 0;
+    width: var(--d);
+    height: var(--d);
+    border: var(--b) solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+  }
+
+  /* Segmentul de la centrul stației până la centrul stației următoare (înălțimea elementului). */
+  .pas::after {
+    content: '';
+    position: absolute;
+    top: 0.5lh;
+    left: calc((var(--d) - var(--t)) / 2);
+    width: var(--t);
+    height: 100%;
+    background: var(--culoare);
+  }
+
+  /* Traseul unic se oprește la ultima stație; abonamentul continuă în buclă. */
+  .pasi:not(.pasi--spre-bucla) > .pas:last-child::after {
+    display: none;
+  }
+
+  .pasi--spre-bucla > .pas:last-child::after {
+    height: calc(100% - 0.5lh);
+  }
+
+  /* Bucla: un dreptunghi din aceeași linie. Marginea lui din stânga e chiar continuarea liniei verticale a pașilor,
+     iar stațiile ei stau pe această margine. */
+  .bucla {
+    margin-left: calc((var(--d) - var(--t)) / 2);
+    padding: 0.75rem 1rem 0.5rem calc((var(--d) - var(--t)) / 2 + 0.75rem);
+    border: var(--t) solid var(--culoare);
+  }
+
+  /* `min-height`: o stație are cel puțin un rând, ca cercurile să nu se înghesuie unul într-altul. */
+  .pasi--bucla > .pas {
+    min-height: 1lh;
+    padding: 0 0 1rem;
+  }
+
+  .pasi--bucla > .pas::before {
+    left: calc(-1 * (var(--d) + 0.75rem));
+  }
+
+  /* Linia buclei e chenarul dreptunghiului, deci stațiile ei nu desenează segmente. */
+  .pasi--bucla > .pas::after {
+    display: none;
+  }
+
+  /* Eticheta text a buclei: fără ea, un dreptunghi cu trei stații fără nume nu spune ce e. */
+  .bucla__nota {
+    max-width: none;
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+
+  /* Pe tabletă, cele două trasee stau alături, tot verticale. */
+  @media (min-width: 48rem) {
+    .trasee {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 3rem;
+      align-items: start;
+    }
+  }
+
+  /* De la 1024px: liniile devin orizontale, una sub alta, cu aceleași patru stații aliniate pe coloane. Bucla stă la dreapta. */
+  @media (min-width: 64rem) {
+    .trasee {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .traseu__linie {
+      display: grid;
+      grid-template-columns: minmax(0, 4fr) minmax(0, 2.5fr);
+    }
+
+    .pasi:not(.pasi--bucla) {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .pas {
+      padding: calc(var(--d) + 0.75rem) 1rem 0 0;
+    }
+
+    .pas::before {
+      top: 0;
+    }
+
+    .pas::after {
+      top: calc((var(--d) - var(--t)) / 2);
+      left: calc(var(--d) / 2);
+      width: 100%;
+      height: var(--t);
+    }
+
+    .pasi--spre-bucla > .pas:last-child::after {
+      width: calc(100% - var(--d) / 2);
+      height: var(--t);
+    }
+
+    /* Marginea de sus a buclei e continuarea liniei: aceeași înălțime cu segmentele dintre stații. */
+    .bucla {
+      --sus: calc((var(--d) - var(--t)) / 2 + 0.75rem);
+      margin: calc((var(--d) - var(--t)) / 2) 0 0;
+      padding: var(--sus) 1rem 0.75rem 1.25rem;
+    }
+
+    .pasi--bucla {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .pasi--bucla > .pas {
+      padding: 0 0.75rem 0 0;
+    }
+
+    /* Stațiile buclei stau pe marginea de sus: centrul lor cade pe mijlocul chenarului. */
+    .pasi--bucla > .pas::before {
+      top: calc(-1 * (var(--sus) + var(--t) / 2 + var(--d) / 2));
+      left: 0;
+    }
+
+    .bucla__nota {
+      margin-top: 1rem;
+    }
+  }
+
+  /* Cu culorile forțate (modul de contrast ridicat), fundalurile dispar: liniile trec pe culoarea textului, chenarul rămâne. */
+  @media (forced-colors: active) {
+    .pas::after,
+    .traseu__eticheta::before {
+      background: CanvasText;
+    }
+
+    .bucla {
+      border-color: CanvasText;
+    }
+  }
+</style>

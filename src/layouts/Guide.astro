@@ -1,0 +1,105 @@
+---
+// Ghidul (§4.5): titlul-întrebare (H1), răspunsul în primul paragraf (§6.4), detaliile (corpul Markdown, în slot), data
+// publicării și a actualizării, autorul cu link spre Despre și serviciul legat, apoi un singur îndemn.
+// Banda are linia serviciului legat, cu „Ești aici” (§5.6). JSON-LD: Article (headline, datePublished, dateModified,
+// autor și editor #alex); BreadcrumbList vine din Base (ruling R10). Fără JavaScript.
+// Răspunsul trece prin `TextSauMarcaj` (§3.4): un marcaj se vede doar în previzualizare.
+import type { CollectionEntry } from 'astro:content';
+import Indemn from '../components/Indemn.astro';
+import TextSauMarcaj from '../components/TextSauMarcaj.astro';
+import { cereServiciu } from '../form-rules';
+import { dataIso, ziLunaAn } from '../lib/format';
+import { nodArticle } from '../lib/jsonld';
+import { site } from '../site.config';
+import Base from './Base.astro';
+
+interface Props {
+  ghid: CollectionEntry<'ghiduri'>['data'];
+}
+
+const { ghid: g } = Astro.props;
+
+const cale = `/ghiduri/${g.slug}/`;
+const serviciu = cereServiciu(g.serviciuLegat, `ghiduri/${g.slug}`);
+---
+
+<Base
+  titlu={g.titlu}
+  descriere={g.descriere}
+  cale={cale}
+  aprobat={g.aprobat}
+  jsonld={[nodArticle({ cale, titlu: g.titlu, publicat: g.publicat, actualizat: g.actualizat })]}
+  firimituri={[
+    { nume: 'Acasă', cale: '/' },
+    { nume: 'Ghiduri', cale: '/ghiduri/' },
+    { nume: g.titlu, cale },
+  ]}
+  harta={{ line: serviciu.grup }}
+>
+  <article class="contener ghid">
+    <h1>{g.titlu}</h1>
+    <p class="ghid__raspuns"><TextSauMarcaj valoare={g.raspuns} /></p>
+
+    <p class="ghid__autor">
+      Scris de <a href="/despre/">{site.nume}</a>. Publicat pe <time datetime={dataIso(g.publicat)}>{ziLunaAn(g.publicat)}</time>, actualizat
+      pe <time datetime={dataIso(g.actualizat)}>{ziLunaAn(g.actualizat)}</time>.
+    </p>
+
+    <div class="ghid__corp">
+      <slot />
+    </div>
+
+    <p class="ghid__serviciu">
+      Serviciul legat de acest ghid: <a href={`/servicii/${serviciu.slug}/`}>{serviciu.nume}</a>
+    </p>
+  </article>
+
+  <Indemn text="Spune-mi ce site ai și ce te încurcă." />
+</Base>
+
+<style>
+  .ghid {
+    padding-block: 1rem 3rem;
+  }
+
+  /* Textul ghidului stă pe ~70 de caractere pe rând (§5.3); titlul, puțin mai îngust, ca să se rupă frumos. */
+  .ghid > :global(*) {
+    max-width: 70ch;
+  }
+
+  h1 {
+    max-width: 24ch;
+    margin-top: 0.5rem;
+  }
+
+  /* Răspunsul e primul paragraf, cel pe care îl citesc motoarele AI (§6.4): puțin mai mare decât restul. */
+  .ghid__raspuns {
+    font-size: var(--text-md);
+    line-height: 1.45;
+  }
+
+  .ghid__autor {
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+  }
+
+  .ghid__corp :global(h2) {
+    margin-top: 2.5rem;
+  }
+
+  .ghid__corp :global(ul),
+  .ghid__corp :global(ol) {
+    padding-left: 1.5rem;
+  }
+
+  .ghid__corp :global(li + li) {
+    margin-top: 0.4rem;
+  }
+
+  .ghid__serviciu {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-weight: 700;
+  }
+</style>

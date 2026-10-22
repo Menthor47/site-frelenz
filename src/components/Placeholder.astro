@@ -1,0 +1,13 @@
+---
+import { DRAFT } from '../lib/env';
+import { renderMarker } from '../lib/marker';
+
+interface Props {
+  /** Rândul din registrul marcajelor (src/placeholders.ts). */
+  nr: number;
+}
+
+const { nr } = Astro.props;
+const html = renderMarker(nr, DRAFT);
+---
+{html && <Fragment set:html={html} />}

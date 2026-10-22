@@ -53,6 +53,9 @@ Pornește de la `plan-site-alex-ionescu.md` (planul lui Alex) și de la deciziil
 | 19 | Logo | „Alex Ionescu, consultant SEO”: virgula e intenționată și albastră. |
 | 20 | Formular | Fără JavaScript. Browserul validează, iar serverul aplică aceleași reguli, dintr-un singur fișier. Singura regulă pe care browserul n-o poate verifica e limita de linkuri: mesajele cu peste 3 linkuri nu pleacă, iar regula e scrisă sub câmp. |
 | 21 | Aprobare | Alex aprobă pagină cu pagină. Fiecare serviciu are 4 întrebări frecvente. |
+| 22 | Despre fără studii | Decizia lui Alex din 2026-10-22: pagina Despre nu are secțiunea „Studii”, iar experiența îi ține locul. |
+| 23 | szitrans | Firma e a vărului lui Alex, care i-a lăsat proiectul: acordul (#7) e dat. Alex a făcut site-ul și SEO-ul (2026-10-22). |
+| 24 | Bucla lunară | Stațiile buclei din traseul abonamentului: Verificare, Actualizări, Raport (#15, 2026-10-22). |
 
 ---
 
@@ -142,10 +145,10 @@ Fiecare componentă are un singur rol și își primește datele prin props, din
 Schema colecției verifică că fiecare `slug` de serviciu există și în lista de servicii din `form-rules.ts` (3.5), ca formularul și Worker-ul să accepte exact aceleași valori.
 
 **proiecte:**
-- `slug`, `titlu`, `client` (nume sau „anonim”), `acord` (boolean), `aprobat` (boolean);
+- `slug`, `titlu`, `descriere` (140–160 de caractere, §4.2), `client` (nume sau „anonim”), `acord` (boolean), `aprobat` (boolean);
 - `context`, `problema`, `ceAmFacut[]`;
 - `rezultate[]`, fiecare cu `text`, `sursa`, `data`;
-- `servicii[]`, `capturi[]` (cu text alternativ);
+- `servicii[]`, `serviciiDeConfirmat?` (marcajul `[DE COMPLETAT:#n]` cât timp serviciile sunt provizorii), `capturi[]` (cu text alternativ);
 - `scoruri[]`, doar pentru `acest-site`: valoare, dată, versiune Lighthouse, sursă.
 
 **Când e publicabil un proiect:**
@@ -157,7 +160,7 @@ Doar proiectele publicabile se construiesc și apar în sitemap, în llms.txt, p
 Dacă nu există niciun proiect publicabil, nici `/proiecte/` nu se construiește. „Proiecte” lipsește atunci din meniu, de pe Acasă, din subsol, din sitemap și din llms.txt, după aceeași regulă ca la ghiduri.
 
 **ghiduri:**
-- `slug`, `titlu` (sub formă de întrebare), `raspuns` (primul paragraf);
+- `slug`, `titlu` (sub formă de întrebare), `descriere` (140–160 de caractere, §4.2), `raspuns` (primul paragraf);
 - `publicat`, `actualizat`, `aprobat` (boolean), `serviciuLegat`.
 
 Ghidurile se construiesc doar când există cel puțin 2 cu `aprobat: true`. Până atunci nu se construiește niciunul, iar secțiunea lipsește din meniu, din sitemap, din llms.txt și din linkurile paginilor de servicii.
@@ -523,7 +526,7 @@ O listă `<dl>` pe `--tint-blue`. Fiecare rând are o explicație pe înțeles, 
 - **Liniile** se desenează o singură dată la încărcare (M1 în 5.7). E doar CSS.
 - **Trenurile circulă continuu.** Pe fiecare linie merge câte un „tren”: un punct cu miez alb și halou în culoarea liniei. Viteza e constantă, cu 7–11 secunde pe parcurs, iar trenurile pornesc decalat.
 - **Pe mobil:** sub 640px rămân 2 linii, M2 (albastru) și M3 (roșu), cu 2 trenuri.
-- **Lizibilitatea:** liniile ocolesc titlul, iar titlul stă pe un fundal alb, ca să rămână lizibil când trece un tren.
+- **Lizibilitatea:** titlul stă pe o plăcuță albă și opacă, peste marginea de jos a hărții; liniile și trenurile trec pe sub ea, ca într-o stație, deci textul rămâne lizibil când trece un tren (decizia lui Alex din 2026-10-22, ruling R17).
 
 **Pornirea depinde de script:**
 - Trenurile stau într-un `<g class="trenuri">` din SVG, ascuns din CSS (`display: none`) până când scriptul pune clasa de pornire. Atributul `hidden` nu ajunge aici, pentru că regula implicită a browserului pentru `[hidden]` se aplică doar elementelor HTML, nu celor din SVG.
@@ -860,7 +863,7 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
 Comanda `npm run check:launch` refuză lansarea până când:
 1. datele PFA sunt reale (denumire, numărul de la Registrul Comerțului, CUI, adresa sediului);
 2. domeniul final e setat în `site.config.ts`;
-3. pagina Despre e completă: biografie, studii, experiență, instrumente. LinkedIn e opțional;
+3. pagina Despre e completă: biografie, experiență, instrumente (fără studii, decizia 22). LinkedIn e opțional;
 4. nicio pagină construită nu are `aprobat: false` (3.4);
 5. durata de păstrare a datelor e completată în Politica de confidențialitate;
 6. nu mai rămâne niciun marcaj `[DE COMPLETAT:#<nr>]` al unui rând marcat „Da” în coloana „Blochează lansarea?” din registrul de la capitolul 12. Aici intră și etichetele buclei lunare și răspunsurile la întrebările frecvente. `check:launch` compară `reports/placeholders.json` cu registrul din `src/placeholders.ts` (3.4);
@@ -890,11 +893,11 @@ Comanda `npm run check:launch` refuză lansarea până când:
 | 1 | Datele PFA: denumire, numărul de la Registrul Comerțului, CUI | Alex | Da |
 | 2 | Adresa sediului profesional (decizie: adresa înregistrată sau mutarea) | Alex | Da |
 | 3 | Domeniul final | Alex | Da |
-| 4 | Despre: biografie, studii, experiență, instrumente | Alex (eu redactez) | Da |
+| 4 | Despre: biografie, experiență, instrumente (fără studii, decizia 22) | Alex (eu redactez) | Da |
 | 5 | Profiluri pentru `sameAs` (LinkedIn etc.) | Alex | Nu (opțional) |
 | 6 | Fotografie reală | Alex | Nu |
-| 7 | Acordul scris de la szitrans, plus rezultate verificabile și capturi datate | Alex | Nu (fără el, pagina nu se construiește) |
-| 8 | Textul studiului anonim al magazinului online, aprobat, cu capturi anonimizate | Alex | Nu (fără el, pagina nu se construiește) |
+| 7 | Acordul de la szitrans (dat, decizia 23), plus rezultate verificabile și capturi datate | Alex | Nu (fără el, pagina nu se construiește) |
+| 8 | Textul studiului anonim al magazinului online (și serviciile folosite), aprobat, cu capturi anonimizate | Alex | Nu (fără el, pagina nu se construiește) |
 | 9 | Acordul mayalashes | Alex | Nu (fără el, pagina nu se construiește) |
 | 10 | Rezultatele din studiile de caz (cifre, perioadă, sursă) | Alex | Nu (fără ele, rândul lipsește) |
 | 11 | Scorurile acestui site, măsurate în producție | eu, după lansare | Nu (fără ele, pagina nu se construiește) |
@@ -903,10 +906,12 @@ Comanda `npm run check:launch` refuză lansarea până când:
 | 14 | Duratele și pașii fiecărui serviciu, doar dacă Alex îi confirmă | Alex | Nu (fără ele, duratele lipsesc) |
 | 15 | Etichetele buclei lunare din traseul abonamentului | Alex | Da |
 | 16 | Textele celor 2 ghiduri | eu redactez, Alex aprobă | Nu (secțiunea lipsește până atunci) |
-| 17 | Durata de păstrare a datelor din formular | Alex (cu contabilul) | Da |
+| 17 | Durata de păstrare a datelor: cererile din formular, corespondența, contractele și facturile, jurnalele tehnice | Alex (cu contabilul) | Da |
 | 18 | Timpul de răspuns promis, doar dacă Alex îl confirmă | Alex | Nu (fără el, nu se promite nimic) |
 | 19 | Testimoniale reale, cu acord | Alex | Nu |
 | 20 | Linkul spre Google Business Profile | Alex | Nu |
+| 21 | Textul studiului szitrans: contextul, problema, ce am făcut și serviciile folosite (ruling R19) | Alex (eu redactez) | Nu (fără el, pagina nu se construiește) |
+| 22 | Data verificării certificării Cloudflare în Data Privacy Framework, scrisă în politica de confidențialitate (§7.2 punctul 4, ruling R20) | eu, înainte de lansare | Da |
 
 ---
 

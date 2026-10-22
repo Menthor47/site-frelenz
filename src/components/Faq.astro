@@ -1,0 +1,68 @@
+---
+// Întrebările frecvente (§4.3 punctul 6, §4.4 punctul 7): perechi întrebare-răspuns vizibile, mereu deschise, fără acordeon.
+// E o listă de definiții (`dl`): HTML-ul spune că se potrivește perechilor întrebare-răspuns, iar `dt`/`dd` nu depind de
+// nivelul titlurilor paginii. Componenta nu adaugă JSON-LD: nodul FAQPage îl pune pagina (`nodFaq`), din aceleași perechi.
+// Un câmp cu marcaj [DE COMPLETAT] (de ex. un răspuns care așteaptă aprobarea lui Alex, #13) trece prin `Placeholder` și nu
+// apare niciodată ca text brut (§3.4). În producție, perechea cu marcaj nu se afișează deloc, ca să nu rămână o întrebare
+// fără răspuns; la fel face `LegalId` cu un câmp fără valoare. Regula e `intrebariVizibile` (src/lib/faq.ts), aceeași pe care
+// o aplică `nodFaq`, ca FAQPage să aibă exact perechile de pe pagină. Dacă nu rămâne nimic, nu se scrie nici lista.
+import { DRAFT } from '../lib/env';
+import { intrebariVizibile, type IntrebareFrecventa } from '../lib/faq';
+import { parseMarker } from '../lib/marker';
+import Placeholder from './Placeholder.astro';
+
+interface Props {
+  /** Aceeași formă ca `faq` din colecția `servicii` și ca argumentul lui `nodFaq`. */
+  intrebari: readonly IntrebareFrecventa[];
+}
+
+const { intrebari } = Astro.props;
+
+const afisate = intrebariVizibile(intrebari, DRAFT);
+---
+
+{
+  afisate.length > 0 && (
+    <dl class="faq">
+      {afisate.map((i) => {
+        const marcajIntrebare = parseMarker(i.intrebare);
+        const marcajRaspuns = parseMarker(i.raspuns);
+        return (
+          <div class="faq__pereche">
+            <dt>{marcajIntrebare === null ? i.intrebare : <Placeholder nr={marcajIntrebare} />}</dt>
+            <dd>{marcajRaspuns === null ? i.raspuns : <Placeholder nr={marcajRaspuns} />}</dd>
+          </div>
+        );
+      })}
+    </dl>
+  )
+}
+
+<style>
+  .faq {
+    max-width: 70ch;
+    margin: 0;
+  }
+
+  /* O linie despărțitoare de 1px între perechi (§5.8); fără carduri, fără umbre. */
+  .faq__pereche {
+    padding-block: 1rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .faq__pereche:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* Întrebarea: titlu mic, ca să se vadă în scanare, fără să concureze cu H2 al secțiunii. */
+  dt {
+    margin: 0 0 0.5rem;
+    font-size: var(--text-md);
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  dd {
+    margin: 0;
+  }
+</style>

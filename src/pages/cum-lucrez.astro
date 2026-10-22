@@ -1,0 +1,150 @@
+---
+// /cum-lucrez/ (§4.5): cele două trasee, mari (RouteMap), apoi cei patru pași explicați, cele două formate fără cifre,
+// cu fraza exactă despre preț, și mențiunea că lucrez doar cu firme (B2B). Harta din bandă are toate liniile la fel de
+// estompate (§5.6). JSON-LD: WebPage; BreadcrumbList vine din Base (ruling R10). Fără JavaScript.
+// Ciorne: explicațiile pașilor spun doar ce scrie deja în spec și în pașii serviciilor, fără termene (#14, #18).
+import { paginaAprobata } from '../approvals';
+import Indemn from '../components/Indemn.astro';
+import RouteMap from '../components/RouteMap.astro';
+import Base from '../layouts/Base.astro';
+import { nodWebPage } from '../lib/jsonld';
+import { PAGINI_STATICE } from '../lib/routes';
+
+const CALE = '/cum-lucrez/';
+
+/** Aceiași pași ca stațiile din RouteMap, în aceeași ordine (testul îi compară cu harta randată). Valabili pentru toate serviciile. */
+const PASI = [
+  {
+    nume: 'Evaluare',
+    explicatie: 'Mă uit la site-ul tău și la ce mi-ai scris în cerere. Îți spun pe înțeles ce am găsit.',
+  },
+  {
+    nume: 'Ofertă',
+    explicatie: 'Îți trimit oferta: ce lucrez, în ce ordine și ce primești. Tu alegi formatul, remediere unică sau remediere cu abonament lunar.',
+  },
+  {
+    nume: 'Lucru',
+    explicatie: 'După ce accepți oferta, lucrez pe site, în ordinea din ofertă.',
+  },
+  {
+    nume: 'Raport',
+    explicatie: 'La final îți trimit un raport pe înțeles, cu ce am făcut și ce urmează. Cu abonament, lucrul continuă lunar după raport.',
+  },
+] as const;
+---
+
+<Base
+  titlu={PAGINI_STATICE['/cum-lucrez/'].titlu}
+  descriere={PAGINI_STATICE['/cum-lucrez/'].descriere}
+  cale={CALE}
+  aprobat={paginaAprobata(CALE)}
+  jsonld={[nodWebPage(CALE)]}
+  firimituri={[
+    { nume: 'Acasă', cale: '/' },
+    { nume: 'Cum lucrez', cale: CALE },
+  ]}
+  harta={{}}
+>
+  <div class="contener cum">
+    <h1>Cum lucrez</h1>
+    <p class="cum__intro">
+      Eu, Alex Ionescu, lucrez în patru pași: evaluare, ofertă, lucru și raport. De la ofertă, traseul are două variante: o
+      remediere unică sau o remediere urmată de un abonament lunar. Lucrez doar cu firme, PFA-uri și alte entități profesionale.
+    </p>
+  </div>
+
+  <section class="cum-trasee" aria-labelledby="doua-trasee">
+    <div class="contener">
+      <h2 id="doua-trasee">Două trasee</h2>
+      <RouteMap marime="mare" />
+    </div>
+  </section>
+
+  <div class="contener cum cum--sectiuni">
+    <section aria-labelledby="pasii">
+      <h2 id="pasii">Cei patru pași</h2>
+      <ol class="pasi-explicati">
+        {
+          PASI.map((pas) => (
+            <li>
+              <h3>{pas.nume}</h3>
+              <p>{pas.explicatie}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section aria-labelledby="formate">
+      <h2 id="formate">Remediere unică sau abonament lunar</h2>
+      <p>Remedierea unică repară ce am găsit la evaluare și se încheie cu raportul.</p>
+      <p>Cu abonamentul lunar, remedierea costă mai puțin, iar lucrul continuă lună de lună după ea.</p>
+      <p class="cum__pret">Prețul, reducerea și ce include abonamentul le stabilim după ce mă uit la site-ul tău.</p>
+    </section>
+  </div>
+
+  <Indemn text="Spune-mi ce site ai și ce te încurcă." />
+</Base>
+
+<style>
+  .cum {
+    padding-block: 1rem 3rem;
+  }
+
+  /* Secțiunile de după banda cu trasee: același spațiu deasupra ca dedesubtul benzii. */
+  .cum--sectiuni {
+    padding-top: 3rem;
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+  }
+
+  /* Primul paragraf, cel pe care îl citesc motoarele AI (§6.4): puțin mai mare decât restul, ca pe paginile de serviciu. */
+  .cum__intro {
+    font-size: var(--text-md);
+    line-height: 1.45;
+  }
+
+  /* Traseele stau pe albastru deschis, pe toată lățimea (RouteMap lasă fundalul paginii). */
+  .cum-trasee {
+    padding-block: 3rem;
+    background: var(--tint-blue);
+  }
+
+  .cum-trasee h2 {
+    margin-bottom: 1.5rem;
+  }
+
+  section + section {
+    margin-top: 3rem;
+  }
+
+  /* Pașii sunt o secvență (§5.1), deci au numere: le dă `<ol>`, cu numărul în fața numelui pasului. */
+  /* Cât să încapă „4.” la mărimea numelui pasului: numărul stă în container, nu în marginea paginii. */
+  .pasi-explicati {
+    margin: 0;
+    padding-left: 2.25rem;
+  }
+
+  .pasi-explicati li + li {
+    margin-top: 1.5rem;
+  }
+
+  .pasi-explicati li::marker {
+    font-size: var(--text-lg);
+    font-weight: 800;
+  }
+
+  .pasi-explicati h3 {
+    margin-bottom: 0.25rem;
+  }
+
+  .pasi-explicati p {
+    margin: 0;
+  }
+
+  .cum__pret {
+    font-weight: 700;
+  }
+</style>

@@ -1,0 +1,14 @@
+---
+// Mesajul n-a plecat (§3.5): o regulă încălcată, limita de trimiteri sau trimiterea eșuată. Butonul Înapoi readuce textul.
+import RaspunsFormular from '../../components/RaspunsFormular.astro';
+import { PAGINI_STATICE } from '../../lib/routes';
+---
+
+<RaspunsFormular
+  titlu={PAGINI_STATICE['/contact/eroare/'].titlu}
+  descriere={PAGINI_STATICE['/contact/eroare/'].descriere}
+  cale="/contact/eroare/"
+  contacte
+>
+  <p>Mesajul n-a plecat. Apasă Înapoi ca să-l recuperezi și încearcă din nou peste un minut, sau scrie-mi direct la:</p>
+</RaspunsFormular>

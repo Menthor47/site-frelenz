@@ -1,0 +1,58 @@
+---
+// Firimiturile vizibile (§9.2): `nav aria-label="Firimituri"` cu `ol`, iar ultimul pas, pagina curentă, are `aria-current="page"`.
+// BreadcrumbList pentru motoarele de căutare se adaugă în Base, din aceiași pași (`nodBreadcrumb`).
+import type { PasFirimitura } from '../lib/jsonld';
+
+interface Props {
+  /** De la Acasă până la pagina curentă; `cale` are slash la început și la sfârșit. */
+  pasi: readonly PasFirimitura[];
+}
+
+const { pasi } = Astro.props;
+const ultimul = pasi.length - 1;
+---
+
+<nav class="firimituri" aria-label="Firimituri">
+  <ol>
+    {
+      pasi.map((pas, i) => (
+        <li>{i === ultimul ? <span aria-current="page">{pas.nume}</span> : <a href={pas.cale}>{pas.nume}</a>}</li>
+      ))
+    }
+  </ol>
+</nav>
+
+<style>
+  .firimituri {
+    font-size: var(--text-sm);
+  }
+
+  ol {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    /* Zona de atingere a rândului (§5.8). */
+    min-height: 44px;
+  }
+
+  /* Separatorul stă la capătul pasului dinainte, ca la rândurile înguste să nu rămână singur la început de rând.
+     E decor: textul alternativ gol îl scoate din citirea cu cititorul de ecran. */
+  li:not(:last-child)::after {
+    margin-inline: 0.5rem;
+    color: var(--ink-2);
+    content: '/';
+    content: '/' / '';
+  }
+
+  [aria-current='page'] {
+    color: var(--ink);
+    font-weight: 700;
+  }
+</style>

@@ -1,0 +1,67 @@
+---
+// /proiecte/ (§3.4, §4.5): lista proiectelor publicabile. Fără niciunul, pagina nu se construiește deloc (rest param
+// fără valoare = chiar /proiecte/), iar „Proiecte” lipsește din meniu, de pe Acasă, din subsol și din sitemap.
+// Harta are toate liniile estompate (§5.6). JSON-LD: CollectionPage; BreadcrumbList vine din Base (ruling R10).
+import { getCollection } from 'astro:content';
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import { paginaAprobata } from '../../approvals';
+import Indemn from '../../components/Indemn.astro';
+import ProiecteRezumat from '../../components/ProiecteRezumat.astro';
+import Base from '../../layouts/Base.astro';
+import { DRAFT } from '../../lib/env';
+import { nodColectie } from '../../lib/jsonld';
+import { proiectePublicabile } from '../../lib/publish';
+import { PAGINI_STATICE } from '../../lib/routes';
+
+export const getStaticPaths = (async () => {
+  const proiecte = proiectePublicabile((await getCollection('proiecte')).map((intrare) => intrare.data), DRAFT);
+  return proiecte.length > 0 ? [{ params: { lista: undefined }, props: { proiecte } }] : [];
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { proiecte } = Astro.props;
+
+const CALE = '/proiecte/';
+---
+
+<Base
+  titlu={PAGINI_STATICE['/proiecte/'].titlu}
+  descriere={PAGINI_STATICE['/proiecte/'].descriere}
+  cale={CALE}
+  aprobat={paginaAprobata(CALE)}
+  jsonld={nodColectie('proiecte', proiecte.map((p) => ({ nume: p.titlu, cale: `/proiecte/${p.slug}/` })))}
+  firimituri={[
+    { nume: 'Acasă', cale: '/' },
+    { nume: 'Proiecte', cale: CALE },
+  ]}
+  harta={{}}
+>
+  <div class="contener lista-proiecte">
+    <h1>Proiecte</h1>
+    <p class="lista-proiecte__intro">
+      Eu, Alex Ionescu, scriu aici despre site-urile la care am lucrat: ce problemă aveau, ce am făcut și ce rezultat s-a putut
+      dovedi, cu sursa și data lui.
+    </p>
+    <ProiecteRezumat proiecte={proiecte} nivelTitlu={2} />
+  </div>
+
+  <Indemn text="Spune-mi ce site ai și ce te încurcă." />
+</Base>
+
+<style>
+  .lista-proiecte {
+    padding-block: 1rem 3rem;
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+  }
+
+  .lista-proiecte__intro {
+    max-width: 60ch;
+    margin-bottom: 2.5rem;
+    font-size: var(--text-md);
+    line-height: 1.45;
+  }
+</style>

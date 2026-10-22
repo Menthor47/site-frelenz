@@ -1,0 +1,14 @@
+---
+// „Am primit cererea ta” (§3.5, §8): ultimul verb din lanț. Spune ce urmează, fără termen de răspuns (#18).
+import RaspunsFormular from '../../components/RaspunsFormular.astro';
+import { PAGINI_STATICE } from '../../lib/routes';
+---
+
+<RaspunsFormular
+  titlu={PAGINI_STATICE['/contact/multumim/'].titlu}
+  descriere={PAGINI_STATICE['/contact/multumim/'].descriere}
+  cale="/contact/multumim/"
+>
+  <p>Mă uit la ce mi-ai scris și la site-ul tău, apoi îți trimit oferta: ce lucrez, în ce ordine și ce primești.</p>
+  <p>Până atunci, poți vedea <a href="/cum-lucrez/">cum lucrez</a> sau te poți întoarce la <a href="/">pagina de pornire</a>.</p>
+</RaspunsFormular>

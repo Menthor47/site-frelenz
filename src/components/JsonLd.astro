@@ -1,0 +1,16 @@
+---
+// Un singur <script type="application/ld+json"> pe pagină, cu un singur @graph (§6.3).
+// Singurul script care nu trece prin Astro (browserul nu îl execută), deci nu cere hash în CSP.
+// `WebSite` și `Person` minimal apar pe toate paginile; un `nodPerson(true)` primit în `noduri` îl înlocuiește pe cel minimal.
+import { grafPagina, serializeaza } from '../lib/jsonld';
+
+interface Props {
+  /** Nodurile specifice paginii (listele de noduri se aplatizează). */
+  noduri?: readonly object[];
+}
+
+const { noduri = [] } = Astro.props;
+const json = serializeaza(grafPagina(noduri));
+---
+
+<script type="application/ld+json" set:html={json} />

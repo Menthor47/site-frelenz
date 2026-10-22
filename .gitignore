@@ -1,0 +1,15 @@
+dist/
+dist-draft/
+reports/
+.wrangler/
+node_modules/
+.astro/
+test-results/
+playwright-report/
+
+# Notițele unor unelte locale (starea sesiunii, cercetări), nu fac parte din site.
+.anchor/
+research_notes/
+
+# Variabilele locale ale lui wrangler dev (de exemplu DEBUG_FORM=1).
+.dev.vars

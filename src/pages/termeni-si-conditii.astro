@@ -1,0 +1,37 @@
+---
+// Termenii site-ului (§7.4): doar lista din spec, fără clauze comerciale (durata, preavizul, reducerea, plățile, drepturile
+// asupra livrabilelor, accesele, răspunderea, legea aplicabilă), care merg într-un contract-tip separat, verificat de un
+// avocat, cu acceptare expresă pentru clauzele din art. 1203 Cod civil. Ciornă: o aprobă Alex.
+import LegalId from '../components/LegalId.astro';
+import Legal from '../layouts/Legal.astro';
+import { PAGINI_STATICE } from '../lib/routes';
+---
+
+<Legal
+  titlu={PAGINI_STATICE['/termeni-si-conditii/'].titlu}
+  descriere={PAGINI_STATICE['/termeni-si-conditii/'].descriere}
+  cale="/termeni-si-conditii/"
+  actualizat={new Date(PAGINI_STATICE['/termeni-si-conditii/'].actualizat)}
+>
+  <h2>Cine administrează site-ul</h2>
+  <p>Site-ul e administrat din România, de un PFA înregistrat în România. Datele lui de identificare sunt mai jos.</p>
+  <LegalId variant="complet" />
+
+  <h2>Cu cine lucrez</h2>
+  <p>Lucrez doar cu firme, PFA-uri și alte entități profesionale.</p>
+
+  <h2>Conținutul site-ului</h2>
+  <p>
+    Conținutul site-ului e proprietatea autorului. Ghidurile sunt informații generale, nu sfaturi
+    pentru situația ta anume.
+  </p>
+
+  <h2>Ce nu garantez</h2>
+  <p>Nu garantez poziții în Google și nici apariții în răspunsurile motoarelor AI.</p>
+
+  <h2>Cererea de ofertă și colaborarea</h2>
+  <p>
+    O cerere de ofertă trimisă de pe site nu obligă pe nimeni, nici pe tine, nici pe mine. O colaborare începe doar pe bază de ofertă
+    sau contract scris.
+  </p>
+</Legal>

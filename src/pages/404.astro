@@ -1,0 +1,56 @@
+---
+// 404 (§4.5): spune ce s-a întâmplat și duce spre Acasă, Servicii și Contact. Fără hartă (§5.6), fără firimituri,
+// noindex și lipsă din sitemap (src/lib/seo.ts). Cloudflare o servește pentru orice adresă inexistentă
+// (`not_found_handling: "404-page"` din wrangler.jsonc).
+import { paginaAprobata } from '../approvals';
+import Base from '../layouts/Base.astro';
+import { PAGINI_STATICE } from '../lib/routes';
+
+const CALE = '/404/';
+---
+
+<Base
+  titlu={PAGINI_STATICE['/404/'].titlu}
+  descriere={PAGINI_STATICE['/404/'].descriere}
+  cale={CALE}
+  aprobat={paginaAprobata(CALE)}
+  noindex
+>
+  <div class="contener negasit">
+    <h1>Pagina nu există</h1>
+    <p class="negasit__text">
+      Adresa pe care ai deschis-o nu duce la nicio pagină de pe site. Poate a fost scrisă greșit sau pagina s-a mutat.
+    </p>
+    <ul class="negasit__linkuri">
+      <li><a href="/">Acasă</a></li>
+      <li><a href="/servicii/">Servicii</a></li>
+      <li><a href="/contact/">Contact</a></li>
+    </ul>
+  </div>
+</Base>
+
+<style>
+  .negasit {
+    padding-block: 3rem 4rem;
+  }
+
+  .negasit__text {
+    max-width: 60ch;
+    font-size: var(--text-md);
+    line-height: 1.45;
+  }
+
+  .negasit__linkuri {
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Zona de atingere de 44px (§5.8): linkurile sunt singure pe rând. */
+  .negasit__linkuri a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 700;
+  }
+</style>

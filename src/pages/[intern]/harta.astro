@@ -1,0 +1,53 @@
+---
+// Pagina internă de test pentru harta de metrou (§5.6): banda statică din Base (linia vizibilitate), harta animată de pe
+// Acasă (cu trenuri și butonul de oprire) și celelalte variante statice, ca să se verifice în browser și cu `qa:page`.
+// Ruta `/_test/harta/` vine din segmentul dinamic, ca la `/_test/diacritice/`: Astro ignoră directoarele care încep cu `_`.
+// Se construiește doar în previzualizarea DRAFT=1 (dist-draft/); în producție getStaticPaths o exclude.
+import MetroMap from '../../components/MetroMap.astro';
+import type { Grup } from '../../form-rules';
+import Base from '../../layouts/Base.astro';
+import { DRAFT } from '../../lib/env';
+
+export function getStaticPaths() {
+  return DRAFT ? [{ params: { intern: '_test' } }] : [];
+}
+
+const statice: readonly { titlu: string; line?: Grup }[] = [
+  { titlu: 'Diagnostic: M4 plină', line: 'diagnostic' },
+  { titlu: 'Construcție: M1 plină', line: 'constructie' },
+  { titlu: 'Reparație: M3 plină', line: 'reparatie' },
+  { titlu: 'Fără linie: toate estompate, fără „Ești aici”' },
+];
+---
+
+<Base
+  titlu="Test hartă de metrou"
+  descriere="Pagină internă, nepublicată: arată harta de metrou animată de pe Acasă, cu trenurile și butonul de oprire, și variantele statice din banda paginilor."
+  cale="/_test/harta/"
+  aprobat={false}
+  noindex
+  harta={{ line: 'vizibilitate' }}
+>
+  <div class="contener">
+    <h1>Test hartă de metrou</h1>
+    <p>Banda de sus vine din Base, cu linia vizibilitate plină. Urmează harta animată de pe Acasă și celelalte variante statice.</p>
+    <h2>Animată, ca pe Acasă</h2>
+  </div>
+  <MetroMap variant="animated" />
+  {
+    statice.map((s) => (
+      <>
+        <div class="contener">
+          <h2>{s.titlu}</h2>
+        </div>
+        <MetroMap variant="static" line={s.line} />
+      </>
+    ))
+  }
+</Base>
+
+<style>
+  h2 {
+    margin-top: 2rem;
+  }
+</style>

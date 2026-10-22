@@ -1,0 +1,17 @@
+# Antetele site-ului static (§3.6). Nu se aplică răspunsurilor generate de Worker: acolo le pune worker/index.ts.
+# CSP-ul de aici n-are default-src, script-src sau style-src: politicile se cumulează, iar acelea (cu hash-uri) stau în <meta>.
+# frame-ancestors e aici pentru că browserul îl ignoră în <meta>.
+/*
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  X-Frame-Options: DENY
+  Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Adresele *.workers.dev (inclusiv cele de previzualizare) nu se indexează.
+https://:version.:subdomain.workers.dev/*
+  X-Robots-Tag: noindex

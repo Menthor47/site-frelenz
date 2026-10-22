@@ -1,0 +1,149 @@
+---
+// /despre/ (§4.5): cine e Alex, din faptele din spec (§1), apoi biografia, experiența și instrumentele (#4). Fără studii:
+// Alex a cerut, pe 2026-10-22, ca experiența să le țină locul. Textele vin din repo-urile lui Alex, confirmate de el:
+// szitrans.eu apare cu numele (acordul, #7) și devine link spre studiul lui doar când acela se construiește (§3.4), ca
+// să nu ducă niciodată spre o pagină lipsă; magazinul rămâne anonim. Pagina așteaptă aprobarea lui Alex
+// (src/approvals.ts). Profilurile apar doar dacă `site.profiluri` nu e gol
+// (#5), cu `rel="me"`. Fără fotografie și fără cadru gol până există una reală (#6).
+// În producție, o secțiune care e încă marcaj lipsește cu tot cu titlul ei (§3.4).
+// JSON-LD: ProfilePage (mainEntity #alex) și Person complet, care îl înlocuiește pe cel minimal; BreadcrumbList din Base.
+import { getCollection } from 'astro:content';
+import { paginaAprobata } from '../approvals';
+import Indemn from '../components/Indemn.astro';
+import TextSauMarcaj from '../components/TextSauMarcaj.astro';
+import Base from '../layouts/Base.astro';
+import { DRAFT } from '../lib/env';
+import { nodPerson, nodProfilePage } from '../lib/jsonld';
+import { areValoare, faraMarcaje, hasMarker } from '../lib/marker';
+import { proiectePublicabile } from '../lib/publish';
+import { site } from '../site.config';
+import { PAGINI_STATICE } from '../lib/routes';
+
+const CALE = '/despre/';
+
+/** O secțiune care e încă marcaj lipsește în producție (§3.4). `legatura`: textul care devine link spre un studiu de caz. */
+const SECTIUNI: readonly { titlu: string; text: string; legatura?: { text: string; proiect: string } }[] = [
+  {
+    titlu: 'Cine sunt',
+    text: 'Lucrez singur. Când îmi scrii, vorbești direct cu cel care face lucrarea: eu mă uit la site, eu fac oferta și eu fac modificările. La final primești un raport cu ce am schimbat.',
+  },
+  {
+    titlu: 'Experiență',
+    legatura: { text: 'szitrans.eu', proiect: 'szitrans' },
+    text: 'Am construit szitrans.eu, site-ul bilingv, în engleză și spaniolă, al unei firme de transport și logistică din Spania, și m-am ocupat de SEO-ul lui: am pus datele reale ale firmei în datele structurate și în etichetele meta, ca Google și motoarele AI să găsească peste tot aceleași informații, și am adăugat toate paginile, în ambele limbi, în harta site-ului. Un magazin online pe WordPress și WooCommerce primește comenzi și în timp ce îl modific, așa că am pornit de la o copie locală, iar pe site-ul live a ajuns doar cod testat. I-am adus la zi subsolul și paginile legale, cu datele comerciantului și linkurile ANPC, am tradus bannerul de cookie-uri în română și i-am adăugat butonul de refuz. Iar site-ul pe care îl citești acum l-am construit tot eu, pagină cu pagină.',
+  },
+  {
+    titlu: 'Instrumente',
+    text: 'Pentru site-uri noi folosesc Astro sau React, în TypeScript, iar pentru găzduire și formulare, Cloudflare. Pe site-urile WordPress lucrez cu WooCommerce și PHP. Verific fiecare pagină cu Lighthouse, axe și Playwright, iar tot codul îl țin în Git.',
+  },
+];
+
+const publicate = new Set(proiectePublicabile((await getCollection('proiecte')).map((intrare) => intrare.data), DRAFT).map((p) => p.slug));
+const sectiuni = faraMarcaje(SECTIUNI, (s) => hasMarker(s.text), DRAFT).map((s) => {
+  const l = s.legatura;
+  const poz = l !== undefined && publicate.has(l.proiect) ? s.text.indexOf(l.text) : -1;
+  const link =
+    l === undefined || poz < 0
+      ? undefined
+      : { inainte: s.text.slice(0, poz), text: l.text, href: `/proiecte/${l.proiect}/`, dupa: s.text.slice(poz + l.text.length) };
+  return { titlu: s.titlu, text: s.text, link };
+});
+// Aceeași regulă ca `sameAs` din JSON-LD: fără valori goale sau marcaje.
+const profiluri = site.profiluri.filter(areValoare);
+---
+
+<Base
+  titlu={PAGINI_STATICE['/despre/'].titlu}
+  descriere={PAGINI_STATICE['/despre/'].descriere}
+  cale={CALE}
+  aprobat={paginaAprobata(CALE)}
+  jsonld={[nodProfilePage(), nodPerson(true)]}
+  firimituri={[
+    { nume: 'Acasă', cale: '/' },
+    { nume: 'Despre', cale: CALE },
+  ]}
+  harta={{}}
+>
+  <div class="contener despre">
+    <h1>{site.nume}</h1>
+    <p class="despre__intro">
+      Sunt Alex Ionescu, consultant SEO și web design din București. Lucrez cu firme, PFA-uri și alte entități profesionale din
+      toată țara: SEO, audit SEO, site-uri de prezentare, redesign, mentenanță și optimizare pentru căutarea AI.
+    </p>
+    <p>
+      Pe pagina <a href="/cum-lucrez/">Cum lucrez</a> vezi pașii și cele două feluri în care putem lucra împreună.
+    </p>
+
+    {
+      sectiuni.map((s) => (
+        <section>
+          <h2>{s.titlu}</h2>
+          <p>
+            {s.link === undefined ? (
+              <TextSauMarcaj valoare={s.text} />
+            ) : (
+              // Pe un singur rând: un rând nou între link și text ar pune un spațiu înaintea virgulei de după link.
+              <>{s.link.inainte}<a href={s.link.href}>{s.link.text}</a>{s.link.dupa}</>
+            )}
+          </p>
+        </section>
+      ))
+    }
+
+    {
+      profiluri.length > 0 && (
+        <section>
+          <h2>Profiluri</h2>
+          <ul class="despre__profiluri">
+            {profiluri.map((p) => (
+              <li>
+                <a href={p} rel="me">
+                  {new URL(p).hostname.replace(/^www\./, '')}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+
+  <Indemn text="Spune-mi ce site ai și ce te încurcă." />
+</Base>
+
+<style>
+  .despre {
+    padding-block: 1rem 3rem;
+  }
+
+  .despre > :global(*) {
+    max-width: 70ch;
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+  }
+
+  /* Primul paragraf, cel pe care îl citesc motoarele AI (§6.4). */
+  .despre__intro {
+    font-size: var(--text-md);
+    line-height: 1.45;
+  }
+
+  section {
+    margin-top: 2.5rem;
+  }
+
+  .despre__profiluri {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Zona de atingere de 44px (§5.8): linkurile spre profiluri sunt singure pe rând. */
+  .despre__profiluri a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+</style>

@@ -1,0 +1,25 @@
+---
+// Politica de cookie-uri (§7.3): textul exact din spec. Formularea nu e absolută („niciun cookie”), pentru că protecția
+// Cloudflare poate cere o verificare și seta `cf_clearance`. Afirmația rămâne adevărată doar cu setările de zonă din §3.6,
+// verificate în producție înainte de lansare și după orice schimbare (antetele Set-Cookie, stocarea din browser, HTML-ul).
+import Legal from '../layouts/Legal.astro';
+import { PAGINI_STATICE } from '../lib/routes';
+---
+
+<Legal
+  titlu={PAGINI_STATICE['/politica-cookies/'].titlu}
+  descriere={PAGINI_STATICE['/politica-cookies/'].descriere}
+  cale="/politica-cookies/"
+  actualizat={new Date(PAGINI_STATICE['/politica-cookies/'].actualizat)}
+>
+  <p>
+    Site-ul nu folosește cookie-uri de analiză, de marketing sau de preferințe și nici tehnologii similare (stocare locală, pixeli,
+    amprentare). Singura excepție: dacă protecția Cloudflare îți cere o verificare de securitate (de exemplu în timpul unui atac),
+    Cloudflare poate seta cookie-ul strict necesar <code>cf_clearance</code>, fără de care verificarea nu funcționează.
+  </p>
+  <p>
+    Pentru că acest cookie e strict necesar, nu îți cer consimțământul pentru el, iar pe site nu apare niciun banner de cookie-uri. Datele
+    tehnice pe care le prelucrează Cloudflare sunt descrise în <a href="/politica-de-confidentialitate/">Politica de
+    confidențialitate</a>.
+  </p>
+</Legal>

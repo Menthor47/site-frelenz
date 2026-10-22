@@ -1,0 +1,29 @@
+/* Butonul „Cere o ofertă” (componenta Cta și antetul). Global, ca să arate la fel oriunde apare (§5.2, §5.8). */
+.buton-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Zona de atingere de 44px (§5.8). */
+  min-height: 44px;
+  padding: 0.5rem 1.25rem;
+  /* Pe albastru apare doar text alb (4,86:1). */
+  background: var(--blue);
+  color: var(--paper);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* Hover: varianta închisă a albastrului, tot cu text alb (7,36:1), plus subliniere, ca starea să nu stea doar în culoare. */
+.buton-cta:hover {
+  background: var(--blue-dark);
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+/* Apăsat: butonul coboară un pixel, pe loc, fără tranziție (nu e mișcare pe care s-o oprească „reduced motion”). */
+.buton-cta:active {
+  transform: translateY(1px);
+}
