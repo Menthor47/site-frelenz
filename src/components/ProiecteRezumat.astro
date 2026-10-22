@@ -1,0 +1,73 @@
+---
+// Proiectele pe scurt (§4.3 punctul 5): titlul ca link, contextul, ce am făcut și rezultatul, cu sursa și data.
+// Pagina îi dă doar proiectele publicabile (`proiectePublicabile`) și decide câte. Niciun câmp cu marcaj [DE COMPLETAT]
+// nu se scrie ca text brut (§3.4): trece prin `Placeholder`, care în producție nu scrie nimic. Un rezultat cu marcaj
+// nu e verificabil, deci în producție rândul lipsește, ca la `Faq`. Titlul vine din pagina proiectului, care e aprobată.
+import { DRAFT } from '../lib/env';
+import { hasMarker } from '../lib/marker';
+import TextSauMarcaj from './TextSauMarcaj.astro';
+
+interface Props {
+  proiecte: readonly {
+    slug: string;
+    titlu: string;
+    context: string;
+    ceAmFacut: readonly string[];
+    rezultate: readonly { text: string; sursa: string; data: Date }[];
+  }[];
+}
+
+const { proiecte } = Astro.props;
+
+/** Luna și anul rezultatului. `z.coerce.date()` dă miezul nopții UTC, deci luna se citește în UTC. */
+const luna = (data: Date) => data.toLocaleDateString('ro-RO', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+
+const rezultat = (p: Props['proiecte'][number]) =>
+  (DRAFT ? p.rezultate : p.rezultate.filter((r) => !hasMarker(r.text) && !hasMarker(r.sursa)))[0];
+---
+
+<ul class="proiecte">
+  {
+    proiecte.map((p) => {
+      const r = rezultat(p);
+      return (
+        <li>
+          <h3>
+            <a href={`/proiecte/${p.slug}/`}>{p.titlu}</a>
+          </h3>
+          <p>
+            <TextSauMarcaj valoare={p.context} />
+          </p>
+          <ul>
+            {p.ceAmFacut.map((t) => (
+              <li>
+                <TextSauMarcaj valoare={t} />
+              </li>
+            ))}
+          </ul>
+          {r && (
+            <p class="proiecte__rezultat">
+              <TextSauMarcaj valoare={r.text} /> (<TextSauMarcaj valoare={r.sursa} />, {luna(r.data)})
+            </p>
+          )}
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  .proiecte {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .proiecte > li + li {
+    margin-top: 2rem;
+  }
+
+  .proiecte__rezultat {
+    font-weight: 700;
+  }
+</style>

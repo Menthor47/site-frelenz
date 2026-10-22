@@ -12,6 +12,7 @@ import Cta from '../components/Cta.astro';
 import Faq from '../components/Faq.astro';
 import LineDiagram from '../components/LineDiagram.astro';
 import MetroMap from '../components/MetroMap.astro';
+import ProiecteRezumat from '../components/ProiecteRezumat.astro';
 import RouteMap from '../components/RouteMap.astro';
 import { SERVICII } from '../form-rules';
 import Base from '../layouts/Base.astro';
@@ -27,7 +28,11 @@ const PROIECTE_PE_ACASA = 3;
 const randuri = (await getCollection('servicii'))
   .map((intrare) => intrare.data)
   .sort((a, b) => a.ordine - b.ordine)
-  .map((s) => ({ problema: s.problema, slug: s.slug, nume: SERVICII.find((x) => x.slug === s.slug)?.nume ?? s.titlu, grup: s.grup }));
+  .map((s) => {
+    const regula = SERVICII.find((x) => x.slug === s.slug);
+    if (regula === undefined) throw new Error(`Serviciul „${s.slug}” nu e în src/form-rules.ts`);
+    return { problema: s.problema, slug: s.slug, nume: regula.nume, grup: s.grup };
+  });
 
 const proiecte = proiectePublicabile((await getCollection('proiecte')).map((intrare) => intrare.data), DRAFT).slice(0, PROIECTE_PE_ACASA);
 
@@ -93,26 +98,7 @@ const intrebari = [
       <section class="acasa-sectiune" aria-labelledby="proiecte">
         <div class="contener">
           <h2 id="proiecte">Proiecte</h2>
-          <ul class="proiecte">
-            {proiecte.map((p) => (
-              <li>
-                <h3>
-                  <a href={`/proiecte/${p.slug}/`}>{p.titlu}</a>
-                </h3>
-                <p>{p.context}</p>
-                <ul>
-                  {p.ceAmFacut.map((t) => (
-                    <li>{t}</li>
-                  ))}
-                </ul>
-                {p.rezultate[0] && (
-                  <p class="proiecte__rezultat">
-                    {p.rezultate[0].text} ({p.rezultate[0].sursa}, {p.rezultate[0].data.toLocaleDateString('ro-RO', { month: 'long', year: 'numeric' })})
-                  </p>
-                )}
-              </li>
-            ))}
-          </ul>
+          <ProiecteRezumat proiecte={proiecte} />
         </div>
       </section>
     )
@@ -197,20 +183,6 @@ const intrebari = [
   /* Traseele stau pe albastru deschis, pe toată lățimea (§4.3 punctul 4). */
   .acasa-trasee {
     background: var(--tint-blue);
-  }
-
-  .proiecte {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .proiecte > li + li {
-    margin-top: 2rem;
-  }
-
-  .proiecte__rezultat {
-    font-weight: 700;
   }
 
   /* Banda albastră cu îndemnul final (§4.3 punctul 7). Pe albastru, doar text alb (§5.2); butonul devine alb, cu text

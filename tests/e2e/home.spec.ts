@@ -35,8 +35,11 @@ test('titlul stă peste hartă, pe fundal alb, ca un indicator de stație', asyn
   await page.goto('/');
   const titlu = (await page.locator('h1').boundingBox())!;
   const harta = (await page.locator('.harta--animata').boundingBox())!;
-  expect(titlu.y).toBeLessThan(harta.y + harta.height);
-  expect(titlu.y + titlu.height).toBeGreaterThan(harta.y);
+  // Muchia de sus a plăcuței cade între M2 (la jumătatea hărții) și M3 (la două treimi), iar plăcuța iese sub hartă.
+  const sus = (titlu.y - harta.y) / harta.height;
+  expect(sus).toBeGreaterThan(0.5);
+  expect(sus).toBeLessThan(2 / 3);
+  expect(titlu.y + titlu.height).toBeGreaterThan(harta.y + harta.height);
   expect(await page.locator('h1').evaluate((h) => getComputedStyle(h).backgroundColor)).toBe('rgb(255, 255, 255)');
 });
 
@@ -123,6 +126,17 @@ for (const latime of [320, 768]) {
     expect(fara, fara ? '' : (await elementeCareDepasesc(page)).join('; ')).toBe(true);
   });
 }
+
+// Cu text normal, de la 768px, rândul din „De unde pornești?” stă pe o singură linie (container query în LineDiagram).
+test('la 768px, problema și capătul de linie stau pe același rând', async ({ page }) => {
+  await page.setViewportSize({ width: 768, height: 900 });
+  await page.goto('/');
+  const rand = page.locator('main .linie-rand').first();
+  const problema = (await rand.locator('.linie-rand__problema').boundingBox())!;
+  const capat = (await rand.locator('.linie-rand__capat').boundingBox())!;
+  expect(capat.x).toBeGreaterThan(problema.x + problema.width - 1);
+  expect(Math.abs(capat.y + capat.height / 2 - (problema.y + problema.height / 2))).toBeLessThan(capat.height);
+});
 
 // M3 (§5.7, ruling R5): segmentul de pe Acasă și banda paginii de serviciu au același `view-transition-name`.
 test('segmentul din „De unde pornești?” și banda serviciului au același nume de tranziție', async ({ page }) => {

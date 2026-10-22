@@ -203,22 +203,29 @@ export async function trenuriInMiscare(page: Page, ms = 400): Promise<boolean> {
 
 /**
  * `true` dacă două dintre elementele vizibile găsite de `selectori` se suprapun (dreptunghiurile se intersectează cu mai
- * mult de 1px). Un element nu se compară cu el însuși și nici cu propriii părinți sau copii.
+ * mult de 1px). Un element nu se compară cu el însuși și nici cu propriii părinți sau copii. Aruncă o eroare dacă un
+ * selector nu găsește niciun element vizibil: altfel un element lipsă ar trece drept „nu se suprapune”.
  */
 export async function seSuprapun(page: Page, selectori: readonly string[]): Promise<boolean> {
-  return page.evaluate((lista) => {
-    const elemente = [...new Set(lista.flatMap((s) => [...document.querySelectorAll(s)]))].filter((el) =>
-      el.checkVisibility({ checkVisibilityCSS: true }),
-    );
-    const cutii = elemente.map((el) => ({ el, r: el.getBoundingClientRect() })).filter(({ r }) => r.width > 0 && r.height > 0);
+  const rezultat = await page.evaluate((lista) => {
+    const vizibile = (s: string) =>
+      [...document.querySelectorAll(s)].filter((el) => {
+        const r = el.getBoundingClientRect();
+        return el.checkVisibility({ checkVisibilityCSS: true }) && r.width > 0 && r.height > 0;
+      });
+    const lipsa = lista.filter((s) => vizibile(s).length === 0);
+    if (lipsa.length > 0) return { lipsa };
+    const cutii = [...new Set(lista.flatMap(vizibile))].map((el) => ({ el, r: el.getBoundingClientRect() }));
     for (const [i, a] of cutii.entries()) {
       for (const b of cutii.slice(i + 1)) {
         if (a.el.contains(b.el) || b.el.contains(a.el)) continue;
         const peLatime = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left);
         const peInaltime = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top);
-        if (peLatime > 1 && peInaltime > 1) return true;
+        if (peLatime > 1 && peInaltime > 1) return { suprapuse: true };
       }
     }
-    return false;
+    return { suprapuse: false };
   }, selectori);
+  if ('lipsa' in rezultat) throw new Error(`seSuprapun: niciun element vizibil pentru ${rezultat.lipsa.join(', ')}`);
+  return rezultat.suprapuse;
 }
