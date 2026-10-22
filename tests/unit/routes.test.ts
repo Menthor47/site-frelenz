@@ -51,6 +51,20 @@ describe('paginiConstruite', () => {
     expect(pagini.find((p) => p.cale === '/contact/')?.grup).toBeUndefined();
   });
 
+  // check:launch citește aprobările de aici (§3.4): paginile .astro din approvals.ts, restul din câmpul `aprobat`.
+  test('fiecare pagină știe dacă e aprobată; azi nu e aprobată niciuna', async () => {
+    const pagini = await paginiConstruite(true);
+    for (const p of pagini) expect(typeof p.aprobat, p.cale).toBe('boolean');
+    expect(pagini.filter((p) => p.aprobat)).toEqual([]);
+  });
+
+  test('ghidurile și paginile legale au data scrisă de mână, pentru avertismentul de la lansare', async () => {
+    const pagini = await paginiConstruite(true);
+    expect(pagini.find((p) => p.cale === '/ghiduri/ce-este-geo/')?.data).toBe('2026-10-22');
+    expect(pagini.find((p) => p.cale === '/politica-cookies/')?.data).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(pagini.find((p) => p.cale === '/contact/')?.data).toBeUndefined();
+  });
+
   test('fiecare pagină statică are intrare în approvals.ts', () => {
     for (const cale of Object.keys(PAGINI_STATICE)) expect(Object.hasOwn(APROBARI, cale), cale).toBe(true);
   });

@@ -12,6 +12,8 @@ const SRC = join(RADACINA, 'src');
 const IESIRE = join(RADACINA, 'reports', 'placeholders.json');
 const EXTENSII = new Set(['.md', '.ts', '.astro']);
 const EXCLUS = join(SRC, 'placeholders.ts');
+// Paginile interne de test (/_test/…) se construiesc doar cu DRAFT=1: marcajele lor nu ajung niciodată în producție.
+const INTERN = join(SRC, 'pages', '[intern]');
 const FORME = [/\[DE COMPLETAT:#(\d+)\]/g, /<Placeholder\s+nr=\{(\d+)\}/g];
 
 /** Numerele marcajelor dintr-un text, fiecare o dată, crescător. */
@@ -24,8 +26,9 @@ export function marcajeDinText(text) {
 function* fisiere(dir) {
   for (const intrare of readdirSync(dir).sort()) {
     const cale = join(dir, intrare);
-    if (statSync(cale).isDirectory()) yield* fisiere(cale);
-    else if (EXTENSII.has(extname(cale)) && cale !== EXCLUS) yield cale;
+    if (statSync(cale).isDirectory()) {
+      if (cale !== INTERN) yield* fisiere(cale);
+    } else if (EXTENSII.has(extname(cale)) && cale !== EXCLUS) yield cale;
   }
 }
 

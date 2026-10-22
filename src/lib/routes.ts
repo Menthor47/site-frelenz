@@ -2,7 +2,9 @@
 // Paginile statice își iau de aici titlul și descrierea (§4.2); serviciile, proiectele și ghidurile, din colecții.
 // /proiecte/ și /ghiduri/ se construiesc doar cu conținut publicabil (§3.4), după aceleași reguli ca paginile lor.
 import { getCollection } from 'astro:content';
+import { paginaAprobata } from '../approvals';
 import { SERVICII, type Grup } from '../form-rules';
+import { dataIso } from './format';
 import { ghiduriDeConstruit, proiectePublicabile } from './publish';
 
 export interface PaginaConstruita {
@@ -14,6 +16,10 @@ export interface PaginaConstruita {
   descriere: string;
   /** Linia de metrou a paginii (serviciu, proiect, ghid); lipsește pe celelalte. */
   grup?: Grup | undefined;
+  /** Aprobarea lui Alex (§3.4): `src/approvals.ts` pentru paginile .astro, câmpul `aprobat` pentru colecții. */
+  aprobat: boolean;
+  /** Data scrisă de mână a textului (ghiduri: actualizat; pagini legale: ultima actualizare), ca să fie verificată la lansare. */
+  data?: string | undefined;
 }
 
 /** Titlul și descrierea paginilor .astro, câte o intrare pe rută (aceleași rute ca în src/approvals.ts). */
@@ -72,23 +78,26 @@ export const PAGINI_STATICE = {
     titlu: 'Politica de confidențialitate',
     descriere:
       'Ce date prelucrează Alex Ionescu când îi scrii prin formular, pe e-mail sau pe WhatsApp: de ce, pe ce temei, cine le mai primește, cât timp și ce drepturi ai.',
+    actualizat: '2026-10-22',
   },
   '/politica-cookies/': {
     titlu: 'Politica de cookie-uri',
     descriere:
       'Ce politică de cookie-uri are site-ul lui Alex Ionescu: fără cookie-uri de analiză sau de marketing; singura excepție e un cookie strict necesar al Cloudflare.',
+    actualizat: '2026-10-22',
   },
   '/termeni-si-conditii/': {
     titlu: 'Termeni și condiții',
     descriere:
       'Termenii site-ului lui Alex Ionescu: cine îl administrează, cu cine lucrează, ce înseamnă o cerere de ofertă și ce nu se garantează pe acest site.',
+    actualizat: '2026-10-22',
   },
   '/404/': {
     titlu: 'Pagina nu există',
     descriere:
       'Pagina pe care ai deschis-o nu există pe site-ul lui Alex Ionescu. Mergi la pagina de pornire, la servicii sau la contact ca să găsești ce căutai acolo.',
   },
-} as const satisfies Record<string, { titlu: string; descriere: string }>;
+} as const satisfies Record<string, { titlu: string; descriere: string; actualizat?: string }>;
 
 export type CaleStatica = keyof typeof PAGINI_STATICE;
 
@@ -103,13 +112,20 @@ export async function paginiConstruite(draft: boolean): Promise<PaginaConstruita
   const lipsesc = new Set<string>([...(proiecte.length === 0 ? ['/proiecte/'] : []), ...(ghiduri.length === 0 ? ['/ghiduri/'] : [])]);
   const statice = Object.entries(PAGINI_STATICE)
     .filter(([cale]) => !lipsesc.has(cale))
-    .map(([cale, p]) => ({ cale, titlu: p.titlu, descriere: p.descriere }));
+    .map(([cale, p]) => ({ cale, titlu: p.titlu, descriere: p.descriere, aprobat: paginaAprobata(cale), data: 'actualizat' in p ? p.actualizat : undefined }));
 
   return [
     ...statice,
-    ...servicii.map((s) => ({ cale: `/servicii/${s.slug}/`, titlu: s.titlu, descriere: s.descriere, grup: s.grup })),
-    ...proiecte.map((p) => ({ cale: `/proiecte/${p.slug}/`, titlu: p.titlu, descriere: p.descriere, grup: grupul(p.servicii[0] ?? '') })),
-    ...ghiduri.map((g) => ({ cale: `/ghiduri/${g.slug}/`, titlu: g.titlu, descriere: g.descriere, grup: grupul(g.serviciuLegat) })),
+    ...servicii.map((s) => ({ cale: `/servicii/${s.slug}/`, titlu: s.titlu, descriere: s.descriere, grup: s.grup, aprobat: s.aprobat })),
+    ...proiecte.map((p) => ({ cale: `/proiecte/${p.slug}/`, titlu: p.titlu, descriere: p.descriere, grup: grupul(p.servicii[0] ?? ''), aprobat: p.aprobat })),
+    ...ghiduri.map((g) => ({
+      cale: `/ghiduri/${g.slug}/`,
+      titlu: g.titlu,
+      descriere: g.descriere,
+      grup: grupul(g.serviciuLegat),
+      aprobat: g.aprobat,
+      data: dataIso(g.actualizat),
+    })),
   ];
 }
 
