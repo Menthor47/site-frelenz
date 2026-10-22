@@ -25,21 +25,21 @@ const raspuns = (status: number, antete: Record<string, string> = {}) => new Res
 
 const spre = (cale: Destinatie) => raspuns(303, { Location: cale });
 
-async function formular(cerere: Request): Promise<FormData | undefined> {
-  try {
-    return await cerere.formData();
-  } catch {
-    return undefined;
-  }
-}
+/**
+ * Pașii 2–7 din §3.5, pentru un POST pe /api/contact: capcana, limita pe IP, linkurile, celelalte reguli, apoi e-mailul.
+ * Orice eroare (un corp care nu e formular, limitatorul, construirea sau trimiterea e-mailului) ajunge în `fetch`.
+ */
+async function destinatie(cerere: Request, env: Env, domeniu: string): Promise<Destinatie> {
+  const rezultat = validate(await cerere.formData());
+  if (!rezultat.ok && rezultat.motiv === 'capcana') return '/contact/multumim/';
 
-async function trimite(env: Env, ...argumente: Parameters<typeof buildEmail>): Promise<Destinatie> {
-  try {
-    await env.EMAIL.send(buildEmail(...argumente));
-    return '/contact/multumim/';
-  } catch {
-    return '/contact/eroare/';
-  }
+  const { success } = await env.RATE_LIMITER.limit({ key: cerere.headers.get('cf-connecting-ip') ?? 'necunoscut' });
+  if (!success) return '/contact/eroare/';
+
+  if (!rezultat.ok) return rezultat.motiv === 'linkuri' ? '/contact/prea-multe-linkuri/' : '/contact/eroare/';
+
+  await env.EMAIL.send(buildEmail(rezultat.date, `formular@${domeniu}`, DESTINATAR));
+  return '/contact/multumim/';
 }
 
 export default {
@@ -48,17 +48,8 @@ export default {
     if (url.pathname !== CALE) return raspuns(404);
     if (cerere.method !== 'POST') return raspuns(405, { Allow: 'POST' });
 
-    const form = await formular(cerere);
-    if (form === undefined) return spre('/contact/eroare/');
-
-    const rezultat = validate(form);
-    if (!rezultat.ok && rezultat.motiv === 'capcana') return spre('/contact/multumim/');
-
-    const { success } = await env.RATE_LIMITER.limit({ key: cerere.headers.get('cf-connecting-ip') ?? 'necunoscut' });
-    if (!success) return spre('/contact/eroare/');
-
-    if (!rezultat.ok) return spre(rezultat.motiv === 'linkuri' ? '/contact/prea-multe-linkuri/' : '/contact/eroare/');
-
-    return spre(await trimite(env, rezultat.date, `formular@${url.hostname}`, DESTINATAR));
+    // Orice eroare neașteptată duce la pagina de eroare (cu contactele directe), nu la pagina de eroare a platformei.
+    const cale = await destinatie(cerere, env, url.hostname).catch((): Destinatie => '/contact/eroare/');
+    return spre(cale);
   },
 };

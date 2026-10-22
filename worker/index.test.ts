@@ -226,6 +226,29 @@ describe('fetch (§3.5, pașii 1–7)', () => {
     expect(env.EMAIL.send).not.toHaveBeenCalled();
   });
 
+  // Un `<form method="post">` fără JavaScript trimite implicit urlencoded, cu rândurile noi ca %0D%0A.
+  test('un formular urlencoded, cu CRLF în Mesaj, trece și trimite mesajul cu LF', async () => {
+    const corp = new URLSearchParams({ nume: 'Ana Pop', email: 'ana@exemplu.ro', mesaj: 'unu\r\ndoi' });
+    const r = await worker.fetch(new Request(`${ORIGINE}/api/contact`, { method: 'POST', body: corp }), env);
+    expect(r.headers.get('location')).toBe('/contact/multumim/');
+    const trimis = env.EMAIL.send.mock.calls[0]?.[0] as unknown as { raw: string };
+    const text = Buffer.from((trimis.raw.split('\r\n\r\n')[1] ?? '').replaceAll('\r\n', ''), 'base64').toString('utf8');
+    expect(text).toContain('unu\r\ndoi');
+  });
+
+  test('limita se verifică înaintea linkurilor și a regulilor', async () => {
+    env = mediu({ limita: false });
+    expect((await post(f({ mesaj: 'a.ro www.b.ro www.c.ro www.d.ro www.e.ro' }))).headers.get('location')).toBe('/contact/eroare/');
+  });
+
+  test('o eroare neașteptată (de exemplu de la limitator) duce tot la eroare, nu la pagina platformei', async () => {
+    env.RATE_LIMITER.limit.mockRejectedValueOnce(new Error('legătura lipsește'));
+    const r = await post(f({}));
+    expect(r.status).toBe(303);
+    expect(r.headers.get('location')).toBe('/contact/eroare/');
+    expect(r.headers.get('x-robots-tag')).toBe('noindex');
+  });
+
   test('un corp care nu e formular duce la eroare', async () => {
     const r = await worker.fetch(new Request(`${ORIGINE}/api/contact`, { method: 'POST', body: '{}', headers: { 'content-type': 'application/json' } }), env);
     expect(r.headers.get('location')).toBe('/contact/eroare/');
@@ -236,6 +259,12 @@ describe('fetch (§3.5, pașii 1–7)', () => {
     const r = await post(f({}));
     expect(r.status).toBe(303);
     expect(r.headers.get('location')).toBe('/contact/eroare/');
+  });
+
+  test.each(['PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'])('%s pe /api/contact primește 405 cu Allow: POST', async (metoda) => {
+    const r = await worker.fetch(new Request(`${ORIGINE}/api/contact`, { method: metoda }), env);
+    expect(r.status).toBe(405);
+    expect(r.headers.get('allow')).toBe('POST');
   });
 
   test('GET primește 405 cu Allow: POST, altă cale primește 404', async () => {
@@ -274,6 +303,35 @@ describe('fetch (§3.5, pașii 1–7)', () => {
       for (const s of spioni) s.mockRestore();
     }
   });
+});
+
+describe('public/_headers (§3.6)', () => {
+  const antete = readFileSync(new URL('../public/_headers', import.meta.url), 'utf8');
+  const regula = (cale: string) => {
+    const bloc = antete.split(/\r?\n(?=\S)/).find((b) => b.split(/\r?\n/)[0] === cale) ?? '';
+    return Object.fromEntries(
+      bloc
+        .split(/\r?\n/)
+        .slice(1)
+        .filter((r) => /^\s+\S/.test(r))
+        .map((r) => {
+          const [nume = '', ...valoare] = r.trim().split(': ');
+          return [nume.toLowerCase(), valoare.join(': ')];
+        }),
+    );
+  };
+
+  test('HSTS și nosniff sunt aceleași pe site și pe răspunsurile Worker-ului', async () => {
+    const r = await post(f({}));
+    expect(regula('/*')['strict-transport-security']).toBe(r.headers.get('strict-transport-security'));
+    expect(regula('/*')['x-content-type-options']).toBe(r.headers.get('x-content-type-options'));
+  });
+
+  test('CSP-ul din antet n-are default-src, script-src sau style-src (ar bloca scripturile cu hash din <meta>)', () => {
+    expect(regula('/*')['content-security-policy']).toBe("frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'");
+  });
+
+  test('adresele *.workers.dev au noindex', () => expect(regula('https://:version.:subdomain.workers.dev/*')['x-robots-tag']).toBe('noindex'));
 });
 
 describe('wrangler.jsonc (§3.6)', () => {

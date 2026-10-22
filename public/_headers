@@ -1,5 +1,6 @@
 # Antetele site-ului static (§3.6). Nu se aplică răspunsurilor generate de Worker: acolo le pune worker/index.ts.
-# CSP-ul de aici are doar directivele pe care <meta> nu le poate purta; script-src și style-src (cu hash-uri) stau în <meta>.
+# CSP-ul de aici n-are default-src, script-src sau style-src: politicile se cumulează, iar acelea (cu hash-uri) stau în <meta>.
+# frame-ancestors e aici pentru că browserul îl ignoră în <meta>.
 /*
   Strict-Transport-Security: max-age=31536000
   X-Content-Type-Options: nosniff

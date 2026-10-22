@@ -23,6 +23,9 @@ export const SERVICII: readonly Serviciu[] = [
   { slug: 'mentenanta-site', nume: 'Mentenanță site', grup: 'reparatie', ordine: 6 },
 ];
 
+/** Opțiunea din formular pentru cine nu știe încă de ce serviciu are nevoie; în subiectul e-mailului contează ca „fără serviciu”. */
+export const FARA_SERVICIU = { slug: 'nu-stiu', nume: 'Nu știu încă' } as const;
+
 /** Adresa la care ajunge cererea trimisă din formular. */
 export const DESTINATAR = 'idealserv51@gmail.com';
 
@@ -49,7 +52,7 @@ export const CAMPURI: Readonly<Record<NumeCamp, RegulaCamp>> = {
   firma: { required: false, maxLength: 120 },
   site: { required: false, maxLength: 200 },
   mesaj: { required: true, maxLength: 3000, maxLinkuri: 3 },
-  serviciu: { required: false, optiuni: [...SERVICII.map((s) => s.slug), 'nu-stiu'] },
+  serviciu: { required: false, optiuni: [...SERVICII.map((s) => s.slug), FARA_SERVICIU.slug] },
 };
 
 /** Algoritmul WHATWG pentru „valid email address”, cel pe care îl aplică browserul la `type=email`. */

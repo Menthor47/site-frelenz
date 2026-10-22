@@ -4,7 +4,7 @@
 // Se folosește varianta `mimetext/browser`: cea pentru Node ia sfârșitul de rând din `node:os`.
 import { EmailMessage } from 'cloudflare:email';
 import { createMimeMessage, Mailbox } from 'mimetext/browser';
-import { SERVICII } from '../src/form-rules';
+import { FARA_SERVICIU, SERVICII } from '../src/form-rules';
 import type { Cerere } from './validate';
 
 const GOL = '—';
@@ -23,7 +23,7 @@ export function buildEmailParts(date: Cerere): { subiect: string; corp: string }
     camp('Telefon', date.telefon),
     camp('Firmă', date.firma),
     camp('Adresa site-ului', date.site),
-    camp('Serviciu', serviciu ?? (date.serviciu === 'nu-stiu' ? 'Nu știu încă' : '')),
+    camp('Serviciu', serviciu ?? (date.serviciu === FARA_SERVICIU.slug ? FARA_SERVICIU.nume : '')),
     '',
     'Mesaj:',
     date.mesaj,
