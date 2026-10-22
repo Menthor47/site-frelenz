@@ -1,0 +1,119 @@
+---
+// /despre/ (§4.5): cine e Alex, din faptele din spec (§1), apoi biografia, studiile, experiența și instrumentele, care
+// sunt marcajul #4 până le dă Alex (rândul blochează lansarea). Profilurile apar doar dacă `site.profiluri` nu e gol
+// (#5), cu `rel="me"`. Fără fotografie și fără cadru gol până există una reală (#6).
+// În producție, o secțiune care e încă marcaj lipsește cu tot cu titlul ei (§3.4).
+// JSON-LD: ProfilePage (mainEntity #alex) și Person complet, care îl înlocuiește pe cel minimal; BreadcrumbList din Base.
+import { paginaAprobata } from '../approvals';
+import Indemn from '../components/Indemn.astro';
+import TextSauMarcaj from '../components/TextSauMarcaj.astro';
+import Base from '../layouts/Base.astro';
+import { DRAFT } from '../lib/env';
+import { nodPerson, nodProfilePage } from '../lib/jsonld';
+import { faraMarcaje, hasMarker } from '../lib/marker';
+import { site } from '../site.config';
+
+const CALE = '/despre/';
+
+/** Ce lipsește încă e marcajul #4; Alex înlocuiește fiecare valoare cu textul lui. */
+const SECTIUNI = [
+  { titlu: 'Cine sunt', text: '[DE COMPLETAT:#4]' },
+  { titlu: 'Studii', text: '[DE COMPLETAT:#4]' },
+  { titlu: 'Experiență', text: '[DE COMPLETAT:#4]' },
+  { titlu: 'Instrumente', text: '[DE COMPLETAT:#4]' },
+] as const;
+
+const sectiuni = faraMarcaje(SECTIUNI, (s) => hasMarker(s.text), DRAFT);
+const profiluri = site.profiluri.filter((p) => p !== '');
+---
+
+<Base
+  titlu="Despre mine"
+  descriere="Cine e Alex Ionescu, consultant SEO și web design din București: ce face, cum lucrează și cu cine, ce experiență are și ce instrumente folosește."
+  cale={CALE}
+  aprobat={paginaAprobata(CALE)}
+  jsonld={[nodProfilePage(), nodPerson(true)]}
+  firimituri={[
+    { nume: 'Acasă', cale: '/' },
+    { nume: 'Despre', cale: CALE },
+  ]}
+  harta={{}}
+>
+  <div class="contener despre">
+    <h1>{site.nume}</h1>
+    <p class="despre__intro">
+      Sunt Alex Ionescu, consultant SEO și web design din București. Lucrez cu firme, PFA-uri și alte entități profesionale din
+      toată țara: SEO, audituri, site-uri de prezentare, redesign, mentenanță și optimizare pentru căutarea AI.
+    </p>
+    <p>
+      Pe pagina <a href="/cum-lucrez/">Cum lucrez</a> vezi pașii și cele două feluri în care putem lucra împreună.
+    </p>
+
+    {
+      sectiuni.map((s) => (
+        <section>
+          <h2>{s.titlu}</h2>
+          <p>
+            <TextSauMarcaj valoare={s.text} />
+          </p>
+        </section>
+      ))
+    }
+
+    {
+      profiluri.length > 0 && (
+        <section>
+          <h2>Profiluri</h2>
+          <ul class="despre__profiluri">
+            {profiluri.map((p) => (
+              <li>
+                <a href={p} rel="me">
+                  {new URL(p).hostname.replace(/^www\./, '')}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+
+  <Indemn text="Spune-mi ce site ai și ce te încurcă." />
+</Base>
+
+<style>
+  .despre {
+    padding-block: 1rem 3rem;
+  }
+
+  .despre > :global(*) {
+    max-width: 70ch;
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+  }
+
+  /* Primul paragraf, cel pe care îl citesc motoarele AI (§6.4). */
+  .despre__intro {
+    font-size: var(--text-md);
+    line-height: 1.45;
+  }
+
+  section {
+    margin-top: 2.5rem;
+  }
+
+  .despre__profiluri {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Zona de atingere de 44px (§5.8): linkurile spre profiluri sunt singure pe rând. */
+  .despre__profiluri a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+</style>
