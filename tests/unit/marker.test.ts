@@ -30,10 +30,10 @@ test('renderMarker cere un rând existent în registru', () => {
   expect(() => renderMarker(99, true)).toThrow(/#99/);
 });
 
-test('registrul are 21 de rânduri și 7 blocante', () => {
-  expect(Object.keys(REGISTRU)).toHaveLength(21);
+test('registrul are 22 de rânduri și 8 blocante', () => {
+  expect(Object.keys(REGISTRU)).toHaveLength(22);
   expect(Object.entries(REGISTRU).filter(([, r]) => r.blocheaza).map(([n]) => +n))
-    .toEqual([1, 2, 3, 4, 13, 15, 17]);
+    .toEqual([1, 2, 3, 4, 13, 15, 17, 22]);
 });
 
 describe('faraMarcaje (ce rămâne de afișat, §3.4)', () => {

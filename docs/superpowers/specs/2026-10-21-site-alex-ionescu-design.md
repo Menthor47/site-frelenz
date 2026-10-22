@@ -908,6 +908,7 @@ Comanda `npm run check:launch` refuză lansarea până când:
 | 19 | Testimoniale reale, cu acord | Alex | Nu |
 | 20 | Linkul spre Google Business Profile | Alex | Nu |
 | 21 | Textul studiului szitrans: contextul, problema, ce am făcut și serviciile folosite (ruling R19) | Alex (eu redactez) | Nu (fără el, pagina nu se construiește) |
+| 22 | Data verificării certificării Cloudflare în Data Privacy Framework, scrisă în politica de confidențialitate (§7.2 punctul 4, ruling R20) | eu, înainte de lansare | Da |
 
 ---
 

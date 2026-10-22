@@ -1,0 +1,24 @@
+---
+// Politica de cookie-uri (§7.3): textul exact din spec. Formularea nu e absolută („niciun cookie”), pentru că protecția
+// Cloudflare poate cere o verificare și seta `cf_clearance`. Afirmația rămâne adevărată doar cu setările de zonă din §3.6,
+// verificate în producție înainte de lansare și după orice schimbare (antetele Set-Cookie, stocarea din browser, HTML-ul).
+import Legal from '../layouts/Legal.astro';
+---
+
+<Legal
+  titlu="Politica de cookie-uri"
+  descriere="Ce politică de cookie-uri are site-ul lui Alex Ionescu: fără cookie-uri de analiză sau de marketing; singura excepție e un cookie strict necesar al Cloudflare."
+  cale="/politica-cookies/"
+  actualizat={new Date('2026-10-22T00:00:00Z')}
+>
+  <p>
+    Site-ul nu folosește cookie-uri de analiză, de marketing sau de preferințe și nici tehnologii similare (stocare locală, pixeli,
+    amprentare). Singura excepție: dacă protecția Cloudflare îți cere o verificare de securitate (de exemplu în timpul unui atac),
+    Cloudflare poate seta cookie-ul strict necesar <code>cf_clearance</code>, fără de care verificarea nu funcționează.
+  </p>
+  <p>
+    Pentru că acest cookie e strict necesar, nu îți cer consimțământul pentru el și nu ai pe site un banner de cookie-uri. Datele
+    tehnice pe care le prelucrează Cloudflare sunt descrise în <a href="/politica-de-confidentialitate/">Politica de
+    confidențialitate</a>.
+  </p>
+</Legal>

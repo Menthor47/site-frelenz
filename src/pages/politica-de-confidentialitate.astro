@@ -1,0 +1,111 @@
+---
+// Politica de confidențialitate (§7.2, GDPR art. 13): cele 10 puncte, la „tu”, formulate precis. Ciornă: o aprobă Alex,
+// iar formularea juridică merită verificată de un avocat. Nu scrie nimic neverificat („date stocate doar în UE”,
+// „certificat GDPR”). Durata de păstrare e marcajul #17; data verificării certificării DPF a Cloudflare, #22 (R20).
+import LegalId from '../components/LegalId.astro';
+import Placeholder from '../components/Placeholder.astro';
+import { CAMPURI } from '../form-rules';
+import Legal from '../layouts/Legal.astro';
+import { site } from '../site.config';
+
+const obligatorii = Object.entries(CAMPURI)
+  .filter(([, regula]) => regula.required)
+  .map(([camp]) => ({ nume: 'Nume', email: 'E-mail', mesaj: 'Mesaj' })[camp] ?? camp);
+---
+
+<Legal
+  titlu="Politica de confidențialitate"
+  descriere="Ce date prelucrează Alex Ionescu când îi scrii prin formular, pe e-mail sau pe WhatsApp: de ce, pe ce temei, cine le mai primește, cât timp și ce drepturi ai."
+  cale="/politica-de-confidentialitate/"
+  actualizat={new Date('2026-10-22T00:00:00Z')}
+>
+  <p>
+    Aici scrie ce date prelucrez când îmi trimiți o cerere prin formular, îmi scrii pe e-mail sau pe WhatsApp ori mă suni, de ce
+    le prelucrez și ce drepturi ai.
+  </p>
+
+  <h2>Cine îți prelucrează datele</h2>
+  <p>
+    Operatorul datelor este PFA-ul meu, cu datele de mai jos. Nu am numit un responsabil cu protecția datelor (DPO), pentru că nu
+    e obligatoriu în cazul meu.
+  </p>
+  <LegalId variant="complet" />
+
+  <h2>Ce date prelucrez, de ce și pe ce temei</h2>
+  <p>
+    Din formular primesc ce completezi tu: numele, adresa de e-mail, telefonul, firma, adresa site-ului, serviciul ales și mesajul.
+    Dacă îmi scrii direct, primesc ce îmi trimiți acolo.
+  </p>
+  <ul>
+    <li>
+      <strong>Ca să-ți răspund la cererea de ofertă.</strong> Temeiul e art. 6 alin. (1) lit. (b) din GDPR când tu ai fi parte în
+      contract (de exemplu, ca PFA, întreprindere individuală sau familială), și art. 6 alin. (1) lit. (f) când scrii în numele unei
+      firme (ca administrator sau angajat). Interesul meu legitim: să răspund cererilor primite de la firme.
+    </li>
+    <li>
+      <strong>Pentru corespondența care urmează.</strong> Temeiul e art. 6 alin. (1) lit. (f). Interesul meu legitim: să păstrez
+      istoricul discuției.
+    </li>
+    <li>
+      <strong>Pentru contract și facturare, dacă lucrăm împreună.</strong> Temeiurile sunt art. 6 alin. (1) lit. (b) (contractul)
+      și art. 6 alin. (1) lit. (c) (obligațiile legale de facturare și contabilitate).
+    </li>
+    <li>
+      <strong>Pentru funcționarea și siguranța site-ului.</strong> La fiecare vizită, furnizorul de găzduire prelucrează date
+      tehnice, ca adresa IP, ca să livreze paginile și să oprească atacurile; formularul folosește adresa IP pentru scurt timp, ca
+      să limiteze trimiterile repetate. Temeiul e art. 6 alin. (1) lit. (f). Interesul meu legitim: să protejez site-ul de abuz.
+    </li>
+  </ul>
+
+  <h2>Cine mai primește datele</h2>
+  <ul>
+    <li>Cloudflare: găzduiește site-ul, livrează paginile, rulează formularul și îmi trimite cererea pe e-mail (Email Routing).</li>
+    <li>Google: în căsuța mea Gmail ajung cererile și corespondența.</li>
+    <li>Contabilul meu, doar pentru facturare, dacă lucrăm împreună.</li>
+    <li>Meta (WhatsApp), doar dacă alegi să-mi scrii pe WhatsApp.</li>
+  </ul>
+
+  <h2>Transferuri în afara Spațiului Economic European</h2>
+  <ul>
+    <li>
+      Cloudflare, Inc. (SUA): transferul se face pe baza deciziei de adecvare pentru cadrul UE–SUA privind protecția datelor (Data
+      Privacy Framework, Decizia (UE) 2023/1795) și a clauzelor contractuale standard din acordul de prelucrare a datelor al
+      Cloudflare. Am verificat certificarea Cloudflare pe dataprivacyframework.gov la data: <Placeholder nr={22} />.
+    </li>
+    <li>Gmail: în Spațiul Economic European, serviciul e furnizat de Google Ireland Limited.</li>
+  </ul>
+
+  <h2>Cât timp păstrez datele</h2>
+  <p><Placeholder nr={17} /></p>
+
+  <h2>Drepturile tale</h2>
+  <p>
+    Ai dreptul să afli ce date am despre tine și să primești o copie, să le corectezi, să ceri ștergerea lor, să ceri restricționarea
+    prelucrării, să le primești într-un format pe care îl poți folosi în altă parte și să nu fii supus unei decizii luate doar
+    automat (art. 15–22 din GDPR). Pentru oricare dintre ele, scrie-mi la <a href={`mailto:${site.email}`}>{site.email}</a>.
+  </p>
+
+  <h2>Dreptul de opoziție</h2>
+  <p>
+    Te poți opune oricând, din motive legate de situația ta, prelucrării datelor pe temeiul interesului legitim, art. 6 alin. (1)
+    lit. (f) (art. 21 din GDPR). Scrie-mi la <a href={`mailto:${site.email}`}>{site.email}</a>, iar eu opresc prelucrarea, cu excepția
+    cazului în care am motive legitime care prevalează sau datele îmi trebuie ca să constat, să exercit sau să apăr un drept în
+    instanță.
+  </p>
+
+  <h2>Plângere la ANSPDCP</h2>
+  <p>
+    Dacă crezi că îți prelucrez datele greșit, poți face plângere la Autoritatea Națională de Supraveghere a Prelucrării Datelor cu
+    Caracter Personal (ANSPDCP), B-dul G-ral. Gheorghe Magheru 28-30, Sector 1, 010336 București,
+    <a href="mailto:anspdcp@dataprotection.ro">anspdcp@dataprotection.ro</a>.
+  </p>
+
+  <h2>Dacă nu-mi dai datele</h2>
+  <p>
+    Datele sunt necesare ca să-ți pot răspunde. În formular sunt obligatorii doar câmpurile {obligatorii.join(', ')}; fără ele nu-ți
+    pot trimite un răspuns.
+  </p>
+
+  <h2>Decizii automate</h2>
+  <p>Nu iau decizii automate pe baza datelor tale și nu creez profiluri.</p>
+</Legal>

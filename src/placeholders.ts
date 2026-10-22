@@ -34,4 +34,5 @@ export const REGISTRU: Record<number, RandRegistru> = {
   19: { ce: 'Testimoniale reale, cu acord', cine: 'Alex', blocheaza: false },
   20: { ce: 'Linkul spre Google Business Profile', cine: 'Alex', blocheaza: false },
   21: { ce: 'Textul studiului szitrans: contextul, problema, ce am făcut și serviciile folosite', cine: 'Alex (eu redactez)', blocheaza: false },
+  22: { ce: 'Data verificării certificării Cloudflare în Data Privacy Framework (dataprivacyframework.gov)', cine: 'eu, înainte de lansare', blocheaza: true },
 };
