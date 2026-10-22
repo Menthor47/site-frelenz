@@ -246,9 +246,14 @@ export function noduriPagina(jsonld: readonly (object | readonly object[])[], fi
   return firimituri.length > 0 ? [...jsonld, nodBreadcrumb(firimituri)] : [...jsonld];
 }
 
-/** Tipurile din `@graph`-ul paginii, în ordine, cu WebSite și Person pe care le pune JsonLd (fișa de pe acest-site, §5.5). */
+/** `@graph`-ul complet al unei pagini: WebSite și Person minimal (toate paginile, §6.3), apoi nodurile paginii. */
+export function grafPagina(noduri: readonly (object | readonly object[])[]): object {
+  return graf(nodWebSite(), nodPerson(false), ...noduri);
+}
+
+/** Tipurile din `@graph`-ul paginii, în ordine, exact cum le scrie JsonLd (fișa de pe acest-site, §5.5). */
 export function tipuriPagina(jsonld: readonly (object | readonly object[])[], firimituri: readonly PasFirimitura[]): string[] {
-  const g = graf(nodWebSite(), nodPerson(false), ...noduriPagina(jsonld, firimituri)) as { '@graph': { '@type': string }[] };
+  const g = grafPagina(noduriPagina(jsonld, firimituri)) as { '@graph': { '@type': string }[] };
   return g['@graph'].map((nod) => nod['@type']);
 }
 

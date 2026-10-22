@@ -101,11 +101,34 @@ describe('CaseStudy (§4.5)', () => {
     expect(h).toMatch(/<img\b[^>]*src="\/proiecte\/magazin\.png"[^>]*alt="Pagina de produs, după"/);
   });
 
-  test('fișa paginii și scorurile apar doar pe acest-site', async () => {
+  // Pe acest-site, rezultatul sunt scorurile (§4.5), deci stau la „Rezultatul”, înaintea serviciilor; fișa vine la final,
+  // cu fraza despre cookie-uri și scripturi terțe ca introducere.
+  test('fișa paginii și scorurile apar doar pe acest-site, în ordinea studiului de caz', async () => {
     expect(main(await render(CaseStudy, { proiect: proiect() }))).not.toContain('Fișa acestei pagini');
-    const h = main(await render(CaseStudy, { proiect: proiect({ slug: 'acest-site' }) }));
-    expect(titluri(h, 2)).toContain('Fișa acestei pagini');
-    expect(titluri(h, 2)).toContain('Scorurile, măsurate în producție');
+    const h = main(await render(CaseStudy, { proiect: proiect({ slug: 'acest-site', rezultate: [], scoruri: [] }) }));
+    expect(titluri(h, 2)).toEqual(['Contextul', 'Problema', 'Ce am făcut', 'Rezultatul', 'Serviciile folosite', 'Fișa acestei pagini']);
+    const fisa = h.slice(h.indexOf('Fișa acestei pagini'));
+    expect(textOf(fisa)).toContain('Site-ul nu setează niciun cookie și nu încarcă scripturi de la alte firme.');
+  });
+
+  test('serviciile provizorii au marcajul lor, doar în previzualizare', async () => {
+    const cu = proiect({ serviciiDeConfirmat: '[DE COMPLETAT:#8]' });
+    expect(main(await render(CaseStudy, { proiect: cu }))).not.toContain('DE COMPLETAT');
+    stare.draft = true;
+    const h = main(await render(CaseStudy, { proiect: cu }));
+    const servicii = h.slice(h.indexOf('Serviciile folosite'));
+    expect(servicii).toContain('[DE COMPLETAT:#8]');
+  });
+
+  test('lângă un rezultat încă de completat nu apare o dată', async () => {
+    stare.draft = true;
+    const h = main(await render(CaseStudy, { proiect: proiect({ rezultate: [{ text: '[DE COMPLETAT:#10]', sursa: '[DE COMPLETAT:#10]', data: new Date('2026-01-01T00:00:00Z') }] }) }));
+    expect(textOf(h)).not.toContain('ianuarie 2026');
+  });
+
+  test('titlul cu marcaj trece prin Placeholder', async () => {
+    stare.draft = true;
+    expect(/<h1\b[^>]*>([\s\S]*?)<\/h1>/.exec(main(await render(CaseStudy, { proiect: proiect({ titlu: '[DE COMPLETAT:#21]' }) })))?.[1]).toContain('<mark class="marcaj">');
   });
 
   // §5.5: „nicio cifră nu e scrisă de mână” — tipurile din fișă sunt exact cele din @graph-ul randat al paginii.

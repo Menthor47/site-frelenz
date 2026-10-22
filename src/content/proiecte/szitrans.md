@@ -4,7 +4,7 @@
 # „site szitrans.eu” din planul lui Alex sugerează crearea site-ului, dar o confirmă tot el.
 slug: szitrans
 titlu: "Site-ul szitrans.eu"
-descriere: "Studiu de caz: site-ul szitrans.eu. Ce avea de rezolvat site-ul, ce am făcut eu, Alex Ionescu, și ce rezultat s-a putut dovedi, cu sursa și data lui."
+descriere: "Studiu de caz: site-ul szitrans.eu. Ce avea de rezolvat, ce am făcut eu, Alex Ionescu, și, unde se poate dovedi, rezultatul, cu sursa și data lui."
 client: "szitrans.eu"
 acord: false
 aprobat: false
@@ -18,4 +18,5 @@ rezultate:
     data: 2026-01-01
 servicii:
   - creare-site
+serviciiDeConfirmat: "[DE COMPLETAT:#21]"
 ---

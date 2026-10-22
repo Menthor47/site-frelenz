@@ -5,7 +5,7 @@
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
 import { paginaAprobata } from '../../approvals';
-import Cta from '../../components/Cta.astro';
+import Indemn from '../../components/Indemn.astro';
 import ProiecteRezumat from '../../components/ProiecteRezumat.astro';
 import Base from '../../layouts/Base.astro';
 import { DRAFT } from '../../lib/env';
@@ -45,12 +45,7 @@ const CALE = '/proiecte/';
     <ProiecteRezumat proiecte={proiecte} nivelTitlu={2} />
   </div>
 
-  <div class="indemn">
-    <div class="contener indemn__rand">
-      <p class="indemn__text">Spune-mi ce site ai și ce te încurcă.</p>
-      <Cta />
-    </div>
-  </div>
+  <Indemn text="Spune-mi ce site ai și ce te încurcă." />
 </Base>
 
 <style>
@@ -67,24 +62,5 @@ const CALE = '/proiecte/';
     margin-bottom: 2.5rem;
     font-size: var(--text-md);
     line-height: 1.45;
-  }
-
-  .indemn {
-    padding-block: 2rem;
-    background: var(--tint-blue);
-  }
-
-  .indemn__rand {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem 2rem;
-  }
-
-  .indemn__text {
-    margin: 0;
-    font-size: var(--text-md);
-    font-weight: 700;
-    line-height: 1.3;
   }
 </style>

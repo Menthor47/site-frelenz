@@ -6,7 +6,7 @@
 // Șablonul nu citește colecțiile: pagina (src/pages/servicii/[slug].astro) îi dă doar ce se poate publica (§3.4).
 // Fără JavaScript. Banda primește clasa `vt-<slug>` prin Base (ruling R5), pentru tranziția M3 din §5.7.
 import type { CollectionEntry } from 'astro:content';
-import Cta from '../components/Cta.astro';
+import Indemn from '../components/Indemn.astro';
 import Faq from '../components/Faq.astro';
 import { SERVICII } from '../form-rules';
 import { DRAFT } from '../lib/env';
@@ -112,12 +112,7 @@ const firimituri = [
     </section>
   </div>
 
-  <div class="indemn">
-    <div class="contener indemn__rand">
-      <p class="indemn__text">Spune-mi ce face firma ta și de ce ai nevoie.</p>
-      <Cta />
-    </div>
-  </div>
+  <Indemn text="Spune-mi ce face firma ta și de ce ai nevoie." />
 </Base>
 
 <style>
@@ -225,25 +220,5 @@ const firimituri = [
   .inrudite__problema {
     display: block;
     color: var(--ink-2);
-  }
-
-  /* Un singur îndemn (§4.4 punctul 10), pe o bandă albastru deschis: butonul albastru rămâne vizibil pe ea. */
-  .indemn {
-    padding-block: 2rem;
-    background: var(--tint-blue);
-  }
-
-  .indemn__rand {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem 2rem;
-  }
-
-  .indemn__text {
-    margin: 0;
-    font-size: var(--text-md);
-    font-weight: 700;
-    line-height: 1.3;
   }
 </style>

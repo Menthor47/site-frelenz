@@ -82,3 +82,8 @@ test('nivelul titlului proiectului: H3 implicit, H2 la cerere', async () => {
   expect(h).toMatch(/<h2\b[^>]*>\s*<a href="\/proiecte\/magazin-online\/"/);
   expect(h).not.toMatch(/<h3\b/);
 });
+
+test('lângă un rezultat încă de completat nu apare o dată', async () => {
+  stare.draft = true;
+  expect(textOf(await render(ProiecteRezumat, { proiecte: [proiect({ rezultat: '[DE COMPLETAT:#10]' })] }))).not.toContain('martie 2026');
+});

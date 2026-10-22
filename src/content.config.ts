@@ -60,6 +60,8 @@ const proiecte = defineCollection({
     ),
     // Prima intrare dă linia de metrou a proiectului (§4.1).
     servicii: z.array(slugServiciu).min(1),
+    // Marcajul [DE COMPLETAT:#n] cât timp serviciile de mai sus sunt provizorii (un slug nu poate fi marcaj).
+    serviciiDeConfirmat: z.string().regex(/^\[DE COMPLETAT:#\d+\]$/).optional(),
     capturi: z.array(z.object({ src: z.string().min(1), alt: z.string().min(1) })).default([]),
     // Doar pentru `acest-site`: scorurile Lighthouse măsurate în producție.
     scoruri: z

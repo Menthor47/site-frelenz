@@ -142,10 +142,10 @@ Fiecare componentă are un singur rol și își primește datele prin props, din
 Schema colecției verifică că fiecare `slug` de serviciu există și în lista de servicii din `form-rules.ts` (3.5), ca formularul și Worker-ul să accepte exact aceleași valori.
 
 **proiecte:**
-- `slug`, `titlu`, `client` (nume sau „anonim”), `acord` (boolean), `aprobat` (boolean);
+- `slug`, `titlu`, `descriere` (140–160 de caractere, §4.2), `client` (nume sau „anonim”), `acord` (boolean), `aprobat` (boolean);
 - `context`, `problema`, `ceAmFacut[]`;
 - `rezultate[]`, fiecare cu `text`, `sursa`, `data`;
-- `servicii[]`, `capturi[]` (cu text alternativ);
+- `servicii[]`, `serviciiDeConfirmat?` (marcajul `[DE COMPLETAT:#n]` cât timp serviciile sunt provizorii), `capturi[]` (cu text alternativ);
 - `scoruri[]`, doar pentru `acest-site`: valoare, dată, versiune Lighthouse, sursă.
 
 **Când e publicabil un proiect:**

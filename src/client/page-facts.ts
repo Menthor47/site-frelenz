@@ -18,7 +18,9 @@ const dinCache = (t: Transfer) => t.transferSize === 0 || t.transferSize < t.enc
 export function masoara(entries: readonly Transfer[], nav: Transfer): Masuratori {
   const toate = [nav, ...entries];
   const octeti = toate.reduce((suma, t) => suma + t.transferSize, 0);
-  return { greutateKb: Math.round((octeti / 1024) * 10) / 10, cereri: toate.length, dinCache: toate.some(dinCache) };
+  // O resursă din cache (transferSize 0) n-a ajuns la server, deci nu e o cerere; o revalidare (304) este.
+  const cereri = toate.filter((t) => t.transferSize > 0).length;
+  return { greutateKb: Math.round((octeti / 1024) * 10) / 10, cereri, dinCache: toate.some(dinCache) };
 }
 
 /** Scrie măsurătorile în rândurile `[data-masura]` ale fișei. Fără intrarea de navigare, rândurile rămân cum sunt. */
@@ -33,6 +35,7 @@ export function completeazaFisa(fisa: HTMLElement): void {
   scrie('greutate', `${m.greutateKb.toLocaleString('ro-RO')} KB${m.dinCache ? ', parțial din cache' : ''}`);
   scrie('cereri', String(m.cereri));
   scrie('cookieuri', String(document.cookie === '' ? 0 : document.cookie.split(';').length));
-  const terte = [...document.scripts].filter((s) => s.src !== '' && new URL(s.src).origin !== location.origin);
+  // Doar scripturile încărcate prin http(s) de pe alt domeniu; cele puse de extensiile browserului nu sunt ale site-ului.
+  const terte = [...document.scripts].filter((s) => /^https?:/.test(s.src) && new URL(s.src).origin !== location.origin);
   scrie('scripturi', String(terte.length));
 }

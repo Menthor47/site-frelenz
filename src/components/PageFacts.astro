@@ -27,7 +27,7 @@ const randuri: readonly { termen: string; masura?: string; valoare?: string; exp
       <div class="fisa__rand">
         <dt>{r.termen}</dt>
         <dd class="fisa__valoare" data-masura={r.masura}>
-          {r.valoare ?? MASURAT}
+          {r.valoare ?? <span class="fisa__fara-js">{MASURAT}</span>}
         </dd>
         <dd class="fisa__explicatie">{r.explicatie}</dd>
       </div>
@@ -67,12 +67,22 @@ const randuri: readonly { termen: string; masura?: string; valoare?: string; exp
     overflow-wrap: anywhere;
   }
 
-  /* Lățime minimă rezervată și cifre de aceeași lățime: valoarea măsurată nu mută nimic când apare. */
+  /* Înălțime rezervată (§5.5) și cifre de aceeași lățime: valoarea măsurată nu mută nimic când apare. 2,75rem încape
+     un rând de valoare (22,5px × 1,6) sau două rânduri din textul de rezervă (14,4px × 1,5), cât are acesta la 320px. */
   .fisa__valoare {
-    min-inline-size: min(16ch, 100%);
+    min-block-size: 2.75rem;
     font-size: var(--text-md);
     font-variant-numeric: tabular-nums;
     font-weight: 700;
+  }
+
+  /* Bloc, nu inline: altfel rândurile lui ar avea înălțimea rândului valorii (22,5px × 1,6), nu pe a lui. */
+  .fisa__fara-js {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    line-height: 1.5;
   }
 
   .fisa__explicatie {

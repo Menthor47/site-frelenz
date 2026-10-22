@@ -4,23 +4,28 @@
 // Banda are linia primului serviciu din `servicii[]`, cu „Ești aici” (§5.6). JSON-LD: Article (about = serviciile
 // folosite, autor #alex); BreadcrumbList vine din Base (ruling R10).
 // Niciun marcaj nu apare ca text brut (§3.4): în previzualizare trece prin `Placeholder`, iar în producție câmpul lipsește,
-// cu tot cu secțiunea lui dacă rămâne goală. Un rezultat cu marcaj nu e verificabil, deci lipsește.
-// Doar pe /proiecte/acest-site/ (§4.5, §5.5): scorurile măsurate în producție, cu data și versiunea, și fișa paginii.
+// cu tot cu secțiunea lui dacă rămâne goală. Un rezultat cu marcaj nu e verificabil, deci lipsește (și nu primește dată).
+// `serviciiDeConfirmat` e marcajul serviciilor încă provizorii: se vede doar în previzualizare, lângă listă.
+// Doar pe /proiecte/acest-site/ (§4.5, §5.5): rezultatul sunt scorurile măsurate în producție, iar la final vine fișa paginii.
 import type { CollectionEntry } from 'astro:content';
-import Cta from '../components/Cta.astro';
+import Indemn from '../components/Indemn.astro';
 import PageFacts from '../components/PageFacts.astro';
 import Placeholder from '../components/Placeholder.astro';
 import TextSauMarcaj from '../components/TextSauMarcaj.astro';
 import { SERVICII } from '../form-rules';
 import { DRAFT } from '../lib/env';
+import { lunaAn } from '../lib/format';
 import { nodArticle, tipuriPagina } from '../lib/jsonld';
-import { hasMarker } from '../lib/marker';
+import { faraMarcaje, hasMarker } from '../lib/marker';
 import Base from './Base.astro';
 
 type Proiect = CollectionEntry<'proiecte'>['data'];
 
 interface Props {
-  proiect: Pick<Proiect, 'slug' | 'titlu' | 'descriere' | 'aprobat' | 'context' | 'problema' | 'ceAmFacut' | 'rezultate' | 'servicii' | 'capturi' | 'scoruri'>;
+  proiect: Pick<
+    Proiect,
+    'slug' | 'titlu' | 'descriere' | 'aprobat' | 'context' | 'problema' | 'ceAmFacut' | 'rezultate' | 'servicii' | 'serviciiDeConfirmat' | 'capturi' | 'scoruri'
+  >;
 }
 
 const { proiect: p } = Astro.props;
@@ -35,13 +40,12 @@ const jsonld = [nodArticle({ cale, titlu: p.titlu, despre: p.servicii })];
 const acestSite = p.slug === 'acest-site';
 const scoruri = p.scoruri ?? [];
 
-/** În producție rămân doar valorile fără marcaj; în previzualizare rămân toate, iar marcajul se vede. */
-const deArata = <T,>(lista: readonly T[], areMarcaj: (x: T) => boolean): readonly T[] => (DRAFT ? lista : lista.filter((x) => !areMarcaj(x)));
-
-const context = deArata([p.context], hasMarker)[0];
-const problema = deArata([p.problema], hasMarker)[0];
-const ceAmFacut = deArata(p.ceAmFacut, hasMarker);
-const rezultate = deArata(p.rezultate, (r) => hasMarker(r.text) || hasMarker(r.sursa));
+const rezultatCuMarcaj = (r: Proiect['rezultate'][number]) => hasMarker(r.text) || hasMarker(r.sursa);
+const context = faraMarcaje([p.context], hasMarker, DRAFT)[0];
+const problema = faraMarcaje([p.problema], hasMarker, DRAFT)[0];
+const ceAmFacut = faraMarcaje(p.ceAmFacut, hasMarker, DRAFT);
+const rezultate = faraMarcaje(p.rezultate, rezultatCuMarcaj, DRAFT);
+const areRezultat = acestSite || rezultate.length > 0 || p.capturi.length > 0;
 
 const servicii = p.servicii.map((slug) => {
   const s = SERVICII.find((x) => x.slug === slug);
@@ -49,22 +53,11 @@ const servicii = p.servicii.map((slug) => {
   return s;
 });
 const grup = servicii[0]?.grup;
-
-/** Luna și anul. `z.coerce.date()` dă miezul nopții UTC, deci luna se citește în UTC. */
-const luna = (data: Date) => data.toLocaleDateString('ro-RO', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 ---
 
-<Base
-  titlu={p.titlu}
-  descriere={p.descriere}
-  cale={cale}
-  aprobat={p.aprobat}
-  jsonld={jsonld}
-  firimituri={firimituri}
-  harta={{ line: grup }}
->
+<Base titlu={p.titlu} descriere={p.descriere} cale={cale} aprobat={p.aprobat} jsonld={jsonld} firimituri={firimituri} harta={{ line: grup }}>
   <div class="contener caz">
-    <h1>{p.titlu}</h1>
+    <h1><TextSauMarcaj valoare={p.titlu} /></h1>
 
     {
       context !== undefined && (
@@ -104,16 +97,36 @@ const luna = (data: Date) => data.toLocaleDateString('ro-RO', { month: 'long', y
     }
 
     {
-      (rezultate.length > 0 || p.capturi.length > 0) && (
+      areRezultat && (
         <section>
           <h2>Rezultatul</h2>
+          {acestSite &&
+            (scoruri.length > 0 ? (
+              <ul>
+                {scoruri.map((s) => (
+                  <li>
+                    {s.sursa}: {s.valoare} (Lighthouse {s.versiuneLighthouse}, {lunaAn(s.data)})
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>
+                <Placeholder nr={11} />
+              </p>
+            ))}
           {rezultate.length > 0 && (
             <ul>
-              {rezultate.map((r) => (
-                <li>
-                  <TextSauMarcaj valoare={r.text} /> Sursa: <TextSauMarcaj valoare={r.sursa} />, {luna(r.data)}.
-                </li>
-              ))}
+              {rezultate.map((r) =>
+                rezultatCuMarcaj(r) ? (
+                  <li>
+                    <TextSauMarcaj valoare={r.text} /> <TextSauMarcaj valoare={r.sursa} />
+                  </li>
+                ) : (
+                  <li>
+                    {r.text} Sursa: {r.sursa}, {lunaAn(r.data)}.
+                  </li>
+                ),
+              )}
             </ul>
           )}
           {p.capturi.map((c) => (
@@ -136,49 +149,31 @@ const luna = (data: Date) => data.toLocaleDateString('ro-RO', { month: 'long', y
           ))
         }
       </ul>
+      {
+        p.serviciiDeConfirmat !== undefined && (
+          <p>
+            <TextSauMarcaj valoare={p.serviciiDeConfirmat} />
+          </p>
+        )
+      }
     </section>
 
     {
       acestSite && (
         <section>
-          <h2>Scorurile, măsurate în producție</h2>
-          {scoruri.length > 0 ? (
-            <ul>
-              {scoruri.map((s) => (
-                <li>
-                  {s.sursa}: {s.valoare} (Lighthouse {s.versiuneLighthouse}, {luna(s.data)})
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>
-              <Placeholder nr={11} />
-            </p>
-          )}
+          <h2>Fișa acestei pagini</h2>
           <p>
             Site-ul nu setează niciun cookie și nu încarcă scripturi de la alte firme. Excepția, un cookie strict necesar pe care
             Cloudflare îl poate pune în anumite situații, e explicată în <a href="/politica-cookies/">Politica de cookie-uri</a>.
+            Fișa de mai jos le măsoară chiar pe pagina asta.
           </p>
-        </section>
-      )
-    }
-
-    {
-      acestSite && (
-        <section>
-          <h2>Fișa acestei pagini</h2>
           <PageFacts tipuriSchema={tipuriPagina(jsonld, firimituri)} />
         </section>
       )
     }
   </div>
 
-  <div class="indemn">
-    <div class="contener indemn__rand">
-      <p class="indemn__text">Spune-mi ce site ai și ce te încurcă.</p>
-      <Cta />
-    </div>
-  </div>
+  <Indemn text="Spune-mi ce site ai și ce te încurcă." />
 </Base>
 
 <style>
@@ -233,24 +228,5 @@ const luna = (data: Date) => data.toLocaleDateString('ro-RO', { month: 'long', y
     max-width: 100%;
     height: auto;
     border: 1px solid var(--rule);
-  }
-
-  .indemn {
-    padding-block: 2rem;
-    background: var(--tint-blue);
-  }
-
-  .indemn__rand {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem 2rem;
-  }
-
-  .indemn__text {
-    margin: 0;
-    font-size: var(--text-md);
-    font-weight: 700;
-    line-height: 1.3;
   }
 </style>

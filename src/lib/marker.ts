@@ -33,3 +33,11 @@ export function renderMarker(nr: number, draft: boolean): string {
   if (!rand) throw new Error(`Marcaj necunoscut: #${nr} nu există în src/placeholders.ts`);
   return `<mark class="marcaj">[DE COMPLETAT:#${nr}] — ${escapeHtml(rand.ce)}</mark>`;
 }
+
+/**
+ * Ce rămâne de afișat dintr-o listă (§3.4): în producție, valorile cu marcaj lipsesc; în previzualizarea DRAFT=1 rămân
+ * toate, iar marcajul trece prin `Placeholder`. `areMarcaj` spune ce înseamnă „cu marcaj” pentru un element.
+ */
+export function faraMarcaje<T>(lista: readonly T[], areMarcaj: (x: T) => boolean, draft: boolean): readonly T[] {
+  return draft ? lista : lista.filter((x) => !areMarcaj(x));
+}

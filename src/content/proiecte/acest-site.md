@@ -13,7 +13,7 @@ ceAmFacut:
   - "Paginile sunt statice, generate cu Astro și găzduite pe Cloudflare, deci serverul nu construiește nimic la fiecare vizită."
   - "Fontul, Atkinson Hyperlegible Next, e găzduit pe site: nicio cerere nu pleacă spre alte servere."
   - "Fără biblioteci de JavaScript: singurele scripturi sunt trenurile de pe harta de pe Acasă și fișa de pe această pagină."
-  - "Formularul de contact merge fără JavaScript și nu păstrează nimic pe server: cererea pleacă direct pe e-mail."
+  - "Formularul de contact merge fără JavaScript, iar site-ul nu are bază de date: cererea ta pleacă pe e-mail. Ce se prelucrează și cât timp e descris în Politica de confidențialitate."
   - "Fiecare pagină are date structurate (JSON-LD), ca Google și motoarele AI să înțeleagă ce e pe ea."
 rezultate: []
 servicii:

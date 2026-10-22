@@ -1,4 +1,4 @@
-import { hasMarker, parseMarker, renderMarker } from '../../src/lib/marker';
+import { hasMarker, parseMarker, renderMarker, faraMarcaje } from '../../src/lib/marker';
 import { REGISTRU } from '../../src/placeholders';
 
 test('parseMarker', () => {
@@ -30,8 +30,14 @@ test('renderMarker cere un rând existent în registru', () => {
   expect(() => renderMarker(99, true)).toThrow(/#99/);
 });
 
-test('registrul are 20 de rânduri și 7 blocante', () => {
+test('registrul are 21 de rânduri și 7 blocante', () => {
   expect(Object.keys(REGISTRU)).toHaveLength(21);
   expect(Object.entries(REGISTRU).filter(([, r]) => r.blocheaza).map(([n]) => +n))
     .toEqual([1, 2, 3, 4, 13, 15, 17]);
+});
+
+describe('faraMarcaje (ce rămâne de afișat, §3.4)', () => {
+  const are = (s: string) => s.startsWith('[DE COMPLETAT');
+  test('în producție scoate valorile cu marcaj', () => expect(faraMarcaje(['a', '[DE COMPLETAT:#8]', 'b'], are, false)).toEqual(['a', 'b']));
+  test('în previzualizare le păstrează pe toate', () => expect(faraMarcaje(['a', '[DE COMPLETAT:#8]'], are, true)).toEqual(['a', '[DE COMPLETAT:#8]']));
 });

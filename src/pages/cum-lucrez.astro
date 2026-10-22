@@ -4,7 +4,7 @@
 // estompate (§5.6). JSON-LD: WebPage; BreadcrumbList vine din Base (ruling R10). Fără JavaScript.
 // Ciorne: explicațiile pașilor spun doar ce scrie deja în spec și în pașii serviciilor, fără termene (#14, #18).
 import { paginaAprobata } from '../approvals';
-import Cta from '../components/Cta.astro';
+import Indemn from '../components/Indemn.astro';
 import RouteMap from '../components/RouteMap.astro';
 import Base from '../layouts/Base.astro';
 import { nodWebPage } from '../lib/jsonld';
@@ -82,12 +82,7 @@ const PASI = [
     </section>
   </div>
 
-  <div class="indemn">
-    <div class="contener indemn__rand">
-      <p class="indemn__text">Spune-mi ce site ai și ce te încurcă.</p>
-      <Cta />
-    </div>
-  </div>
+  <Indemn text="Spune-mi ce site ai și ce te încurcă." />
 </Base>
 
 <style>
@@ -150,25 +145,5 @@ const PASI = [
 
   .cum__pret {
     font-weight: 700;
-  }
-
-  /* Un singur îndemn, pe o bandă albastru deschis, ca pe paginile de serviciu: butonul albastru rămâne vizibil pe ea. */
-  .indemn {
-    padding-block: 2rem;
-    background: var(--tint-blue);
-  }
-
-  .indemn__rand {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem 2rem;
-  }
-
-  .indemn__text {
-    margin: 0;
-    font-size: var(--text-md);
-    font-weight: 700;
-    line-height: 1.3;
   }
 </style>

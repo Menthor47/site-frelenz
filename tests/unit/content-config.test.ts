@@ -92,6 +92,11 @@ describe('colecția servicii', () => {
 
 describe('colecția proiecte', () => {
   test('o intrare fără scoruri trece', () => expect(cadere('proiecte', proiect).success).toBe(true));
+  test('serviciiDeConfirmat e opțional și, când există, e un marcaj', () => {
+    expect(cadere('proiecte', { ...proiect, serviciiDeConfirmat: '[DE COMPLETAT:#8]' }).success).toBe(true);
+    expect(cadere('proiecte', { ...proiect, serviciiDeConfirmat: 'de confirmat' }).success).toBe(false);
+  });
+
   // Fiecare pagină are descrierea ei de 140–160 de caractere (§4.2), iar studiile de caz se construiesc din colecție.
   test('descrierea are 140–160 de caractere', () => {
     expect(cadere('proiecte', { ...proiect, descriere: 'd'.repeat(139) }).success).toBe(false);

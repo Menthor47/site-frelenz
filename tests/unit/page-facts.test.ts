@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { masoara } from '../../src/client/page-facts';
+import { completeazaFisa, masoara } from '../../src/client/page-facts';
 import PageFacts from '../../src/components/PageFacts.astro';
 import { render, textOf } from './helpers';
 
@@ -22,6 +22,63 @@ describe('masoara (§5.5)', () => {
   test('greutatea se rotunjește la o zecimală', () => expect(masoara([resursa(1000, 1000)], nav(0, 0)).greutateKb).toBe(1));
 
   test('cererile: documentul plus fiecare resursă', () => expect(masoara([resursa(1, 1), resursa(1, 1)], nav(1, 1)).cereri).toBe(3));
+
+  // „De câte ori a cerut browserul ceva de la server”: o resursă din cache (transferSize 0) n-a ajuns la server.
+  test('o resursă luată din cache nu e o cerere', () => expect(masoara([resursa(0, 5000), resursa(300, 5000)], nav(1, 1)).cereri).toBe(2));
+});
+
+describe('completeazaFisa (§5.5)', () => {
+  /** O fișă falsă: ține minte ce scrie scriptul în fiecare rând `[data-masura]`. */
+  function fisaFalsa() {
+    const scrise: Record<string, string> = {};
+    const fisa = {
+      querySelector: (selector: string) => {
+        const cheie = /\[data-masura="([^"]+)"\]/.exec(selector)?.[1];
+        return cheie === undefined ? null : { set textContent(valoare: string) { scrise[cheie] = valoare; } };
+      },
+    } as unknown as HTMLElement;
+    return { fisa, scrise };
+  }
+
+  function mediu({ cookie = '', scripturi = [] as string[], navigare = true } = {}) {
+    vi.stubGlobal('performance', {
+      getEntriesByType: (tip: string) => (tip === 'navigation' ? (navigare ? [nav(2048, 2048)] : []) : [resursa(1024, 1024), resursa(0, 900)]),
+    });
+    vi.stubGlobal('document', { cookie, scripts: scripturi.map((src) => ({ src })) });
+    vi.stubGlobal('location', { origin: 'https://site.example' });
+  }
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  test('scrie greutatea, cererile, cookie-urile și scripturile terțe', () => {
+    mediu({ scripturi: ['', 'https://site.example/_astro/a.js', 'https://alt.example/b.js', 'chrome-extension://abc/c.js'] });
+    const { fisa, scrise } = fisaFalsa();
+    completeazaFisa(fisa);
+    expect(scrise).toEqual({ greutate: '3 KB, parțial din cache', cereri: '2', cookieuri: '0', scripturi: '1' });
+  });
+
+  test('numără cookie-urile vizibile pentru scripturi', () => {
+    mediu({ cookie: 'a=1; b=2' });
+    const { fisa, scrise } = fisaFalsa();
+    completeazaFisa(fisa);
+    expect(scrise.cookieuri).toBe('2');
+  });
+
+  test('fără intrarea de navigare, rândurile rămân cu textul de rezervă', () => {
+    mediu({ navigare: false });
+    const { fisa, scrise } = fisaFalsa();
+    completeazaFisa(fisa);
+    expect(scrise).toEqual({});
+  });
+
+  test('fiecare rând [data-masura] din fișă are cine să-l completeze', async () => {
+    // Întâi randarea (Astro are nevoie de `performance` adevărat), apoi mediul de browser simulat.
+    const chei = [...(await render(PageFacts, { tipuriSchema: ['WebSite'] })).matchAll(/data-masura="([^"]+)"/g)].map((m) => m[1]);
+    mediu();
+    const { fisa, scrise } = fisaFalsa();
+    completeazaFisa(fisa);
+    expect(Object.keys(scrise).sort()).toEqual([...chei].sort());
+  });
 });
 
 describe('PageFacts (§5.5)', () => {
@@ -60,8 +117,16 @@ describe('PageFacts (§5.5)', () => {
     expect(script).toMatch(/setTimeout\([^,]+,\s*200\)/);
   });
 
-  test('cifrele au lățime fixă (tabular-nums), ca blocul să nu sară', () => {
+  // Înălțimea rezervată (§5.5): textul de rezervă, mai mic, încape în aceeași înălțime minimă ca valoarea măsurată.
+  test('valoarea are înălțime minimă rezervată și cifre de aceeași lățime', () => {
     const sursa = readFileSync(new URL('../../src/components/PageFacts.astro', import.meta.url), 'utf8');
-    expect(sursa).toMatch(/font-variant-numeric:\s*tabular-nums/);
+    const bloc = /\.fisa__valoare\s*\{([^}]*)\}/.exec(sursa)?.[1] ?? '';
+    expect(bloc).toMatch(/min-block-size:\s*\S+/);
+    expect(bloc).toMatch(/font-variant-numeric:\s*tabular-nums/);
+    expect(bloc).not.toMatch(/min-inline-size/);
+  });
+
+  test('textul de rezervă stă într-un span mai mic, pe care scriptul îl înlocuiește', async () => {
+    expect(await render(PageFacts, { tipuriSchema: ['WebSite'] })).toMatch(/<dd\b[^>]*data-masura="greutate"[^>]*>\s*<span class="fisa__fara-js"[^>]*>se măsoară/);
   });
 });
