@@ -171,24 +171,17 @@ describe('RouteMap', () => {
     expect(await render(RouteMap, { marime: 'mare' })).toMatch(/^<div class="trasee trasee--mare/);
   });
 
-  test('bucla lunară are trei stații, în abonament, fără etichete în producție (marcajul #15 nu ajunge în HTML)', async () => {
+  test('bucla lunară are cele trei stații alese de Alex (#15), după pașii abonamentului', async () => {
     const h = await render(RouteMap, { marime: 'compact' });
     const bucla = /<ul\b[^>]*>([\s\S]*?)<\/ul>/.exec(h)?.[1];
     expect(bucla).toBeDefined();
-    expect(elementeListei(bucla!)).toEqual(['', '', '']);
+    expect(elementeListei(bucla!)).toEqual(['Verificare', 'Actualizări', 'Raport']);
     expect(h.indexOf('<ul')).toBeGreaterThan(h.indexOf('Remediere + abonament lunar'));
-    expect(h).not.toContain('DE COMPLETAT');
   });
 
-  test('în previzualizare, fiecare stație din buclă poartă marcajul #15 (blochează lansarea)', async () => {
+  test('fără marcaje, nici în previzualizare', async () => {
     stare.draft = true;
-    const h = await render(RouteMap, { marime: 'compact' });
-    expect(h.match(/\[DE COMPLETAT:#15\]/g)).toHaveLength(3);
-    const bucla = /<ul\b[^>]*>([\s\S]*?)<\/ul>/.exec(h)?.[1] ?? '';
-    expect(bucla.match(/class="marcaj"/g)).toHaveLength(3);
-    // Marcajul nu intră în pașii principali.
-    const pasi = [...h.matchAll(/<ol\b[^>]*>([\s\S]*?)<\/ol>/g)].map((m) => m[1]).join('');
-    expect(pasi).not.toContain('DE COMPLETAT');
+    expect(await render(RouteMap, { marime: 'compact' })).not.toContain('DE COMPLETAT');
   });
 
   test('bucla are și o etichetă text, ca să nu stea doar în desen', async () => {

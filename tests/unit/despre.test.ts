@@ -1,7 +1,7 @@
 import PaginaDespre from '../../src/pages/despre.astro';
 import { render, textOf } from './helpers';
 
-// /despre/ (§4.5, §6.3, registrul #4–#6): biografia, studiile, experiența și instrumentele sunt marcajul #4 până le dă
+// /despre/ (§4.5, §6.3, registrul #4–#6, decizia 22): biografia, experiența și instrumentele, fără studii, scrise din faptele lui
 // Alex; profilurile apar doar dacă există; fără fotografie și fără cadru gol. ProfilePage cu mainEntity #alex și Person complet.
 const stare = vi.hoisted(() => ({ draft: false, profiluri: [] as string[] }));
 
@@ -40,23 +40,20 @@ describe('/despre/ (§4.5)', () => {
     expect(primul).toContain('București');
   });
 
-  test('în previzualizare apar toate cele patru secțiuni, iar studiile sunt încă marcajul #4', async () => {
-    stare.draft = true;
-    const h = main(await render(PaginaDespre));
-    expect(titluri(h, 2)).toEqual(['Cine sunt', 'Studii', 'Experiență', 'Instrumente']);
-    expect(h.match(/<mark class="marcaj">\[DE COMPLETAT:#4\]/g)).toHaveLength(1);
+  test('cine sunt, experiența și instrumentele, fără studii (decizia lui Alex) și fără marcaje, nici în previzualizare', async () => {
+    for (const draft of [false, true]) {
+      stare.draft = draft;
+      const h = main(await render(PaginaDespre));
+      expect(titluri(h, 2)).toEqual(['Cine sunt', 'Experiență', 'Instrumente']);
+      expect(h).not.toContain('DE COMPLETAT');
+      expect(h).not.toMatch(/<p\b[^>]*>\s*<\/p>/);
+    }
   });
 
-  test('în producție, secțiunea cu marcaj lipsește cu tot cu titlu, fără paragrafe goale', async () => {
-    const h = main(await render(PaginaDespre));
-    expect(h).not.toContain('DE COMPLETAT');
-    expect(titluri(h, 2)).toEqual(['Cine sunt', 'Experiență', 'Instrumente']);
-    expect(h).not.toMatch(/<p\b[^>]*>\s*<\/p>/);
-  });
-
-  test('ciorna nu numește proiectele fără acord (szitrans, #7) și nici magazinul anonim', async () => {
+  test('szitrans.eu apare cu numele (acord, #7), magazinul online rămâne anonim', async () => {
     const text = textOf(main(await render(PaginaDespre))).toLowerCase();
-    expect(text).not.toMatch(/szitrans|s&z|amsterdam|headshop/);
+    expect(text).toContain('szitrans.eu');
+    expect(text).not.toMatch(/amsterdam|headshop/);
   });
 
   test('fără fotografie și fără cadru gol', async () => {

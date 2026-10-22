@@ -53,6 +53,9 @@ Pornește de la `plan-site-alex-ionescu.md` (planul lui Alex) și de la deciziil
 | 19 | Logo | „Alex Ionescu, consultant SEO”: virgula e intenționată și albastră. |
 | 20 | Formular | Fără JavaScript. Browserul validează, iar serverul aplică aceleași reguli, dintr-un singur fișier. Singura regulă pe care browserul n-o poate verifica e limita de linkuri: mesajele cu peste 3 linkuri nu pleacă, iar regula e scrisă sub câmp. |
 | 21 | Aprobare | Alex aprobă pagină cu pagină. Fiecare serviciu are 4 întrebări frecvente. |
+| 22 | Despre fără studii | Decizia lui Alex din 2026-10-22: pagina Despre nu are secțiunea „Studii”, iar experiența îi ține locul. |
+| 23 | szitrans | Firma e a vărului lui Alex, care i-a lăsat proiectul: acordul (#7) e dat. Alex a făcut site-ul și SEO-ul (2026-10-22). |
+| 24 | Bucla lunară | Stațiile buclei din traseul abonamentului: Verificare, Actualizări, Raport (#15, 2026-10-22). |
 
 ---
 
@@ -860,7 +863,7 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
 Comanda `npm run check:launch` refuză lansarea până când:
 1. datele PFA sunt reale (denumire, numărul de la Registrul Comerțului, CUI, adresa sediului);
 2. domeniul final e setat în `site.config.ts`;
-3. pagina Despre e completă: biografie, studii, experiență, instrumente. LinkedIn e opțional;
+3. pagina Despre e completă: biografie, experiență, instrumente (fără studii, decizia 22). LinkedIn e opțional;
 4. nicio pagină construită nu are `aprobat: false` (3.4);
 5. durata de păstrare a datelor e completată în Politica de confidențialitate;
 6. nu mai rămâne niciun marcaj `[DE COMPLETAT:#<nr>]` al unui rând marcat „Da” în coloana „Blochează lansarea?” din registrul de la capitolul 12. Aici intră și etichetele buclei lunare și răspunsurile la întrebările frecvente. `check:launch` compară `reports/placeholders.json` cu registrul din `src/placeholders.ts` (3.4);
@@ -890,10 +893,10 @@ Comanda `npm run check:launch` refuză lansarea până când:
 | 1 | Datele PFA: denumire, numărul de la Registrul Comerțului, CUI | Alex | Da |
 | 2 | Adresa sediului profesional (decizie: adresa înregistrată sau mutarea) | Alex | Da |
 | 3 | Domeniul final | Alex | Da |
-| 4 | Despre: biografie, studii, experiență, instrumente | Alex (eu redactez) | Da |
+| 4 | Despre: biografie, experiență, instrumente (fără studii, decizia 22) | Alex (eu redactez) | Da |
 | 5 | Profiluri pentru `sameAs` (LinkedIn etc.) | Alex | Nu (opțional) |
 | 6 | Fotografie reală | Alex | Nu |
-| 7 | Acordul scris de la szitrans, plus rezultate verificabile și capturi datate | Alex | Nu (fără el, pagina nu se construiește) |
+| 7 | Acordul de la szitrans (dat, decizia 23), plus rezultate verificabile și capturi datate | Alex | Nu (fără el, pagina nu se construiește) |
 | 8 | Textul studiului anonim al magazinului online (și serviciile folosite), aprobat, cu capturi anonimizate | Alex | Nu (fără el, pagina nu se construiește) |
 | 9 | Acordul mayalashes | Alex | Nu (fără el, pagina nu se construiește) |
 | 10 | Rezultatele din studiile de caz (cifre, perioadă, sursă) | Alex | Nu (fără ele, rândul lipsește) |

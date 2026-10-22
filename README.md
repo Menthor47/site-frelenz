@@ -37,7 +37,7 @@ Rulează pe build-ul de producție (`npm run build`, fără `SITE_URL` și făr�
 
 1. datele PFA sunt completate în `src/site.config.ts` (denumire, numărul de la Registrul Comerțului, CUI, sediul);
 2. domeniul final e pus în `src/site.config.ts`;
-3. pagina Despre e completă (biografie, studii, experiență, instrumente);
+3. pagina Despre e completă (biografie, experiență, instrumente; fără studii, decizia 22 din spec);
 4. fiecare pagină construită e aprobată;
 5. nu mai rămâne niciun marcaj al unui rând blocant din registru (`src/placeholders.ts`), inclusiv durata de păstrare a datelor, etichetele buclei lunare și data verificării certificării Cloudflare;
 6. textul „[DE COMPLETAT” nu apare nicăieri în `dist/`.

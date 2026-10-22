@@ -1,16 +1,14 @@
 ---
 // „Cum lucrăm: două trasee” (§4.3 punctul 4, §4.5): remedierea unică și remedierea cu abonament lunar, desenate ca două linii de metrou.
 // Sunt HTML cu CSS, nu SVG: pașii sunt liste ordonate (`<ol>`, o secvență), textul se mărește și se rupe la orice lățime
-// (320px, text la 200%), iar stațiile buclei primesc `Placeholder` (HTML), ceea ce un SVG nu poate găzdui fără `foreignObject`.
+// (320px, text la 200%), iar etichetele stațiilor din buclă sunt text care se rupe ca restul paginii.
 // Desenul (stațiile și liniile) e făcut din pseudo-elemente, deci nu apare în arborele de accesibilitate.
 // Se vede întreg de la început: fără script, fără animație, fără desenare la derulare (§5.7).
 //   - Remedierea unică: linia în galbenul închis #8A5A00 (--yellow-dark); galbenul tare are 1,63:1 pe --tint-blue (§5.2).
-//   - Abonamentul: linia albastră, aceiași pași, apoi o buclă lunară. Etichetele stațiilor din buclă le confirmă Alex:
-//     până atunci sunt `<Placeholder nr={15} />`, deci în producție bucla arată stații fără etichetă (rândul blochează lansarea).
+//   - Abonamentul: linia albastră, aceiași pași, apoi o buclă lunară. Etichetele stațiilor din buclă le-a ales Alex
+//     (#15, 2026-10-22): Verificare, Actualizări, Raport.
 //   - Diferența dintre trasee nu stă doar în culoare: fiecare are o etichetă text vizibilă.
 // Fundalul --tint-blue îl pune pagina. `marime` schimbă doar scara: `compact` pe Acasă, `mare` pe /cum-lucrez/ (pașii explicați vin de la pagină).
-import Placeholder from './Placeholder.astro';
-
 interface Props {
   marime: 'compact' | 'mare';
 }
@@ -20,8 +18,8 @@ const { marime } = Astro.props;
 /** Stațiile ambelor trasee, în ordine. */
 const PASI = ['Evaluare', 'Ofertă', 'Lucru', 'Raport'] as const;
 
-/** Câte stații desenăm în buclă: cel mai mic număr care arată ca o buclă. Etichetele rămân ale lui Alex (#15). */
-const STATII_IN_BUCLA = 3;
+/** Stațiile buclei lunare (#15, alese de Alex). Trei e cel mai mic număr care arată ca o buclă. */
+const BUCLA = ['Verificare', 'Actualizări', 'Raport'] as const;
 
 // Id-urile depind de mărime, ca `compact` și `mare` să poată sta pe aceeași pagină (pagina de test le arată împreună).
 const idUnic = `traseu-unic-${marime}`;
@@ -45,11 +43,7 @@ const idAbonament = `traseu-abonament-${marime}`;
       </ol>
       <div class="bucla">
         <ul class="pasi pasi--bucla" aria-label="Stațiile buclei lunare">
-          {Array.from({ length: STATII_IN_BUCLA }, () => (
-            <li class="pas">
-              <Placeholder nr={15} />
-            </li>
-          ))}
+          {BUCLA.map((statie) => <li class="pas">{statie}</li>)}
         </ul>
         <p class="bucla__nota">Se repetă lunar</p>
       </div>
@@ -168,7 +162,7 @@ const idAbonament = `traseu-abonament-${marime}`;
     border: var(--t) solid var(--culoare);
   }
 
-  /* `min-height`: în producție stațiile buclei nu au etichetă (#15), iar un element gol ar înghesui cercurile unul într-altul. */
+  /* `min-height`: o stație are cel puțin un rând, ca cercurile să nu se înghesuie unul într-altul. */
   .pasi--bucla > .pas {
     min-height: 1lh;
     padding: 0 0 1rem;
