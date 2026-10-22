@@ -523,7 +523,7 @@ O listă `<dl>` pe `--tint-blue`. Fiecare rând are o explicație pe înțeles, 
 - **Liniile** se desenează o singură dată la încărcare (M1 în 5.7). E doar CSS.
 - **Trenurile circulă continuu.** Pe fiecare linie merge câte un „tren”: un punct cu miez alb și halou în culoarea liniei. Viteza e constantă, cu 7–11 secunde pe parcurs, iar trenurile pornesc decalat.
 - **Pe mobil:** sub 640px rămân 2 linii, M2 (albastru) și M3 (roșu), cu 2 trenuri.
-- **Lizibilitatea:** liniile ocolesc titlul, iar titlul stă pe un fundal alb, ca să rămână lizibil când trece un tren.
+- **Lizibilitatea:** titlul stă pe o plăcuță albă și opacă, peste marginea de jos a hărții; liniile și trenurile trec pe sub ea, ca într-o stație, deci textul rămâne lizibil când trece un tren (decizia lui Alex din 2026-10-22, ruling R17).
 
 **Pornirea depinde de script:**
 - Trenurile stau într-un `<g class="trenuri">` din SVG, ascuns din CSS (`display: none`) până când scriptul pune clasa de pornire. Atributul `hidden` nu ajunge aici, pentru că regula implicită a browserului pentru `[hidden]` se aplică doar elementelor HTML, nu celor din SVG.
