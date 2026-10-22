@@ -164,3 +164,26 @@ describe('transitions.css (M3, §5.7, ruling R5)', () => {
     expect(grup).toContain('animation-timing-function: ease-in-out;');
   });
 });
+
+describe('Service.astro, culorile grupului (§5.2)', () => {
+  const css = readFileSync(new URL('../../src/layouts/Service.astro', import.meta.url), 'utf8')
+    .split('<style>')[1]
+    ?.replace(/\/\*[\s\S]*?\*\//g, '') ?? '';
+
+  // Numerele pașilor sunt text, nu grafică: verdele (3,47:1) și roșul (3,84:1) trec doar pragul de 3:1 al graficii,
+  // deci textul ia varianta închisă, verificată la 4,5:1 în contrast.test.ts.
+  test.each([
+    ['vizibilitate', 'blue'],
+    ['diagnostic', 'green'],
+    ['constructie', 'yellow'],
+    ['reparatie', 'red'],
+  ])('grupul %s are textul în --%s-dark', (grup, culoare) => {
+    const bloc = new RegExp(String.raw`\.serviciu\[data-grup='${grup}'\]\s*\{([^}]*)\}`).exec(css)?.[1] ?? '';
+    expect(bloc).toContain(`--culoare-text: var(--${culoare}-dark);`);
+  });
+
+  test('numerele pașilor folosesc culoarea de text a grupului', () => {
+    const bloc = /\.serviciu__pasi li::marker\s*\{([^}]*)\}/.exec(css)?.[1] ?? '';
+    expect(bloc).toContain('color: var(--culoare-text);');
+  });
+});

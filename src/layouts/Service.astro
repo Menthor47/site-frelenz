@@ -121,21 +121,26 @@ const firimituri = [
 </Base>
 
 <style>
-  /* Culoarea grupului (§5.2) dă doar buline și numerele pașilor: grafică cu sens, deci construcția ia galbenul închis. */
+  /* Culoarea grupului (§5.2): `--culoare` dă bulinele (grafică cu sens, deci construcția ia galbenul închis), iar
+     `--culoare-text` dă numerele pașilor, care sunt text: varianta închisă, singura care trece de 4,5:1 pe alb. */
   .serviciu[data-grup='vizibilitate'] {
     --culoare: var(--blue);
+    --culoare-text: var(--blue-dark);
   }
 
   .serviciu[data-grup='diagnostic'] {
     --culoare: var(--green);
+    --culoare-text: var(--green-dark);
   }
 
   .serviciu[data-grup='constructie'] {
     --culoare: var(--yellow-dark);
+    --culoare-text: var(--yellow-dark);
   }
 
   .serviciu[data-grup='reparatie'] {
     --culoare: var(--red);
+    --culoare-text: var(--red-dark);
   }
 
   .serviciu {
@@ -183,6 +188,10 @@ const firimituri = [
   li::marker {
     color: var(--culoare);
     font-weight: 800;
+  }
+
+  .serviciu__pasi li::marker {
+    color: var(--culoare-text);
   }
 
   .serviciu__proiect {
