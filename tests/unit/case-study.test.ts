@@ -113,7 +113,9 @@ describe('CaseStudy (§4.5)', () => {
 
   test('serviciile provizorii au marcajul lor, doar în previzualizare', async () => {
     const cu = proiect({ serviciiDeConfirmat: '[DE COMPLETAT:#8]' });
-    expect(main(await render(CaseStudy, { proiect: cu }))).not.toContain('DE COMPLETAT');
+    const productie = main(await render(CaseStudy, { proiect: cu }));
+    expect(productie).not.toContain('DE COMPLETAT');
+    expect(productie).not.toMatch(/<p\b[^>]*>\s*<\/p>/);
     stare.draft = true;
     const h = main(await render(CaseStudy, { proiect: cu }));
     const servicii = h.slice(h.indexOf('Serviciile folosite'));

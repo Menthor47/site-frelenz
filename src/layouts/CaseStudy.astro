@@ -150,7 +150,7 @@ const grup = servicii[0]?.grup;
         }
       </ul>
       {
-        p.serviciiDeConfirmat !== undefined && (
+        p.serviciiDeConfirmat !== undefined && DRAFT && (
           <p>
             <TextSauMarcaj valoare={p.serviciiDeConfirmat} />
           </p>
