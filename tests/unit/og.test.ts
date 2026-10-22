@@ -18,3 +18,19 @@ test('merge și cu un titlu lung, cu ș și ț, și cu linia unui grup', async (
   const png = await imagineOg({ titlu: 'Întreținere și mentenanță site WordPress pentru firme din toată țara', grup: 'reparatie' });
   expect(dimensiuni(png)).toEqual([1200, 630]);
 });
+
+// §3.7: fișierul static nu are toate glifele din toate limbile; fiecare caracter din titlurile paginilor trebuie să existe
+// în subsetul latin sau latin-ext 800, altfel satori l-ar desena lipsă fără nicio eroare.
+test('fiecare caracter din titlurile paginilor are glifă în fontul imaginii OG', async () => {
+  const { createRequire } = await import('node:module');
+  const fontkit = await import('fontkit');
+  const cere = createRequire(import.meta.url);
+  const fonturi = ['latin', 'latin-ext'].map((subset) =>
+    fontkit.openSync(cere.resolve(`@fontsource/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-${subset}-800-normal.woff`)),
+  ) as unknown as { hasGlyphForCodePoint(c: number): boolean }[];
+  const { PAGINI_STATICE } = await import('../../src/lib/routes');
+  const fisiere = import.meta.glob<{ frontmatter: { titlu: string } }>('../../src/content/**/*.md', { eager: true });
+  const titluri = [...Object.values(PAGINI_STATICE).map((p) => p.titlu), ...Object.values(fisiere).map((m) => m.frontmatter.titlu), 'Alex Ionescu, consultant SEO'];
+  const lipsa = [...new Set(titluri.join(''))].filter((c) => !fonturi.some((f) => f.hasGlyphForCodePoint(c.codePointAt(0) ?? 0)));
+  expect(lipsa).toEqual([]);
+});

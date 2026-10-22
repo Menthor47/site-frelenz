@@ -1,6 +1,9 @@
 // Singura sursă pentru datele site-ului, inclusiv domeniul (folosit și de astro.config.mjs).
 // `SITE_URL` suprascrie domeniul doar pentru QA local.
-const url = process.env.SITE_URL ?? 'https://site-provizoriu.example';
+/** Domeniul provizoriu, până îl alege Alex (registrul, #3); check:launch refuză lansarea cu el. */
+export const DOMENIU_PROVIZORIU = 'https://site-provizoriu.example';
+
+const url = process.env.SITE_URL ?? DOMENIU_PROVIZORIU;
 
 export const site = {
   url,

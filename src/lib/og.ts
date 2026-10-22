@@ -4,12 +4,13 @@
 // Pe imagine: logo-ul ca text, titlul paginii și o linie de metrou în culoarea grupului paginii (albastru, fără grup).
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { join } from 'node:path';
 import satori from 'satori';
 import type { Grup } from '../form-rules';
 
 // resvg are un modul nativ (.node) încărcat prin `__dirname`: se cere direct din Node, nu prin bundler-ul lui Vite.
-const { Resvg } = createRequire(import.meta.url)('@resvg/resvg-js') as typeof import('@resvg/resvg-js');
+// Tot prin `require` se găsesc și fișierele fontului, oricare ar fi directorul din care rulează build-ul.
+const cere = createRequire(import.meta.url);
+const { Resvg } = cere('@resvg/resvg-js') as typeof import('@resvg/resvg-js');
 
 const LATIME = 1200;
 const INALTIME = 630;
@@ -27,7 +28,7 @@ const LINIA: Readonly<Record<Grup, string>> = {
 
 const FONTURI = ['latin', 'latin-ext'].map((subset) => ({
   name: `Atkinson ${subset}`,
-  data: readFileSync(join(process.cwd(), 'node_modules', '@fontsource', 'atkinson-hyperlegible-next', 'files', `atkinson-hyperlegible-next-${subset}-800-normal.woff`)),
+  data: readFileSync(cere.resolve(`@fontsource/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-${subset}-800-normal.woff`)),
   weight: 800 as const,
   style: 'normal' as const,
 }));
@@ -58,6 +59,7 @@ export async function imagineOg({ titlu, grup }: DateOg): Promise<Uint8Array> {
       padding: '72px 80px',
       background: CULORI.paper,
       fontFamily: 'Atkinson latin, Atkinson latin-ext',
+      fontWeight: 800,
       color: CULORI.ink,
     },
     [
@@ -75,5 +77,6 @@ export async function imagineOg({ titlu, grup }: DateOg): Promise<Uint8Array> {
   );
 
   const svg = await satori(pagina as unknown as Parameters<typeof satori>[0], { width: LATIME, height: INALTIME, fonts: FONTURI });
-  return new Resvg(svg, { fitTo: { mode: 'width', value: LATIME } }).render().asPng();
+  // Fără fonturile sistemului: satori a transformat deja textul în contururi, deci build-ul e același pe orice mașină.
+  return new Resvg(svg, { fitTo: { mode: 'width', value: LATIME }, font: { loadSystemFonts: false } }).render().asPng();
 }

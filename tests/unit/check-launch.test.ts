@@ -10,7 +10,9 @@ function ok(suprascrieri: Partial<Parameters<typeof verificaLansarea>[0]> = {}) 
     aprobari: { '/': true, '/servicii/seo/': true },
     paginiDist: ['/', '/servicii/seo/'],
     marcaje: [],
-    distHtml: ['<p>Gata.</p>'],
+    marcajeDist: [],
+    textDist: ['<link rel="canonical" href="https://alexionescu.ro/">'],
+    mediu: {},
     ...suprascrieri,
   };
 }
@@ -31,11 +33,24 @@ describe('verificaLansarea (§11)', () => {
   test('o pagină din dist/ care lipsește din aprobari.json contează ca neaprobată', () =>
     expect(verificaLansarea(ok({ paginiDist: ['/', '/servicii/seo/', '/pagina-noua/'] }))).toContain('pagină neaprobată: /pagina-noua/'));
 
-  test('refuză textul marcajului în dist', () => expect(verificaLansarea(ok({ distHtml: ['<p>[DE COMPLETAT:#4]</p>'] }))).toContain('marcaj în dist/'));
+  test('refuză un marcaj găsit oriunde în dist/ (orice fișier text)', () =>
+    expect(verificaLansarea(ok({ marcajeDist: [{ fisier: 'dist/_astro/x.css', linie: 3 }] }))).toContain('marcaj în dist/: dist/_astro/x.css:3'));
+
+  // Un build făcut pentru QA local (SITE_URL=localhost) sau pentru previzualizare (DRAFT=1) nu se lansează.
+  test('refuză când SITE_URL sau DRAFT sunt setate în mediu', () => {
+    expect(verificaLansarea(ok({ mediu: { SITE_URL: 'http://localhost:8787' } }))).toContain('SITE_URL e setat în mediu (e doar pentru QA local)');
+    expect(verificaLansarea(ok({ mediu: { DRAFT: '1' } }))).toContain('DRAFT e setat în mediu (build de previzualizare)');
+  });
+
+  test('refuză un dist/ construit cu domeniul provizoriu sau cu localhost', () => {
+    expect(verificaLansarea(ok({ textDist: ['<link href="http://localhost:8787/">'] }))).toContain('dist/ conține localhost, 127.0.0.1 sau domeniul provizoriu: rulează `npm run build` fără SITE_URL');
+    expect(verificaLansarea(ok({ textDist: ['https://site-provizoriu.example/sitemap-index.xml'] }))).toContain(
+      'dist/ conține localhost, 127.0.0.1 sau domeniul provizoriu: rulează `npm run build` fără SITE_URL',
+    );
+  });
 
   test('fiecare motiv apare o singură dată', () => {
-    const motive = verificaLansarea(ok({ distHtml: ['[DE COMPLETAT:#1]', '[DE COMPLETAT:#2]'], marcaje: [{ fisier: 'a', nr: 1, blocheaza: true }, { fisier: 'a', nr: 1, blocheaza: true }] }));
-    expect(motive.filter((m) => m === 'marcaj în dist/')).toHaveLength(1);
+    const motive = verificaLansarea(ok({ marcaje: [{ fisier: 'a', nr: 1, blocheaza: true }, { fisier: 'a', nr: 1, blocheaza: true }] }));
     expect(motive.filter((m) => m === 'marcaj blocant #1 în a')).toHaveLength(1);
   });
 });
@@ -44,6 +59,6 @@ describe('avertismenteLansare', () => {
   test('cere verificarea datelor scrise de mână (ghiduri, pagini legale) și a dependențelor', () => {
     const a = avertismenteLansare({ date: [{ cale: '/ghiduri/ce-este-geo/', data: '2026-10-22' }] });
     expect(a.some((x) => x.includes('/ghiduri/ce-este-geo/') && x.includes('2026-10-22'))).toBe(true);
-    expect(a.some((x) => x.includes('npm audit'))).toBe(true);
+    expect(a.some((x) => x.includes('npm audit') && x.includes('4.151.3'))).toBe(true);
   });
 });

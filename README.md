@@ -10,7 +10,7 @@ Cerințe: Node 24 (`.node-version`). Instalare: `npm ci`.
 |---|---|
 | `npm run dev` | Serverul de dezvoltare Astro (fără CSP și fără Worker). |
 | `npm run build` | Build-ul de producție în `dist/`: doar paginile publicabile, fără niciun marcaj. |
-| `npm run preview:draft` | Build-ul de previzualizare în `dist-draft/` (`DRAFT=1`): toate paginile, cu marcajele `[DE COMPLETAT]` vizibile. |
+| `npm run preview:draft` | Build-ul de previzualizare în `dist-draft/` (`DRAFT=1`): toate paginile, cu marcajele `[DE COMPLETAT]` vizibile. Îl vezi în browser cu `npx cross-env DRAFT=1 astro preview`. |
 | `npm run test:unit` | Testele vitest (componente, pagini, conținut, scripturi). |
 | `npm run test:worker` | Testele Worker-ului formularului (vitest, legăturile Cloudflare simulate). |
 | `npm run test:e2e` | Testele Playwright pe build, servit cu `wrangler dev` (formularul ajunge la Worker). |
@@ -28,11 +28,12 @@ Nimic neaprobat nu ajunge pe site: `check:launch` refuză lansarea cât timp o p
 
 - **Serviciile, proiectele și ghidurile:** câmpul `aprobat: true` din fișierul lor din `src/content/`.
 - **Celelalte pagini** (Acasă, Servicii, Cum lucrez, Despre, Contact, paginile legale, 404, paginile de răspuns ale formularului): intrarea lor din `src/approvals.ts`.
-- Înainte să aprobi, citește pagina în previzualizare (`npm run preview:draft`), unde se văd marcajele rămase.
+- Înainte să aprobi, citește pagina în previzualizare (`npm run preview:draft`, apoi `npx cross-env DRAFT=1 astro preview`), unde se văd marcajele rămase.
+- Răspunsurile la întrebările frecvente (registrul, #13) sunt ciorne în paginile lor: le aprobi odată cu pagina.
 
 ## Ce verifică `check:launch`
 
-Rulează pe build-ul de producție și cade cu lista de motive până când:
+Rulează pe build-ul de producție (`npm run build`, fără `SITE_URL` și fără `DRAFT` în mediu) și cade cu lista de motive până când:
 
 1. datele PFA sunt completate în `src/site.config.ts` (denumire, numărul de la Registrul Comerțului, CUI, sediul);
 2. domeniul final e pus în `src/site.config.ts`;
@@ -40,6 +41,8 @@ Rulează pe build-ul de producție și cade cu lista de motive până când:
 4. fiecare pagină construită e aprobată;
 5. nu mai rămâne niciun marcaj al unui rând blocant din registru (`src/placeholders.ts`), inclusiv durata de păstrare a datelor, etichetele buclei lunare și data verificării certificării Cloudflare;
 6. textul „[DE COMPLETAT” nu apare nicăieri în `dist/`.
+
+Refuză și un `dist/` construit pentru QA (cu `localhost` sau cu domeniul provizoriu) și orice `[DE COMPLETAT` din orice fișier text din `dist/`.
 
 Afișează și avertismente care nu blochează: datele scrise de mână în ghiduri și în paginile legale (pune data aprobării) și `npm audit` pentru dependențele de dezvoltare.
 
@@ -52,10 +55,11 @@ Afișează și avertismente care nu blochează: datele scrise de mână în ghid
 5. Aplici regulile de zonă din §3.6, una câte una: Always Use HTTPS și 301 de la www spre varianta fără www; Web Analytics oprit; Bot Fight Mode oprit; fără Turnstile; Email Address Obfuscation oprit; Rocket Loader oprit; blocarea crawlerelor AI și „Managed robots.txt” oprite; Crawler Hints (IndexNow) pornit.
 6. Pui domeniul real în `src/site.config.ts`.
 7. Rulezi `npx wrangler login`.
-8. Rulezi `npm run deploy`, doar după ce `npm run check:launch` trece și doar cu acordul tău.
-9. Verifici în producție: antetele `Set-Cookie` (nu trebuie să existe), că HTML-ul servit nu conține `/cdn-cgi/` sau `data-cfemail` și că numărul de `<script>` de pe fiecare pagină e același ca în `dist/`.
-10. Configurezi Google Search Console, Bing Webmaster Tools, IndexNow și Google Business Profile.
-11. Faci prima măsurare Lighthouse și PageSpeed în producție și o treci în `src/content/proiecte/acest-site.md` (`scoruri`), cu data și versiunea; atunci se construiește și pagina „Acest site”.
+8. Rulezi `npm run deploy`, doar după ce `npm run check:launch` trece și doar cu acordul tău. Primul deploy creează Worker-ul `siteulet` pe `*.workers.dev`.
+9. Legi domeniul de Worker: în Cloudflare, Workers & Pages → `siteulet` → Settings → Domains & Routes → Add → Custom domain, cu domeniul fără www. Din dashboard, domeniul rămâne scris doar în `site.config.ts`; varianta din `wrangler.jsonc` (`routes` cu `custom_domain: true`) l-ar pune într-un al doilea loc.
+10. Verifici în producție: antetele `Set-Cookie` (nu trebuie să existe), că HTML-ul servit nu conține `/cdn-cgi/` sau `data-cfemail` și că numărul de `<script>` de pe fiecare pagină e același ca în `dist/`.
+11. Configurezi Google Search Console (cu verificarea prin DNS, nu printr-un fișier HTML: un fișier HTML în plus ar fi o pagină neaprobată pentru `check:launch`), Bing Webmaster Tools, IndexNow și Google Business Profile.
+12. Faci prima măsurare Lighthouse și PageSpeed în producție, o treci în `src/content/proiecte/acest-site.md` (`scoruri`), cu data și versiunea, și pui `aprobat: true`; atunci se construiește pagina „Acest site” și apare în subsol fraza „Fără cookie-uri de urmărire și fără scripturi terțe. Vezi cum e făcut site-ul.”
 
 **Formularul pe `*.workers.dev`:** adresa de trimitere e `formular@<domeniul cererii>`. Pe un domeniu `workers.dev` nu există Email Routing, deci trimiterea eșuează și vizitatorul ajunge pe `/contact/eroare/`. Formularul merge doar pe domeniul tău.
 
@@ -78,7 +82,7 @@ Dacă îți faci o căsuță reală pe domeniu (Google Workspace, Zoho), Email R
 
 ## Chei experimentale
 
-`astro.config.mjs` nu folosește nicio cheie `experimental`: CSP-ul vine din `security.csp`, iar fonturile din `fonts`.
+`astro.config.mjs` nu folosește nicio cheie `experimental`: CSP-ul vine din `security.csp`, iar fonturile din `fonts`. Doar testele folosesc o interfață experimentală, `experimental_AstroContainer` din `astro/container` (`tests/unit/helpers.ts`), ca să randeze componentele; site-ul nu depinde de ea.
 
 ## Unde e fiecare lucru
 
