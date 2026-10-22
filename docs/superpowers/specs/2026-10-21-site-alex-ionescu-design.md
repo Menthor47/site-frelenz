@@ -903,7 +903,7 @@ Comanda `npm run check:launch` refuză lansarea până când:
 | 14 | Duratele și pașii fiecărui serviciu, doar dacă Alex îi confirmă | Alex | Nu (fără ele, duratele lipsesc) |
 | 15 | Etichetele buclei lunare din traseul abonamentului | Alex | Da |
 | 16 | Textele celor 2 ghiduri | eu redactez, Alex aprobă | Nu (secțiunea lipsește până atunci) |
-| 17 | Durata de păstrare a datelor din formular | Alex (cu contabilul) | Da |
+| 17 | Durata de păstrare a datelor: cererile din formular, corespondența, contractele și facturile, jurnalele tehnice | Alex (cu contabilul) | Da |
 | 18 | Timpul de răspuns promis, doar dacă Alex îl confirmă | Alex | Nu (fără el, nu se promite nimic) |
 | 19 | Testimoniale reale, cu acord | Alex | Nu |
 | 20 | Linkul spre Google Business Profile | Alex | Nu |

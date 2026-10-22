@@ -29,7 +29,7 @@ export const REGISTRU: Record<number, RandRegistru> = {
   14: { ce: 'Duratele și pașii fiecărui serviciu, doar dacă Alex îi confirmă', cine: 'Alex', blocheaza: false },
   15: { ce: 'Etichetele buclei lunare din traseul abonamentului', cine: 'Alex', blocheaza: true },
   16: { ce: 'Textele celor 2 ghiduri', cine: 'eu redactez, Alex aprobă', blocheaza: false },
-  17: { ce: 'Durata de păstrare a datelor din formular', cine: 'Alex (cu contabilul)', blocheaza: true },
+  17: { ce: 'Durata de păstrare a datelor: cererile din formular, corespondența, contractele și facturile, jurnalele tehnice', cine: 'Alex (cu contabilul)', blocheaza: true },
   18: { ce: 'Timpul de răspuns promis, doar dacă Alex îl confirmă', cine: 'Alex', blocheaza: false },
   19: { ce: 'Testimoniale reale, cu acord', cine: 'Alex', blocheaza: false },
   20: { ce: 'Linkul spre Google Business Profile', cine: 'Alex', blocheaza: false },

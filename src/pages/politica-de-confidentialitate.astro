@@ -8,9 +8,13 @@ import { CAMPURI } from '../form-rules';
 import Legal from '../layouts/Legal.astro';
 import { site } from '../site.config';
 
-const obligatorii = Object.entries(CAMPURI)
-  .filter(([, regula]) => regula.required)
-  .map(([camp]) => ({ nume: 'Nume', email: 'E-mail', mesaj: 'Mesaj' })[camp] ?? camp);
+/** Etichetele câmpurilor obligatorii, ca în formular (ContactForm), enumerate firesc: „Nume, E-mail și Mesaj”. */
+const ETICHETE: Readonly<Record<string, string>> = { nume: 'Nume', email: 'E-mail', mesaj: 'Mesaj' };
+const obligatorii = new Intl.ListFormat('ro', { type: 'conjunction' }).format(
+  Object.entries(CAMPURI)
+    .filter(([, regula]) => regula.required)
+    .map(([camp]) => ETICHETE[camp] ?? camp),
+);
 ---
 
 <Legal
@@ -38,9 +42,10 @@ const obligatorii = Object.entries(CAMPURI)
   </p>
   <ul>
     <li>
-      <strong>Ca să-ți răspund la cererea de ofertă.</strong> Temeiul e art. 6 alin. (1) lit. (b) din GDPR când tu ai fi parte în
-      contract (de exemplu, ca PFA, întreprindere individuală sau familială), și art. 6 alin. (1) lit. (f) când scrii în numele unei
-      firme (ca administrator sau angajat). Interesul meu legitim: să răspund cererilor primite de la firme.
+      <strong>Ca să-ți răspund la cererea de ofertă.</strong> Temeiul e art. 6 alin. (1) lit. (b) din GDPR (pași făcuți la cererea
+      ta înainte de încheierea unui contract) când tu ai fi parte în contract (de exemplu, ca PFA, întreprindere individuală sau
+      familială), și art. 6 alin. (1) lit. (f) când scrii în numele unei firme (ca administrator sau angajat). Interesul meu legitim:
+      să răspund cererilor primite de la firme.
     </li>
     <li>
       <strong>Pentru corespondența care urmează.</strong> Temeiul e art. 6 alin. (1) lit. (f). Interesul meu legitim: să păstrez
@@ -70,7 +75,8 @@ const obligatorii = Object.entries(CAMPURI)
     <li>
       Cloudflare, Inc. (SUA): transferul se face pe baza deciziei de adecvare pentru cadrul UE–SUA privind protecția datelor (Data
       Privacy Framework, Decizia (UE) 2023/1795) și a clauzelor contractuale standard din acordul de prelucrare a datelor al
-      Cloudflare. Am verificat certificarea Cloudflare pe dataprivacyframework.gov la data: <Placeholder nr={22} />.
+      Cloudflare. Am verificat certificarea Cloudflare pe dataprivacyframework.gov la data: <Placeholder nr={22} />. Poți cere o
+      copie a acestor garanții scriindu-mi la <a href={`mailto:${site.email}`}>{site.email}</a>.
     </li>
     <li>Gmail: în Spațiul Economic European, serviciul e furnizat de Google Ireland Limited.</li>
   </ul>
@@ -80,17 +86,18 @@ const obligatorii = Object.entries(CAMPURI)
 
   <h2>Drepturile tale</h2>
   <p>
-    Ai dreptul să afli ce date am despre tine și să primești o copie, să le corectezi, să ceri ștergerea lor, să ceri restricționarea
-    prelucrării, să le primești într-un format pe care îl poți folosi în altă parte și să nu fii supus unei decizii luate doar
-    automat (art. 15–22 din GDPR). Pentru oricare dintre ele, scrie-mi la <a href={`mailto:${site.email}`}>{site.email}</a>.
+    Ai dreptul de acces (să afli ce date am despre tine și să primești o copie), dreptul la rectificare, dreptul la ștergere, dreptul
+    la restricționarea prelucrării, dreptul la portabilitatea datelor pe care mi le-ai dat (pentru prelucrările pe bază de contract)
+    și dreptul de a nu face obiectul unei decizii bazate doar pe prelucrare automată (art. 15–22 din GDPR). Pentru oricare dintre
+    ele, scrie-mi la <a href={`mailto:${site.email}`}>{site.email}</a>.
   </p>
 
   <h2>Dreptul de opoziție</h2>
   <p>
     Te poți opune oricând, din motive legate de situația ta, prelucrării datelor pe temeiul interesului legitim, art. 6 alin. (1)
     lit. (f) (art. 21 din GDPR). Scrie-mi la <a href={`mailto:${site.email}`}>{site.email}</a>, iar eu opresc prelucrarea, cu excepția
-    cazului în care am motive legitime care prevalează sau datele îmi trebuie ca să constat, să exercit sau să apăr un drept în
-    instanță.
+    cazului în care demonstrez că am motive legitime și imperioase care prevalează asupra intereselor, drepturilor și libertăților
+    tale sau datele îmi trebuie ca să constat, să exercit sau să apăr un drept în instanță.
   </p>
 
   <h2>Plângere la ANSPDCP</h2>
@@ -102,8 +109,8 @@ const obligatorii = Object.entries(CAMPURI)
 
   <h2>Dacă nu-mi dai datele</h2>
   <p>
-    Datele sunt necesare ca să-ți pot răspunde. În formular sunt obligatorii doar câmpurile {obligatorii.join(', ')}; fără ele nu-ți
-    pot trimite un răspuns.
+    Datele sunt necesare ca să-ți pot răspunde. În formular sunt obligatorii doar câmpurile {obligatorii}; fără ele nu-ți pot trimite
+    un răspuns.
   </p>
 
   <h2>Decizii automate</h2>

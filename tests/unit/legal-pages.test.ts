@@ -101,6 +101,28 @@ describe('Politica de confidențialitate (§7.2)', () => {
   });
 
   test('fără decizii automate', async () => expect(textOf(main(await render(PaginaConfidentialitate)))).toContain('Nu iau decizii automate'));
+
+  // Art. 21 alin. (1): prelucrarea continuă doar cu „motive legitime și imperioase” care prevalează (revizuirea Task 18).
+  test('dreptul de opoziție, cu formularea din art. 21', async () => {
+    const text = textOf(main(await render(PaginaConfidentialitate)));
+    expect(text).toContain('art. 21 din GDPR');
+    expect(text).toContain('motive legitime și imperioase care prevalează asupra intereselor, drepturilor și libertăților tale');
+  });
+
+  test('drepturile din art. 15–22; portabilitatea doar pentru prelucrările pe bază de contract (art. 20)', async () => {
+    const text = textOf(main(await render(PaginaConfidentialitate)));
+    for (const drept of ['acces', 'rectificare', 'ștergere', 'restricționarea', 'portabilitatea', 'art. 15–22']) expect(text).toContain(drept);
+    expect(text).toMatch(/portabilitatea[^.]*contract/);
+  });
+
+  test('temeiul (b) acoperă și pașii de dinaintea contractului; copia garanțiilor pentru transfer se poate cere', async () => {
+    const text = textOf(main(await render(PaginaConfidentialitate)));
+    expect(text).toContain('înainte de încheierea unui contract');
+    expect(text).toMatch(/copie a acestor garanții/);
+  });
+
+  test('câmpurile obligatorii, enumerate firesc', async () =>
+    expect(textOf(main(await render(PaginaConfidentialitate)))).toContain('câmpurile Nume, E-mail și Mesaj'));
 });
 
 describe('Politica de cookie-uri (§7.3)', () => {
@@ -110,6 +132,8 @@ describe('Politica de cookie-uri (§7.3)', () => {
       'Site-ul nu folosește cookie-uri de analiză, de marketing sau de preferințe și nici tehnologii similare (stocare locală, pixeli, amprentare). Singura excepție: dacă protecția Cloudflare îți cere o verificare de securitate (de exemplu în timpul unui atac), Cloudflare poate seta cookie-ul strict necesar cf_clearance, fără de care verificarea nu funcționează.',
     );
     expect(text).not.toMatch(/niciun cookie/i);
+    expect(text).toContain('pe site nu apare niciun banner de cookie-uri');
+    expect(main(await render(PaginaCookies))).toContain('<code>cf_clearance</code>');
   });
 });
 
@@ -129,7 +153,9 @@ describe('Termenii site-ului (§7.4)', () => {
   });
 
   test('fără clauze comerciale (ele merg în contractul-tip separat)', async () =>
-    expect(textOf(main(await render(PaginaTermeni)))).not.toMatch(/preaviz|durata minimă|limitarea răspunderii|legea aplicabilă|plata|plăți/i));
+    expect(textOf(main(await render(PaginaTermeni)))).not.toMatch(
+      /preaviz|durata minimă|limitarea răspunderii|răspunderea|legea aplicabilă|plata|plăți|reducere|livrabil|accesele|condițiile ei/i,
+    ));
 });
 
 describe('404 (§4.5)', () => {
@@ -139,6 +165,7 @@ describe('404 (§4.5)', () => {
     expect(main(h)).not.toContain('class="harta');
     expect(main(h)).not.toContain('aria-label="Firimituri"');
     for (const cale of ['/', '/servicii/', '/contact/']) expect(main(h)).toContain(`href="${cale}"`);
+    expect(main(h)).toMatch(/<a href="\/"[^>]*>Acasă<\/a>/);
     expect(titluri(main(h), 1)).toEqual(['Pagina nu există']);
   });
 
