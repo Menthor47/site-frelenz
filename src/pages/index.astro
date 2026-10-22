@@ -1,40 +1,243 @@
 ---
+// Acasă (§4.3). Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se cere o ofertă.
+// - Zona de sus e o compoziție (ruling R12): harta animată și, peste marginea ei de jos, H1-ul ca o plăcuță de stație,
+//   albă și opacă, ca liniile și trenurile să intre sub ea și textul să rămână lizibil (§5.6). Sub hartă, subtitlul și butonul.
+//   În DOM, harta vine după „Cere o ofertă”, ca butonul de oprire să urmeze în ordinea focusului; locul ei vine din grilă.
+// - Apoi, liniștit: „De unde pornești?”, cele două trasee, proiectele (doar dacă există unul publicabil), întrebările
+//   frecvente generale și banda albastră cu îndemnul final. Antetul nu are butonul „Cere o ofertă” pe Acasă (Header).
+// Singurul script e cel al trenurilor (MetroMap). JSON-LD: WebPage și FAQPage, din aceleași întrebări ca pagina.
+import { getCollection } from 'astro:content';
+import { paginaAprobata } from '../approvals';
+import Cta from '../components/Cta.astro';
+import Faq from '../components/Faq.astro';
+import LineDiagram from '../components/LineDiagram.astro';
+import MetroMap from '../components/MetroMap.astro';
+import RouteMap from '../components/RouteMap.astro';
+import { SERVICII } from '../form-rules';
 import Base from '../layouts/Base.astro';
 import { DRAFT } from '../lib/env';
 import { nodFaq, nodWebPage } from '../lib/jsonld';
+import { proiectePublicabile } from '../lib/publish';
 
-// Pagină provizorie, înlocuită la Task 11. Are totuși tot ce cere `qa:page` pe Acasă (§6.3): WebPage și FAQPage.
-// Întrebările și răspunsurile sunt doar faptele din §1 și §4.5, fără nimic nou; schema FAQPage oglindește textul vizibil.
+const CALE = '/';
+
+/** Câte proiecte intră pe Acasă (§4.3 punctul 5); restul sunt pe /proiecte/. */
+const PROIECTE_PE_ACASA = 3;
+
+const randuri = (await getCollection('servicii'))
+  .map((intrare) => intrare.data)
+  .sort((a, b) => a.ordine - b.ordine)
+  .map((s) => ({ problema: s.problema, slug: s.slug, nume: SERVICII.find((x) => x.slug === s.slug)?.nume ?? s.titlu, grup: s.grup }));
+
+const proiecte = proiectePublicabile((await getCollection('proiecte')).map((intrare) => intrare.data), DRAFT).slice(0, PROIECTE_PE_ACASA);
+
+// Ciorne (§4.3 punctul 6), la „tu”: doar fapte din spec (§1, §4.5), fără termene și fără cifre. Nu repetă întrebările
+// de pe paginile de servicii. Fiecare răspuns începe cu răspunsul direct.
 const intrebari = [
   {
-    intrebare: 'Cu cine lucrezi?',
-    raspuns: 'Lucrez doar cu firme, PFA-uri și alte entități profesionale, din toată țara. Eu sunt din București.',
+    intrebare: 'Afișezi prețuri?',
+    raspuns: 'Nu. Prețul, reducerea și ce include abonamentul le stabilim după ce mă uit la site-ul tău.',
   },
   {
-    intrebare: 'Cu ce te pot ajuta?',
-    raspuns: 'Cu SEO, audit SEO, creare de site de prezentare, redesign, mentenanță și optimizare pentru căutarea AI (AEO și GEO).',
+    intrebare: 'Ce se întâmplă după ce trimit cererea?',
+    raspuns:
+      'Mă uit la site-ul tău și la ce mi-ai scris, apoi îți trimit oferta: ce lucrez, în ce ordine și ce primești. Lucrul începe doar după ce accepți oferta.',
+  },
+  {
+    intrebare: 'Lucrezi și cu firme din afara Bucureștiului?',
+    raspuns: 'Da. Sunt din București și lucrez cu firme din toată țara.',
+  },
+  {
+    intrebare: 'Pot cere doar o remediere, fără abonament?',
+    raspuns: 'Da. Remedierea unică se încheie cu un raport. Abonamentul lunar e pentru cine vrea ca lucrul să continue, nu o condiție.',
+  },
+  {
+    intrebare: 'Cu cine lucrezi?',
+    raspuns: 'Lucrez doar cu firme, PFA-uri și alte entități profesionale.',
   },
 ];
 ---
 
 <Base
   titlu="Consultant SEO din București"
-  descriere="Sunt Alex Ionescu, consultant SEO. Pe acest site găsești ce fac, cum lucrez și cum mă poți contacta, ca să afli dacă te pot ajuta cu site-ul tău."
-  cale="/"
-  aprobat={false}
-  jsonld={[nodWebPage('/', { despreAlex: true }), ...nodFaq(intrebari, DRAFT)]}
+  descriere="Sunt Alex Ionescu, consultant SEO din București. Lucrez la SEO, site-uri de prezentare și audituri pentru firme care vor să fie găsite în Google."
+  cale={CALE}
+  aprobat={paginaAprobata(CALE)}
+  jsonld={[nodWebPage(CALE, { despreAlex: true }), ...nodFaq(intrebari, DRAFT)]}
 >
-  <div class="contener">
-    <h1>Alex Ionescu, consultant SEO</h1>
-    <p>Pagina de pornire se construiește acum. Revino curând și vei găsi aici serviciile mele și cum poți cere o ofertă.</p>
-    <h2>Întrebări frecvente</h2>
-    {
-      intrebari.map((i) => (
-        <div>
-          <h3>{i.intrebare}</h3>
-          <p>{i.raspuns}</p>
+  <div class="acasa-sus">
+    <h1 class="acasa-sus__titlu">Consultant SEO din București</h1>
+    <p class="acasa-sus__subtitlu">SEO, site-uri și audituri pentru firme care vor să fie găsite în Google și în căutarea AI.</p>
+    <div class="acasa-sus__buton">
+      <Cta />
+    </div>
+    <MetroMap variant="animated" />
+  </div>
+
+  <section class="acasa-sectiune" aria-labelledby="de-unde-pornesti">
+    <div class="contener">
+      <h2 id="de-unde-pornesti">De unde pornești?</h2>
+      <LineDiagram randuri={randuri} />
+    </div>
+  </section>
+
+  <section class="acasa-sectiune acasa-trasee" aria-labelledby="cum-lucram">
+    <div class="contener">
+      <h2 id="cum-lucram">Cum lucrăm: două trasee</h2>
+      <RouteMap marime="compact" />
+    </div>
+  </section>
+
+  {
+    proiecte.length > 0 && (
+      <section class="acasa-sectiune" aria-labelledby="proiecte">
+        <div class="contener">
+          <h2 id="proiecte">Proiecte</h2>
+          <ul class="proiecte">
+            {proiecte.map((p) => (
+              <li>
+                <h3>
+                  <a href={`/proiecte/${p.slug}/`}>{p.titlu}</a>
+                </h3>
+                <p>{p.context}</p>
+                <ul>
+                  {p.ceAmFacut.map((t) => (
+                    <li>{t}</li>
+                  ))}
+                </ul>
+                {p.rezultate[0] && (
+                  <p class="proiecte__rezultat">
+                    {p.rezultate[0].text} ({p.rezultate[0].sursa}, {p.rezultate[0].data.toLocaleDateString('ro-RO', { month: 'long', year: 'numeric' })})
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
-      ))
-    }
+      </section>
+    )
+  }
+
+  <section class="acasa-sectiune" aria-labelledby="intrebari">
+    <div class="contener">
+      <h2 id="intrebari">Întrebări frecvente</h2>
+      <Faq intrebari={intrebari} />
+    </div>
+  </section>
+
+  <div class="acasa-final">
+    <div class="contener acasa-final__rand">
+      <p class="acasa-final__text">Spune-mi ce site ai și ce te încurcă.</p>
+      <Cta />
+    </div>
   </div>
 </Base>
+
+<style>
+  /* Grila zonei de sus: coloana din mijloc e containerul (72rem, cu marginile laterale); harta ia toată lățimea pe mobil
+     și se aliniază singură cu containerul pe desktop (metro.css). H1-ul stă în același rând cu harta, deasupra ei. */
+  .acasa-sus {
+    display: grid;
+    grid-template-columns:
+      [lat-start] minmax(var(--gutter), 1fr)
+      [text-start] minmax(0, var(--container))
+      [text-end] minmax(var(--gutter), 1fr)
+      [lat-end];
+    padding-bottom: 3.5rem;
+  }
+
+  .acasa-sus > :global(.harta) {
+    grid-column: lat;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  /* Plăcuța de stație (§4.3 punctul 2): albă, opacă, cu contur de 1px și colțuri drepte, ca butonul de oprire.
+     Marginea de sus o pune la 58% din înălțimea hărții, între M2 (la jumătate) și M3 (la două treimi), ca nicio linie să
+     nu atingă muchia plăcuței: harta are înălțimea 1/5 din lățime, dar cel puțin 9rem (metro.css), deci 58% din înălțime
+     e 11,6% din lățime sau 5,22rem. Procentul din `margin` se raportează la lățimea coloanei, aceeași cu a hărții. */
+  .acasa-sus__titlu {
+    position: relative;
+    z-index: 1;
+    grid-column: text;
+    grid-row: 1;
+    align-self: start;
+    justify-self: start;
+    /* Cât „Consultant SEO” (~7,25em în 800) plus padding: plăcuța se strânge pe text și rupe rândul după „SEO”. */
+    max-inline-size: min(100%, 8.75em);
+    margin: max(5.22rem, 11.6%) 0 0;
+    padding: 0.35em 0.5em 0.4em;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    /* Cu textul mărit la 200%, „București” n-ar încăpea întreg pe 320px. */
+    overflow-wrap: break-word;
+  }
+
+  .acasa-sus__subtitlu {
+    grid-column: text;
+    max-inline-size: 34ch;
+    margin: 1.25rem 0 0;
+    font-size: var(--text-md);
+    line-height: 1.45;
+  }
+
+  .acasa-sus__buton {
+    grid-column: text;
+    margin-top: 1.25rem;
+  }
+
+  .acasa-sectiune {
+    padding-block: 3.5rem;
+  }
+
+  .acasa-sectiune h2 {
+    margin-bottom: 1.5rem;
+  }
+
+  /* Traseele stau pe albastru deschis, pe toată lățimea (§4.3 punctul 4). */
+  .acasa-trasee {
+    background: var(--tint-blue);
+  }
+
+  .proiecte {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .proiecte > li + li {
+    margin-top: 2rem;
+  }
+
+  .proiecte__rezultat {
+    font-weight: 700;
+  }
+
+  /* Banda albastră cu îndemnul final (§4.3 punctul 7). Pe albastru, doar text alb (§5.2); butonul devine alb, cu text
+     negru, ca să nu se piardă în bandă, iar la hover primește doar subliniere (nu se închide la culoare sub text negru). */
+  .acasa-final {
+    padding-block: 2.5rem;
+    background: var(--blue);
+    color: var(--paper);
+  }
+
+  .acasa-final__rand {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 2rem;
+  }
+
+  .acasa-final__text {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  .acasa-final :global(.buton-cta),
+  .acasa-final :global(.buton-cta:hover) {
+    background: var(--paper);
+    color: var(--ink);
+  }
+</style>

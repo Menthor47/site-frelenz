@@ -42,6 +42,8 @@ const { randuri } = Astro.props;
     padding: 0;
     border-bottom: 1px solid var(--rule);
     list-style: none;
+    /* Rândurile se așază după lățimea listei, nu a ecranului (vezi `@container` mai jos). */
+    container-type: inline-size;
   }
 
   /* Culorile grupurilor (§5.2). Segmentul e grafică cu sens: galbenul tare are 1,86:1 pe alb, deci construcția
@@ -121,8 +123,11 @@ const { randuri } = Astro.props;
     overflow-wrap: anywhere;
   }
 
-  /* De la 768px: problema, stația, segmentul și capătul de linie pe același rând, în coloane care se aliniază de la un rând la altul. */
-  @media (min-width: 48rem) {
+  /* Problema, stația, segmentul și capătul de linie pe același rând, în coloane care se aliniază de la un rând la altul,
+     când lista are cel puțin 45rem (720px, adică un ecran de 768px cu text normal). Container query, nu media query:
+     aici `rem` crește odată cu textul, deci cu textul mărit la 200% rândurile rămân ca pe mobil, în loc ca pistele
+     fixe (7rem și 16rem) să împingă pagina în afara ecranului. */
+  @container (min-width: 45rem) {
     .linie-rand {
       grid-template-columns: minmax(0, 1fr) var(--d) 7rem 16rem;
     }

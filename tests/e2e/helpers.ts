@@ -158,3 +158,67 @@ export async function cssPePagina(page: Page): Promise<number> {
   }
   return octeti;
 }
+
+// ——— Acasă (Task 11) ———
+
+/**
+ * Numele elementelor care primesc focusul la Tab, în ordine, de la începutul paginii până când focusul se întoarce
+ * la primul element (sau după `maxim` pași). Numele e `aria-label` sau textul, fără spații în plus.
+ */
+export async function ordineFocus(page: Page, maxim = 80): Promise<string[]> {
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+  const nume: string[] = [];
+  let primul: string | undefined;
+  for (let i = 0; i < maxim; i++) {
+    await page.keyboard.press('Tab');
+    const curent = await page.evaluate(() => {
+      const el = document.activeElement;
+      if (el === null || el === document.body) return undefined;
+      const text = el.getAttribute('aria-label') ?? el.textContent ?? '';
+      return { id: `${el.tagName}|${el.getAttribute('href') ?? ''}|${text}`, text: text.trim().replace(/\s+/g, ' ') };
+    });
+    if (curent === undefined || curent.id === primul) break;
+    primul ??= curent.id;
+    nume.push(curent.text);
+  }
+  return nume;
+}
+
+/** `true` dacă vreun tren de pe harta animată își schimbă poziția pe ecran în `ms` milisecunde. */
+export async function trenuriInMiscare(page: Page, ms = 400): Promise<boolean> {
+  const pozitii = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll('.harta--animata .tren')]
+        .filter((t) => t.getBoundingClientRect().width > 0)
+        .map((t) => {
+          const r = t.getBoundingClientRect();
+          return `${Math.round(r.x)},${Math.round(r.y)}`;
+        }),
+    );
+  const inainte = await pozitii();
+  await page.waitForTimeout(ms);
+  const dupa = await pozitii();
+  return inainte.length > 0 && inainte.some((p, i) => p !== dupa[i]);
+}
+
+/**
+ * `true` dacă două dintre elementele vizibile găsite de `selectori` se suprapun (dreptunghiurile se intersectează cu mai
+ * mult de 1px). Un element nu se compară cu el însuși și nici cu propriii părinți sau copii.
+ */
+export async function seSuprapun(page: Page, selectori: readonly string[]): Promise<boolean> {
+  return page.evaluate((lista) => {
+    const elemente = [...new Set(lista.flatMap((s) => [...document.querySelectorAll(s)]))].filter((el) =>
+      el.checkVisibility({ checkVisibilityCSS: true }),
+    );
+    const cutii = elemente.map((el) => ({ el, r: el.getBoundingClientRect() })).filter(({ r }) => r.width > 0 && r.height > 0);
+    for (const [i, a] of cutii.entries()) {
+      for (const b of cutii.slice(i + 1)) {
+        if (a.el.contains(b.el) || b.el.contains(a.el)) continue;
+        const peLatime = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left);
+        const peInaltime = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top);
+        if (peLatime > 1 && peInaltime > 1) return true;
+      }
+    }
+    return false;
+  }, selectori);
+}

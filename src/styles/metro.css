@@ -116,12 +116,13 @@
   }
 }
 
-/* Butonul „Oprește trenurile” (§5.6): mic și secundar, în colțul hărții, cu zona de atingere de 44×44px.
+/* Butonul „Oprește trenurile” (§5.6): mic și secundar, cu zona de atingere de 44×44px. Stă în colțul de sus din dreapta,
+   departe de titlu și de butonul principal la orice lățime: pe Acasă, plăcuța H1-ului acoperă marginea de jos a hărții.
    Focusul e cel global, din base.css. Nu primește `display`, ca atributul `hidden` să-l ascundă în continuare. */
 .harta__buton {
   position: absolute;
+  top: 0.5rem;
   right: var(--gutter);
-  bottom: 0;
   min-width: 44px;
   min-height: 44px;
   padding: 0 0.75rem;

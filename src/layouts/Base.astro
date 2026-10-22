@@ -58,6 +58,8 @@ const noduri = firimituri.length > 0 ? [...jsonld, nodBreadcrumb(firimituri)] : 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
     <SeoHead titlu={titlu} descriere={descriere} cale={cale} noindex={noindex} />
+    <!-- Favicon: stația plină albastră, ca „Ești aici” (§5.4, ruling R14). -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <JsonLd noduri={noduri} />
     <Font cssVariable="--font-sans" preload />
   </head>
