@@ -1,18 +1,5 @@
 import { site } from '../../src/site.config';
-import {
-  graf,
-  nodArticle,
-  nodBreadcrumb,
-  nodColectie,
-  nodContactPage,
-  nodFaq,
-  nodPerson,
-  nodProfilePage,
-  nodService,
-  nodWebPage,
-  nodWebSite,
-  serializeaza,
-} from '../../src/lib/jsonld';
+import { graf, nodArticle, nodBreadcrumb, nodColectie, nodContactPage, nodFaq, nodPerson, nodProfilePage, nodService, nodWebPage, nodWebSite, serializeaza, noduriPagina, tipuriPagina } from '../../src/lib/jsonld';
 
 const ID_WEBSITE = `${site.url}/#website`;
 const ID_ALEX = `${site.url}/#alex`;
@@ -305,4 +292,19 @@ describe('serializeaza', () => {
     const inapoi = JSON.parse(text);
     expect(inapoi['@graph'][0].mainEntity[0].acceptedAnswer.text).toBe('</script><script>alert(1)</script>');
   });
+});
+
+describe('noduriPagina și tipuriPagina (Base, fișa de pe acest-site)', () => {
+  const firimituri = [
+    { nume: 'Acasă', cale: '/' },
+    { nume: 'Proiecte', cale: '/proiecte/' },
+  ];
+
+  test('BreadcrumbList se adaugă doar cu firimituri', () => {
+    expect(noduriPagina([nodWebPage('/')], [])).toHaveLength(1);
+    expect((noduriPagina([nodWebPage('/')], firimituri)[1] as { '@type': string })['@type']).toBe('BreadcrumbList');
+  });
+
+  test('tipurile din @graph, în ordine, cu WebSite și Person pe care le pune JsonLd', () =>
+    expect(tipuriPagina([nodArticle({ cale: '/proiecte/x/', titlu: 'X' })], firimituri)).toEqual(['WebSite', 'Person', 'Article', 'BreadcrumbList']));
 });

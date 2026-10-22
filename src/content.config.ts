@@ -42,6 +42,8 @@ const proiecte = defineCollection({
   schema: z.object({
     slug: z.string().min(1),
     titlu: z.string().min(1),
+    // Meta description (§4.2): fiecare studiu de caz e o pagină.
+    descriere: z.string().min(140).max(160),
     // Numele clientului sau „anonim”.
     client: z.string().min(1),
     acord: z.boolean(),

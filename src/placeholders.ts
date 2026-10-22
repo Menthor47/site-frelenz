@@ -33,4 +33,5 @@ export const REGISTRU: Record<number, RandRegistru> = {
   18: { ce: 'Timpul de răspuns promis, doar dacă Alex îl confirmă', cine: 'Alex', blocheaza: false },
   19: { ce: 'Testimoniale reale, cu acord', cine: 'Alex', blocheaza: false },
   20: { ce: 'Linkul spre Google Business Profile', cine: 'Alex', blocheaza: false },
+  21: { ce: 'Textul studiului szitrans: contextul, problema, ce am făcut și serviciile folosite', cine: 'Alex (eu redactez)', blocheaza: false },
 };

@@ -241,6 +241,17 @@ export function nodColectie(tip: TipColectie, elemente: readonly ElementColectie
   return [pagina, lista];
 }
 
+/** Nodurile specifice unei pagini, cum le dă Base lui JsonLd: cele primite, plus BreadcrumbList dacă pagina are firimituri. */
+export function noduriPagina(jsonld: readonly (object | readonly object[])[], firimituri: readonly PasFirimitura[]): (object | readonly object[])[] {
+  return firimituri.length > 0 ? [...jsonld, nodBreadcrumb(firimituri)] : [...jsonld];
+}
+
+/** Tipurile din `@graph`-ul paginii, în ordine, cu WebSite și Person pe care le pune JsonLd (fișa de pe acest-site, §5.5). */
+export function tipuriPagina(jsonld: readonly (object | readonly object[])[], firimituri: readonly PasFirimitura[]): string[] {
+  const g = graf(nodWebSite(), nodPerson(false), ...noduriPagina(jsonld, firimituri)) as { '@graph': { '@type': string }[] };
+  return g['@graph'].map((nod) => nod['@type']);
+}
+
 /**
  * Adună nodurile într-un singur `@graph`. Acceptă și liste de noduri (ca cea de la `nodColectie`).
  * Două noduri cu același `@id` se unesc: rămâne cel de la urmă, pe locul celui dintâi,

@@ -35,6 +35,7 @@ const serviciu = {
 const proiect = {
   slug: 'magazin-online',
   titlu: 'Magazin online',
+  descriere: 'd'.repeat(150),
   client: 'anonim',
   acord: false,
   aprobat: false,
@@ -91,6 +92,13 @@ describe('colecția servicii', () => {
 
 describe('colecția proiecte', () => {
   test('o intrare fără scoruri trece', () => expect(cadere('proiecte', proiect).success).toBe(true));
+  // Fiecare pagină are descrierea ei de 140–160 de caractere (§4.2), iar studiile de caz se construiesc din colecție.
+  test('descrierea are 140–160 de caractere', () => {
+    expect(cadere('proiecte', { ...proiect, descriere: 'd'.repeat(139) }).success).toBe(false);
+    expect(cadere('proiecte', { ...proiect, descriere: 'd'.repeat(161) }).success).toBe(false);
+    const { descriere: _, ...faraDescriere } = proiect;
+    expect(cadere('proiecte', faraDescriere).success).toBe(false);
+  });
   test('scorurile sunt opționale și, când există, au toate câmpurile', () => {
     const scor = { valoare: 98, data: '2026-11-10', versiuneLighthouse: '13.0.0', sursa: 'Lighthouse, mobil' };
     expect(cadere('proiecte', { ...proiect, scoruri: [scor] }).success).toBe(true);

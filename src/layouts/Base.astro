@@ -9,7 +9,7 @@ import MetroMap from '../components/MetroMap.astro';
 import SeoHead from '../components/SeoHead.astro';
 import type { Grup } from '../form-rules';
 import { DRAFT } from '../lib/env';
-import { nodBreadcrumb, type PasFirimitura } from '../lib/jsonld';
+import { noduriPagina, type PasFirimitura } from '../lib/jsonld';
 import { areProiecte, ghiduriDeConstruit, proiectePublicabile } from '../lib/publish';
 import '../styles/tokens.css';
 import '../styles/base.css';
@@ -48,7 +48,7 @@ const arataProiecte = areProiecte(proiecte, DRAFT);
 const arataGhiduri = ghiduriDeConstruit(ghiduri, DRAFT).length > 0;
 const arataAcestSite = proiectePublicabile(proiecte, DRAFT).some((proiect) => proiect.slug === 'acest-site');
 
-const noduri = firimituri.length > 0 ? [...jsonld, nodBreadcrumb(firimituri)] : jsonld;
+const noduri = noduriPagina(jsonld, firimituri);
 ---
 
 <!doctype html>

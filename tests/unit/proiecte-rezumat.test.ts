@@ -74,3 +74,11 @@ test('în previzualizare, marcajele trec prin Placeholder', async () => {
   });
   expect(h.match(/<mark class="marcaj">\[DE COMPLETAT:#(?:7|8|10)\]/g)).toHaveLength(3);
 });
+
+// Pe Acasă, proiectele stau sub H2-ul „Proiecte” (H3); pe /proiecte/, direct sub H1 (H2), ca ordinea titlurilor să fie corectă.
+test('nivelul titlului proiectului: H3 implicit, H2 la cerere', async () => {
+  expect(await render(ProiecteRezumat, { proiecte: [proiect()] })).toMatch(/<h3\b/);
+  const h = await render(ProiecteRezumat, { proiecte: [proiect()], nivelTitlu: 2 });
+  expect(h).toMatch(/<h2\b[^>]*>\s*<a href="\/proiecte\/magazin-online\/"/);
+  expect(h).not.toMatch(/<h3\b/);
+});

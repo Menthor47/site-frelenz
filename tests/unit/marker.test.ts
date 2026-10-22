@@ -31,7 +31,7 @@ test('renderMarker cere un rând existent în registru', () => {
 });
 
 test('registrul are 20 de rânduri și 7 blocante', () => {
-  expect(Object.keys(REGISTRU)).toHaveLength(20);
+  expect(Object.keys(REGISTRU)).toHaveLength(21);
   expect(Object.entries(REGISTRU).filter(([, r]) => r.blocheaza).map(([n]) => +n))
     .toEqual([1, 2, 3, 4, 13, 15, 17]);
 });

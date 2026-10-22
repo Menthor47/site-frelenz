@@ -16,9 +16,12 @@ interface Props {
     ceAmFacut: readonly string[];
     rezultate: readonly { text: string; sursa: string; data: Date }[];
   }[];
+  /** Nivelul titlului fiecărui proiect: 3 sub un H2 „Proiecte” (Acasă), 2 direct sub H1 (/proiecte/). */
+  nivelTitlu?: 2 | 3;
 }
 
-const { proiecte } = Astro.props;
+const { proiecte, nivelTitlu = 3 } = Astro.props;
+const Titlu = nivelTitlu === 2 ? 'h2' : 'h3';
 
 /** Luna și anul rezultatului. `z.coerce.date()` dă miezul nopții UTC, deci luna se citește în UTC. */
 const luna = (data: Date) => data.toLocaleDateString('ro-RO', { month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -38,9 +41,9 @@ const vizibile = deArata(proiecte, (p) => hasMarker(p.titlu)).map((p) => ({
   {
     vizibile.map((p) => (
       <li>
-        <h3>
+        <Titlu>
           <a href={`/proiecte/${p.slug}/`}><TextSauMarcaj valoare={p.titlu} /></a>
-        </h3>
+        </Titlu>
         {
           p.context !== undefined && (
             <p>
