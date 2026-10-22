@@ -3,6 +3,6 @@
   "compilerOptions": {
     "types": ["vitest/globals"]
   },
-  "include": [".astro/types.d.ts", "src/**/*", "tests/**/*", "*.config.*"],
+  "include": [".astro/types.d.ts", "src/**/*", "tests/**/*", "worker/**/*", "*.config.*"],
   "exclude": ["dist", "dist-draft", "reports", "node_modules"]
 }

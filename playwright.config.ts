@@ -17,8 +17,8 @@ export default defineConfig({
   },
   ...(!serverExtern && {
     webServer: {
-      // Până la Task 13 (Worker + wrangler dev) servim build-ul static cu `astro preview`.
-      command: `npm run build && npx astro preview --port ${PORT}`,
+      // Site-ul static și Worker-ul formularului, ca pe Cloudflare (wrangler.jsonc): /api/* ajunge la Worker.
+      command: `npm run build && npx wrangler dev --port ${PORT}`,
       url: BASE_URL,
       // Domeniul din build se suprascrie doar pentru QA local (spec 3.2).
       env: { SITE_URL: BASE_URL },
