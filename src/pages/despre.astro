@@ -1,6 +1,8 @@
 ---
-// /despre/ (§4.5): cine e Alex, din faptele din spec (§1), apoi biografia, studiile, experiența și instrumentele, care
-// sunt marcajul #4 până le dă Alex (rândul blochează lansarea). Profilurile apar doar dacă `site.profiluri` nu e gol
+// /despre/ (§4.5): cine e Alex, din faptele din spec (§1), apoi biografia, studiile, experiența și instrumentele.
+// Ciorna din 2026-10-22 ia experiența și instrumentele doar din repo-urile lui Alex (proiectele, fără nume: szitrans
+// n-a dat încă acordul, #7, iar magazinul e anonim); studiile rămân marcajul #4 (rândul blochează lansarea). Pagina
+// așteaptă aprobarea lui Alex (src/approvals.ts). Profilurile apar doar dacă `site.profiluri` nu e gol
 // (#5), cu `rel="me"`. Fără fotografie și fără cadru gol până există una reală (#6).
 // În producție, o secțiune care e încă marcaj lipsește cu tot cu titlul ei (§3.4).
 // JSON-LD: ProfilePage (mainEntity #alex) și Person complet, care îl înlocuiește pe cel minimal; BreadcrumbList din Base.
@@ -16,12 +18,21 @@ import { PAGINI_STATICE } from '../lib/routes';
 
 const CALE = '/despre/';
 
-/** Ce lipsește încă e marcajul #4; Alex înlocuiește fiecare valoare cu textul lui. */
+/** Ce lipsește încă e marcajul #4; Alex corectează ciorna și dă studiile. */
 const SECTIUNI = [
-  { titlu: 'Cine sunt', text: '[DE COMPLETAT:#4]' },
+  {
+    titlu: 'Cine sunt',
+    text: 'Lucrez singur. Când îmi scrii, vorbești direct cu cel care face lucrarea: eu mă uit la site, eu fac oferta și eu fac modificările. La final primești un raport cu ce am schimbat.',
+  },
   { titlu: 'Studii', text: '[DE COMPLETAT:#4]' },
-  { titlu: 'Experiență', text: '[DE COMPLETAT:#4]' },
-  { titlu: 'Instrumente', text: '[DE COMPLETAT:#4]' },
+  {
+    titlu: 'Experiență',
+    text: 'Am lucrat la site-ul bilingv, în engleză și spaniolă, al unei firme de transport și logistică din Spania: am corectat datele firmei din etichetele meta și din datele structurate, am adăugat paginile noi în harta site-ului și am eliminat erorile semnalate de TypeScript și ESLint. Pentru un magazin online pe WordPress și WooCommerce am scris un modul propriu, care pune în subsol datele de identificare și linkurile ANPC, adaugă paginile legale și bannerul de cookie-uri în română, cu buton de refuz, și face ca imaginea principală a paginii să se încarce prima. Acest site l-am construit tot eu.',
+  },
+  {
+    titlu: 'Instrumente',
+    text: 'Pentru site-uri noi folosesc Astro, TypeScript și Cloudflare. Pe site-urile existente lucrez cu WordPress, WooCommerce și PHP, dar și cu React, Vite și Tailwind CSS. Verific fiecare pagină cu Lighthouse, axe și Playwright. Pe site-urile WordPress lucrez întâi pe o copie locală, iar pe site-ul live ajunge doar cod testat și salvat în Git.',
+  },
 ] as const;
 
 const sectiuni = faraMarcaje(SECTIUNI, (s) => hasMarker(s.text), DRAFT);

@@ -40,18 +40,23 @@ describe('/despre/ (§4.5)', () => {
     expect(primul).toContain('București');
   });
 
-  test('în previzualizare, biografia, studiile, experiența și instrumentele sunt marcajul #4', async () => {
+  test('în previzualizare apar toate cele patru secțiuni, iar studiile sunt încă marcajul #4', async () => {
     stare.draft = true;
     const h = main(await render(PaginaDespre));
-    expect(titluri(h, 2)).toEqual(expect.arrayContaining(['Cine sunt', 'Studii', 'Experiență', 'Instrumente']));
-    expect(h.match(/<mark class="marcaj">\[DE COMPLETAT:#4\]/g)).toHaveLength(4);
+    expect(titluri(h, 2)).toEqual(['Cine sunt', 'Studii', 'Experiență', 'Instrumente']);
+    expect(h.match(/<mark class="marcaj">\[DE COMPLETAT:#4\]/g)).toHaveLength(1);
   });
 
-  test('în producție, secțiunile cu marcaj lipsesc cu tot cu titlu, fără paragrafe goale', async () => {
+  test('în producție, secțiunea cu marcaj lipsește cu tot cu titlu, fără paragrafe goale', async () => {
     const h = main(await render(PaginaDespre));
     expect(h).not.toContain('DE COMPLETAT');
-    expect(titluri(h, 2)).toEqual([]);
+    expect(titluri(h, 2)).toEqual(['Cine sunt', 'Experiență', 'Instrumente']);
     expect(h).not.toMatch(/<p\b[^>]*>\s*<\/p>/);
+  });
+
+  test('ciorna nu numește proiectele fără acord (szitrans, #7) și nici magazinul anonim', async () => {
+    const text = textOf(main(await render(PaginaDespre))).toLowerCase();
+    expect(text).not.toMatch(/szitrans|s&z|amsterdam|headshop/);
   });
 
   test('fără fotografie și fără cadru gol', async () => {
