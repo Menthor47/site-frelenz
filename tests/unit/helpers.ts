@@ -6,10 +6,10 @@ type Componenta = Parameters<AstroContainer['renderToString']>[0];
 // Un singur container pentru tot fișierul de test: crearea lui costă mai mult decât o randare.
 let container: Promise<AstroContainer> | undefined;
 
-/** HTML-ul unei componente `.astro`, randată cu `props`. Nu trece prin `Base`, deci nu are `<head>`. */
-export async function render(Component: Componenta, props: Record<string, unknown> = {}): Promise<string> {
+/** HTML-ul unei componente `.astro`, randată cu `props` și, opțional, cu HTML în sloturi (ex. corpul unui ghid). */
+export async function render(Component: Componenta, props: Record<string, unknown> = {}, slots: Record<string, string> = {}): Promise<string> {
   container ??= AstroContainer.create();
-  return (await container).renderToString(Component, { props });
+  return (await container).renderToString(Component, { props, slots });
 }
 
 /** Etichetele care despart cuvinte; restul etichetelor (`span`, `a`, `strong`) dispar fără să lase spațiu. */

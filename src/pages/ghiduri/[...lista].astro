@@ -1,0 +1,103 @@
+---
+// /ghiduri/ (§3.4, §4.5): lista ghidurilor, construită doar când există cel puțin 2 aprobate (rest param fără valoare =
+// chiar /ghiduri/, ca la /proiecte/). Fără ele, „Ghiduri” lipsește din meniu, din sitemap și din paginile de servicii.
+// Harta are toate liniile estompate (§5.6). JSON-LD: CollectionPage și ItemList; BreadcrumbList vine din Base (R10).
+import { getCollection } from 'astro:content';
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import { paginaAprobata } from '../../approvals';
+import Indemn from '../../components/Indemn.astro';
+import TextSauMarcaj from '../../components/TextSauMarcaj.astro';
+import Base from '../../layouts/Base.astro';
+import { DRAFT } from '../../lib/env';
+import { nodColectie } from '../../lib/jsonld';
+import { ghiduriDeConstruit } from '../../lib/publish';
+
+export const getStaticPaths = (async () => {
+  const ghiduri = ghiduriDeConstruit((await getCollection('ghiduri')).map((intrare) => intrare.data), DRAFT).sort(
+    (a, b) => b.actualizat.getTime() - a.actualizat.getTime() || a.titlu.localeCompare(b.titlu, 'ro'),
+  );
+  return ghiduri.length > 0 ? [{ params: { lista: undefined }, props: { ghiduri } }] : [];
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { ghiduri } = Astro.props;
+
+const CALE = '/ghiduri/';
+---
+
+<Base
+  titlu="Ghiduri"
+  descriere="Ghidurile lui Alex Ionescu: răspunsuri pe înțeles la întrebările pe care le pun firmele despre SEO, site-uri și căutarea AI, cu răspunsul chiar la început."
+  cale={CALE}
+  aprobat={paginaAprobata(CALE)}
+  jsonld={nodColectie('ghiduri', ghiduri.map((g) => ({ nume: g.titlu, cale: `/ghiduri/${g.slug}/` })))}
+  firimituri={[
+    { nume: 'Acasă', cale: '/' },
+    { nume: 'Ghiduri', cale: CALE },
+  ]}
+  harta={{}}
+>
+  <div class="contener lista-ghiduri">
+    <h1>Ghiduri</h1>
+    <p class="lista-ghiduri__intro">
+      Eu, Alex Ionescu, scriu aici răspunsuri la întrebările pe care mi le pun firmele despre site-uri, Google și căutarea AI. Fiecare
+      ghid începe cu răspunsul.
+    </p>
+    <ul class="ghiduri">
+      {
+        ghiduri.map((g) => (
+          <li>
+            <h2>
+              <a href={`/ghiduri/${g.slug}/`}>{g.titlu}</a>
+            </h2>
+            <p>
+              <TextSauMarcaj valoare={g.raspuns} />
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <Indemn text="Spune-mi ce site ai și ce te încurcă." />
+</Base>
+
+<style>
+  .lista-ghiduri {
+    padding-block: 1rem 3rem;
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+  }
+
+  .lista-ghiduri__intro {
+    max-width: 60ch;
+    font-size: var(--text-md);
+    line-height: 1.45;
+  }
+
+  .ghiduri {
+    max-width: 70ch;
+    margin: 2.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ghiduri li + li {
+    margin-top: 2rem;
+  }
+
+  /* Titlul ghidului e linkul spre el, cu zona de atingere de 44px (§5.8). */
+  .ghiduri h2 {
+    margin-bottom: 0.5rem;
+    font-size: var(--text-lg);
+  }
+
+  .ghiduri h2 a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+</style>

@@ -1,0 +1,24 @@
+---
+// Ghidurile (§3.4, §4.5): se construiesc doar când există cel puțin 2 aprobate (`ghiduriDeConstruit`); în
+// previzualizarea DRAFT=1 se construiesc toate, ca Alex să le citească. Corpul Markdown intră în slotul din Guide.
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
+import Guide from '../../layouts/Guide.astro';
+import { DRAFT } from '../../lib/env';
+import { ghiduriDeConstruit } from '../../lib/publish';
+
+export const getStaticPaths = (async () => {
+  const intrari = await getCollection('ghiduri');
+  const deConstruit = new Set(ghiduriDeConstruit(intrari.map((i) => i.data), DRAFT).map((g) => g.slug));
+  return intrari.filter((i) => deConstruit.has(i.data.slug)).map((intrare) => ({ params: { slug: intrare.data.slug }, props: { intrare } }));
+}) satisfies GetStaticPaths;
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { intrare } = Astro.props;
+const { Content } = await render(intrare);
+---
+
+<Guide ghid={intrare.data}>
+  <Content />
+</Guide>

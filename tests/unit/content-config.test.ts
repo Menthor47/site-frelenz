@@ -49,6 +49,7 @@ const proiect = {
 const ghid = {
   slug: 'cat-dureaza-seo',
   titlu: 'Cât durează SEO?',
+  descriere: 'g'.repeat(150),
   raspuns: 'Depinde.',
   publicat: '2026-11-01',
   actualizat: '2026-11-02',
@@ -143,6 +144,12 @@ describe('colecția proiecte', () => {
 
 describe('colecția ghiduri', () => {
   test('o intrare completă trece', () => expect(cadere('ghiduri', ghid).success).toBe(true));
+  test('descrierea are 140–160 de caractere și e obligatorie (§4.2)', () => {
+    expect(cadere('ghiduri', { ...ghid, descriere: 'g'.repeat(139) }).success).toBe(false);
+    expect(cadere('ghiduri', { ...ghid, descriere: 'g'.repeat(161) }).success).toBe(false);
+    const { descriere: _, ...faraDescriere } = ghid;
+    expect(cadere('ghiduri', faraDescriere).success).toBe(false);
+  });
   test.each(['De ce nu apare site-ul meu în Google', 'Ce este GEO și prin ce diferă de SEO și AEO'])(
     'titlul ghidului de lansare „%s” trece, și fără semnul întrebării',
     (titlu) => expect(cadere('ghiduri', { ...ghid, titlu }).success).toBe(true),

@@ -157,7 +157,7 @@ Doar proiectele publicabile se construiesc și apar în sitemap, în llms.txt, p
 Dacă nu există niciun proiect publicabil, nici `/proiecte/` nu se construiește. „Proiecte” lipsește atunci din meniu, de pe Acasă, din subsol, din sitemap și din llms.txt, după aceeași regulă ca la ghiduri.
 
 **ghiduri:**
-- `slug`, `titlu` (sub formă de întrebare), `raspuns` (primul paragraf);
+- `slug`, `titlu` (sub formă de întrebare), `descriere` (140–160 de caractere, §4.2), `raspuns` (primul paragraf);
 - `publicat`, `actualizat`, `aprobat` (boolean), `serviciuLegat`.
 
 Ghidurile se construiesc doar când există cel puțin 2 cu `aprobat: true`. Până atunci nu se construiește niciunul, iar secțiunea lipsește din meniu, din sitemap, din llms.txt și din linkurile paginilor de servicii.
@@ -894,7 +894,7 @@ Comanda `npm run check:launch` refuză lansarea până când:
 | 5 | Profiluri pentru `sameAs` (LinkedIn etc.) | Alex | Nu (opțional) |
 | 6 | Fotografie reală | Alex | Nu |
 | 7 | Acordul scris de la szitrans, plus rezultate verificabile și capturi datate | Alex | Nu (fără el, pagina nu se construiește) |
-| 8 | Textul studiului anonim al magazinului online, aprobat, cu capturi anonimizate | Alex | Nu (fără el, pagina nu se construiește) |
+| 8 | Textul studiului anonim al magazinului online (și serviciile folosite), aprobat, cu capturi anonimizate | Alex | Nu (fără el, pagina nu se construiește) |
 | 9 | Acordul mayalashes | Alex | Nu (fără el, pagina nu se construiește) |
 | 10 | Rezultatele din studiile de caz (cifre, perioadă, sursă) | Alex | Nu (fără ele, rândul lipsește) |
 | 11 | Scorurile acestui site, măsurate în producție | eu, după lansare | Nu (fără ele, pagina nu se construiește) |

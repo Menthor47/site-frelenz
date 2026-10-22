@@ -83,6 +83,8 @@ const ghiduri = defineCollection({
     slug: z.string().min(1),
     // Sub formă de întrebare (judecată de conținut, nu regulă de punctuație).
     titlu: z.string().min(1),
+    // Meta description (§4.2): fiecare ghid e o pagină.
+    descriere: z.string().min(140).max(160),
     // Primul paragraf, cel pe care îl citesc motoarele AI.
     raspuns: z.string().min(1),
     publicat: z.coerce.date(),
