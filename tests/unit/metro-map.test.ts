@@ -79,3 +79,9 @@ test('metro.css ascunde trenurile până la pornire și desenează liniile doar 
   expect(desen).toBeGreaterThan(-1);
   expect(css.lastIndexOf('@media (prefers-reduced-motion: no-preference)', desen)).toBeGreaterThan(-1);
 });
+
+test('harta animată are o zonă aria-live goală pentru anunțul de oprire; cea statică nu', async () => {
+  const animata = await render(MetroMap, { variant: 'animated' });
+  expect(animata).toMatch(/<p class="harta__anunt[^"]*" aria-live="polite" data-stare-trenuri[^>]*><\/p>/);
+  expect(await render(MetroMap, { variant: 'static' })).not.toContain('aria-live');
+});

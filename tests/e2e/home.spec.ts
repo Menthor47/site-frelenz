@@ -64,6 +64,7 @@ test('cel mult un script executabil pe pagină', async ({ page }) => {
 });
 
 test('ordinea focusului: butonul de oprire vine după „Cere o ofertă”', async ({ page }) => {
+  test.skip(test.info().project.name === 'webkit', 'WebKit, ca Safari, sare implicit peste linkuri la Tab; ordinea din DOM e verificată în Chrome și Firefox');
   await page.goto('/');
   const ordine = await ordineFocus(page);
   expect(ordine.indexOf('Cere o ofertă')).toBeGreaterThanOrEqual(0);
@@ -87,6 +88,26 @@ test('butonul oprește trenurile, iar derularea nu le repornește', async ({ pag
   await page.waitForTimeout(300);
   await expect(page.getByRole('button', { name: 'Pornește trenurile' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Pornește trenurile' })).not.toHaveAttribute('aria-pressed');
+  expect(await trenuriInMiscare(page)).toBe(false);
+});
+
+test('oprirea și pornirea se anunță în zona aria-live, pentru cititoarele de ecran', async ({ page }) => {
+  await page.goto('/');
+  const anunt = page.locator('[data-stare-trenuri]');
+  await expect(anunt).toHaveAttribute('aria-live', 'polite');
+  await expect(anunt).toHaveText('');
+  await page.getByRole('button', { name: 'Oprește trenurile' }).click();
+  await expect(anunt).toHaveText('Trenurile s-au oprit.');
+  await page.getByRole('button', { name: 'Pornește trenurile' }).click();
+  await expect(anunt).toHaveText('Trenurile au pornit.');
+});
+
+test('„reduced motion” cerut în timpul vizitei oprește trenurile și ascunde butonul', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Oprește trenurile' })).toBeVisible();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(page.getByRole('button', { name: /trenurile/ })).toBeHidden();
+  await expect(page.locator('.trenuri')).toBeHidden();
   expect(await trenuriInMiscare(page)).toBe(false);
 });
 

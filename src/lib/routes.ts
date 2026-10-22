@@ -3,7 +3,7 @@
 // /proiecte/ și /ghiduri/ se construiesc doar cu conținut publicabil (§3.4), după aceleași reguli ca paginile lor.
 import { getCollection } from 'astro:content';
 import { paginaAprobata } from '../approvals';
-import { SERVICII, type Grup } from '../form-rules';
+import { gasesteServiciu, type Grup } from '../form-rules';
 import { dataIso } from './format';
 import { ghiduriDeConstruit, proiectePublicabile } from './publish';
 
@@ -101,7 +101,7 @@ export const PAGINI_STATICE = {
 
 export type CaleStatica = keyof typeof PAGINI_STATICE;
 
-const grupul = (slug: string): Grup | undefined => SERVICII.find((s) => s.slug === slug)?.grup;
+const grupul = (slug: string): Grup | undefined => gasesteServiciu(slug)?.grup;
 
 /** Toate paginile care se construiesc, în producție (`draft` fals) sau în previzualizarea DRAFT=1. */
 export async function paginiConstruite(draft: boolean): Promise<PaginaConstruita[]> {

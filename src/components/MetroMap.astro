@@ -131,6 +131,7 @@ const ordine = [...TRASEE.filter((t) => t.linie !== plina), ...TRASEE.filter((t)
     }
   </svg>
   {animata && <button type="button" class="harta__buton" hidden>Oprește trenurile</button>}
+  {animata && <p class="harta__anunt" aria-live="polite" data-stare-trenuri />}
 </div>
 
 {

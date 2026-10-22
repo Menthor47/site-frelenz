@@ -100,12 +100,16 @@ describe('LineDiagram', () => {
     expect(h).not.toContain('<script');
   });
 
-  test('CSS: segmentul ia culoarea grupului, iar construcția folosește galbenul închis (§5.2)', () => {
+  test('CSS: segmentul ia culoarea grupului din tokens.css, iar construcția folosește galbenul închis (§5.2)', () => {
     const stiluri = css('LineDiagram');
-    expect(declaratii(stiluri, ".linie-rand[data-grup='vizibilitate']")).toMatch(/--culoare:\s*var\(--blue\)/);
-    expect(declaratii(stiluri, ".linie-rand[data-grup='diagnostic']")).toMatch(/--culoare:\s*var\(--green\)/);
-    expect(declaratii(stiluri, ".linie-rand[data-grup='constructie']")).toMatch(/--culoare:\s*var\(--yellow-dark\)/);
-    expect(declaratii(stiluri, ".linie-rand[data-grup='reparatie']")).toMatch(/--culoare:\s*var\(--red\)/);
+    const tokenuri = readFileSync(new URL('../../src/styles/tokens.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(declaratii(tokenuri, "[data-grup='vizibilitate']")).toMatch(/--culoare:\s*var\(--blue\)/);
+    expect(declaratii(tokenuri, "[data-grup='diagnostic']")).toMatch(/--culoare:\s*var\(--green\)/);
+    expect(declaratii(tokenuri, "[data-grup='constructie']")).toMatch(/--culoare:\s*var\(--yellow-dark\)/);
+    expect(declaratii(tokenuri, "[data-grup='reparatie']")).toMatch(/--culoare:\s*var\(--red\)/);
+    // Componenta nu-și mai redefinește culorile: o singură sursă.
+    expect(stiluri).not.toMatch(/\[data-grup=/);
+    expect(declaratii(stiluri, '.linie-rand__segment')).toMatch(/background:\s*var\(--culoare\)/);
     // Galbenul tare nu apare nicăieri în grafica cu sens (1,86:1 pe alb).
     expect(stiluri).not.toMatch(/var\(--yellow\)/);
     expect(stiluri).not.toMatch(/#F5B21B/i);

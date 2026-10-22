@@ -1,5 +1,20 @@
 import { readFileSync } from 'node:fs';
-import { CAMPURI, CAPCANA, DESTINATAR, EMAIL_RE, SERVICII } from '../../src/form-rules';
+import { CAMPURI, CAPCANA, cereServiciu, DESTINATAR, EMAIL_RE, FARA_SERVICIU, gasesteServiciu, SERVICII } from '../../src/form-rules';
+
+describe('gasesteServiciu și cereServiciu', () => {
+  test('găsesc serviciul după slug', () => {
+    expect(gasesteServiciu('audit-seo')?.nume).toBe('Audit SEO');
+    expect(cereServiciu('creare-site', 'test').grup).toBe('constructie');
+  });
+
+  test('„nu-stiu” și câmpul gol nu sunt servicii: gasesteServiciu dă undefined', () => {
+    expect(gasesteServiciu(FARA_SERVICIU.slug)).toBeUndefined();
+    expect(gasesteServiciu('')).toBeUndefined();
+  });
+
+  test('cereServiciu oprește build-ul pentru un slug necunoscut și spune cine l-a cerut', () =>
+    expect(() => cereServiciu('web-design', 'proiecte/szitrans')).toThrow(/^proiecte\/szitrans: serviciul „web-design” nu e în src\/form-rules\.ts \(seo, /));
+});
 
 describe('SERVICII', () => {
   test('are 6 servicii, în ordinea 1–6', () => {

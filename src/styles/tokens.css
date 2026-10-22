@@ -12,6 +12,8 @@
   --yellow-dark: #8A5A00;
   --red: #E0533D;
   --red-dark: #B8382A;
+  /* Albastrul deschis al linkurilor din subsolul negru (planul lui Alex, §4): 6,53:1 pe --ink */
+  --blue-light: #6B9BF0;
   --tint-blue: #EAF0FB;
   --tint-yellow: #FEF3D7;
   --tint-green: #E8F5EE;
@@ -36,4 +38,29 @@
   :root {
     --gutter: 1.5rem;
   }
+}
+
+/* Culoarea grupului unui serviciu, după `data-grup` (§5.2), într-un singur loc pentru toate componentele:
+   - `--culoare`: grafica cu sens pe alb (segmente, buline, marcaje de listă). Galbenul tare are 1,86:1 pe alb, deci
+     construcția ia galbenul închis; albastrul, verdele și roșul trec de 3:1.
+   - `--culoare-text`: textul colorat pe alb, unde trec doar variantele închise (4,5:1).
+   Subsolul negru își alege singur culorile deschise (Footer.astro), iar imaginile OG le repetă în src/lib/og.ts. */
+[data-grup='vizibilitate'] {
+  --culoare: var(--blue);
+  --culoare-text: var(--blue-dark);
+}
+
+[data-grup='diagnostic'] {
+  --culoare: var(--green);
+  --culoare-text: var(--green-dark);
+}
+
+[data-grup='constructie'] {
+  --culoare: var(--yellow-dark);
+  --culoare-text: var(--yellow-dark);
+}
+
+[data-grup='reparatie'] {
+  --culoare: var(--red);
+  --culoare-text: var(--red-dark);
 }

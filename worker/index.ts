@@ -1,14 +1,21 @@
 // Worker-ul formularului (§3.5): primește doar `POST /api/contact` și răspunde doar cu redirecționări 303, 404 și 405.
 // Ordinea pașilor e cea din spec: capcana, limita de trimiteri pe IP, linkurile, restul regulilor, apoi un singur e-mail.
-// Nu stochează nimic și nu scrie nimic în consolă, nici în ramura de eroare (observability e oprit în wrangler.jsonc).
+// Înaintea lor, două verificări ieftine, fără să citească formularul: cererea vine de pe site (nu un formular ascuns de pe
+// alt site, care s-ar trimite singur) și corpul are mărimea unui formular.
+// Nu stochează nimic. În producție nu scrie nimic în consolă, nici în ramura de eroare (observability e oprit în
+// wrangler.jsonc); doar sub `wrangler dev`, cu `DEBUG_FORM=1` în `.dev.vars`, scrie tipul erorii, fără datele din formular.
 // Antetele le pune singur: `_headers` nu se aplică răspunsurilor generate de Worker (§3.6).
+// Modulul principal exportă doar handler-ul: workerd tratează orice export numit de aici ca punct de intrare și refuză
+// să pornească Worker-ul dacă exportul nu e o funcție (de aceea CORP_MAXIM stă în validate.ts).
 import { DESTINATAR } from '../src/form-rules';
 import { buildEmail } from './email';
-import { validate } from './validate';
+import { CORP_MAXIM, validate } from './validate';
 
 export interface Env {
   EMAIL: SendEmail;
   RATE_LIMITER: RateLimit;
+  /** Doar în `.dev.vars` (ignorat de git), pentru `wrangler dev`: „1” scrie în consolă de ce n-a plecat cererea. */
+  DEBUG_FORM?: string;
 }
 
 const CALE = '/api/contact';
@@ -26,6 +33,22 @@ const raspuns = (status: number, antete: Record<string, string> = {}) => new Res
 const spre = (cale: Destinatie) => raspuns(303, { Location: cale });
 
 /**
+ * Cererea vine de pe alt site: browserul o spune prin `Sec-Fetch-Site: cross-site` sau, în browserele mai vechi, prin
+ * `Origin`. `Origin: null` (navigare privată, extensii care ascund originea) nu înseamnă alt site, deci trece.
+ */
+function dePeAltSite(cerere: Request, url: URL): boolean {
+  if (cerere.headers.get('sec-fetch-site') === 'cross-site') return true;
+  const origine = cerere.headers.get('origin');
+  return origine !== null && origine !== 'null' && origine !== url.origin;
+}
+
+/** Mărimea declarată a corpului; o cerere fără `Content-Length` (trimisă pe bucăți) e judecată după ce se citește. */
+function preaMare(cerere: Request): boolean {
+  const lungime = Number(cerere.headers.get('content-length') ?? 0);
+  return Number.isFinite(lungime) && lungime > CORP_MAXIM;
+}
+
+/**
  * Pașii 2–7 din §3.5, pentru un POST pe /api/contact: capcana, limita pe IP, linkurile, celelalte reguli, apoi e-mailul.
  * Orice eroare (un corp care nu e formular, limitatorul, construirea sau trimiterea e-mailului) ajunge în `fetch`.
  */
@@ -33,6 +56,7 @@ async function destinatie(cerere: Request, env: Env, domeniu: string): Promise<D
   const rezultat = validate(await cerere.formData());
   if (!rezultat.ok && rezultat.motiv === 'capcana') return '/contact/multumim/';
 
+  // Cloudflare pune mereu `cf-connecting-ip`; „necunoscut” e doar pentru cererile fără el (testele, `wrangler dev`).
   const { success } = await env.RATE_LIMITER.limit({ key: cerere.headers.get('cf-connecting-ip') ?? 'necunoscut' });
   if (!success) return '/contact/eroare/';
 
@@ -47,9 +71,15 @@ export default {
     const url = new URL(cerere.url);
     if (url.pathname !== CALE) return raspuns(404);
     if (cerere.method !== 'POST') return raspuns(405, { Allow: 'POST' });
+    if (dePeAltSite(cerere, url) || preaMare(cerere)) return spre('/contact/eroare/');
 
     // Orice eroare neașteptată duce la pagina de eroare (cu contactele directe), nu la pagina de eroare a platformei.
-    const cale = await destinatie(cerere, env, url.hostname).catch((): Destinatie => '/contact/eroare/');
+    const cale = await destinatie(cerere, env, url.hostname).catch((eroare: unknown): Destinatie => {
+      if (env.DEBUG_FORM === '1') {
+        console.error(`formular: cererea n-a plecat: ${eroare instanceof Error ? `${eroare.name}: ${eroare.message}` : String(eroare)}`);
+      }
+      return '/contact/eroare/';
+    });
     return spre(cale);
   },
 };

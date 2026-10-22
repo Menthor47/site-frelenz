@@ -4,7 +4,7 @@
 // serviciile înrudite, ghidurile legate (doar cu cel puțin 2 aprobate) și proiectul (doar dacă e publicabil).
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
-import { SERVICII } from '../../form-rules';
+import { cereServiciu } from '../../form-rules';
 import Service from '../../layouts/Service.astro';
 import { DRAFT } from '../../lib/env';
 import { ghiduriDeConstruit, proiectePublicabile } from '../../lib/publish';
@@ -21,11 +21,8 @@ const { serviciu } = Astro.props;
 const servicii = (await getCollection('servicii')).map((intrare) => intrare.data);
 const inrudite = serviciu.inrudite.map((slug) => {
   const date = servicii.find((s) => s.slug === slug);
-  const regula = SERVICII.find((s) => s.slug === slug);
-  if (date === undefined || regula === undefined) {
-    throw new Error(`${serviciu.slug}: serviciul înrudit „${slug}” nu are fișier în src/content/servicii`);
-  }
-  return { slug, nume: regula.nume, problema: date.problema };
+  if (date === undefined) throw new Error(`${serviciu.slug}: serviciul înrudit „${slug}” nu are fișier în src/content/servicii`);
+  return { slug, nume: cereServiciu(slug, `servicii/${serviciu.slug}`).nume, problema: date.problema };
 });
 
 const ghiduri = ghiduriDeConstruit((await getCollection('ghiduri')).map((intrare) => intrare.data), DRAFT)

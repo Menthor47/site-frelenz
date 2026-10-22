@@ -12,9 +12,15 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: BASE_URL,
-    // Chrome instalat pe mașină: nu descărcăm niciun browser.
-    channel: 'chrome',
   },
+  projects: [
+    // Toate testele, în Chrome-ul instalat pe mașină.
+    { name: 'chrome', use: { channel: 'chrome' } },
+    // §5.6 cere ca trenurile (SMIL și oprirea lor) să fie verificate în Chrome, Safari și Firefox: testele Acasă rulează
+    // și în Firefox și WebKit (motorul Safari), aduse o dată cu `npx playwright install firefox webkit`.
+    { name: 'firefox', use: { browserName: 'firefox' }, testMatch: /home\.spec\.ts$/ },
+    { name: 'webkit', use: { browserName: 'webkit' }, testMatch: /home\.spec\.ts$/ },
+  ],
   ...(!serverExtern && {
     webServer: {
       // Site-ul static și Worker-ul formularului, ca pe Cloudflare (wrangler.jsonc): /api/* ajunge la Worker.

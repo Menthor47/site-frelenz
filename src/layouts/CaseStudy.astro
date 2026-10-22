@@ -12,7 +12,7 @@ import Indemn from '../components/Indemn.astro';
 import PageFacts from '../components/PageFacts.astro';
 import Placeholder from '../components/Placeholder.astro';
 import TextSauMarcaj from '../components/TextSauMarcaj.astro';
-import { SERVICII } from '../form-rules';
+import { cereServiciu } from '../form-rules';
 import { DRAFT } from '../lib/env';
 import { lunaAn } from '../lib/format';
 import { nodArticle, tipuriPagina } from '../lib/jsonld';
@@ -47,11 +47,7 @@ const ceAmFacut = faraMarcaje(p.ceAmFacut, hasMarker, DRAFT);
 const rezultate = faraMarcaje(p.rezultate, rezultatCuMarcaj, DRAFT);
 const areRezultat = acestSite || rezultate.length > 0 || p.capturi.length > 0;
 
-const servicii = p.servicii.map((slug) => {
-  const s = SERVICII.find((x) => x.slug === slug);
-  if (s === undefined) throw new Error(`${p.slug}: serviciul „${slug}” nu e în src/form-rules.ts`);
-  return s;
-});
+const servicii = p.servicii.map((slug) => cereServiciu(slug, `proiecte/${p.slug}`));
 const grup = servicii[0]?.grup;
 ---
 

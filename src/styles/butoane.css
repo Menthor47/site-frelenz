@@ -22,3 +22,8 @@
   text-decoration-thickness: 0.08em;
   text-underline-offset: 0.18em;
 }
+
+/* Apăsat: butonul coboară un pixel, pe loc, fără tranziție (nu e mișcare pe care s-o oprească „reduced motion”). */
+.buton-cta:active {
+  transform: translateY(1px);
+}

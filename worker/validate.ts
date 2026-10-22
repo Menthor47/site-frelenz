@@ -10,6 +10,13 @@ export type Cerere = Readonly<Record<NumeCamp, string>>;
 
 export type Rezultat = { ok: true; date: Cerere } | { ok: false; motiv: 'capcana' | 'linkuri' | 'invalid' };
 
+/**
+ * Cel mai mare formular valid: 3704 caractere (limitele din src/form-rules.ts), fiecare de cel mult 9 octeți urlencoded
+ * (un caracter UTF-8 de 3 octeți, ca „ sau ”, devine %E2%80%9E), adică ~33 KB. Peste 64 KB, cererea nu e de la formular
+ * și Worker-ul n-o mai citește.
+ */
+export const CORP_MAXIM = 64 * 1024;
+
 /** Câmpurile care trebuie să rămână pe un singur rând. */
 export const PE_UN_RAND: readonly NumeCamp[] = ['nume', 'email', 'telefon', 'firma', 'site'];
 

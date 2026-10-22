@@ -18,16 +18,19 @@ export interface ControllerTrenuri {
   visibility(visible: boolean): void;
   /** Dacă trenurile merg acum: „pornit” doar cât vizitatorul nu le-a oprit și harta e pe ecran. */
   state(): StareTrenuri;
+  /** Vizitatorul a cerut mai puțină mișcare în timpul vizitei: trenurile se opresc definitiv, oricum s-ar mișca harta. */
+  disable(): void;
 }
 
 /** Pornește în starea „merg”, pentru că scriptul a pornit deja animațiile; `play`/`pause` se cer doar la schimbare. */
 export function createTrainController({ play, pause }: ComenziTrenuri): ControllerTrenuri {
   let oprite = false;
   let pePagina = true;
+  let dezactivate = false;
   let merg = true;
 
   function aplica() {
-    const trebuie = !oprite && pePagina;
+    const trebuie = !dezactivate && !oprite && pePagina;
     if (trebuie === merg) return;
     merg = trebuie;
     if (merg) play();
@@ -45,5 +48,9 @@ export function createTrainController({ play, pause }: ComenziTrenuri): Controll
       aplica();
     },
     state: () => (merg ? 'pornit' : 'oprit'),
+    disable() {
+      dezactivate = true;
+      aplica();
+    },
   };
 }

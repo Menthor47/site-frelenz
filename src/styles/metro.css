@@ -147,6 +147,18 @@
   text-underline-offset: 0.18em;
 }
 
+/* Anunțul pentru cititoarele de ecran („Trenurile s-au oprit.”): în arborele de accesibilitate, nu pe ecran. */
+.harta__anunt {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* M1: liniile hărții animate se desenează o dată, la încărcare; M2: trenurile apar după ce s-au desenat liniile.
    Cu „reduced motion”, liniile apar desenate, iar scriptul nici nu pornește trenurile. `pathLength="1"` pe trasee
    face ca lungimea liniuței să fie 1, oricât de lungă e linia. Se animă doar `stroke-dashoffset` și `opacity`. */

@@ -14,7 +14,7 @@ import LineDiagram from '../components/LineDiagram.astro';
 import MetroMap from '../components/MetroMap.astro';
 import ProiecteRezumat from '../components/ProiecteRezumat.astro';
 import RouteMap from '../components/RouteMap.astro';
-import { SERVICII } from '../form-rules';
+import { cereServiciu } from '../form-rules';
 import Base from '../layouts/Base.astro';
 import { DRAFT } from '../lib/env';
 import { nodFaq, nodWebPage } from '../lib/jsonld';
@@ -29,11 +29,7 @@ const PROIECTE_PE_ACASA = 3;
 const randuri = (await getCollection('servicii'))
   .map((intrare) => intrare.data)
   .sort((a, b) => a.ordine - b.ordine)
-  .map((s) => {
-    const regula = SERVICII.find((x) => x.slug === s.slug);
-    if (regula === undefined) throw new Error(`Serviciul „${s.slug}” nu e în src/form-rules.ts`);
-    return { problema: s.problema, slug: s.slug, nume: regula.nume, grup: s.grup };
-  });
+  .map((s) => ({ problema: s.problema, slug: s.slug, nume: cereServiciu(s.slug, 'Acasă').nume, grup: s.grup }));
 
 const proiecte = proiectePublicabile((await getCollection('proiecte')).map((intrare) => intrare.data), DRAFT).slice(0, PROIECTE_PE_ACASA);
 

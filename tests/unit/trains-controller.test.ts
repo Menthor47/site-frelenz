@@ -67,3 +67,18 @@ test('aceeași vizibilitate de două ori nu cere de două ori', () => {
   expect(pause).toHaveBeenCalledTimes(1);
   expect(play).toHaveBeenCalledTimes(1);
 });
+
+test('disable: trenurile se opresc și nu mai pornesc nici din buton, nici la întoarcerea hărții pe ecran', () => {
+  const play = vi.fn();
+  const pause = vi.fn();
+  const c = createTrainController({ play, pause });
+  c.disable();
+  expect(c.state()).toBe('oprit');
+  expect(pause).toHaveBeenCalledTimes(1);
+  c.visibility(false);
+  c.visibility(true);
+  c.userToggle();
+  c.userToggle();
+  expect(c.state()).toBe('oprit');
+  expect(play).not.toHaveBeenCalled();
+});

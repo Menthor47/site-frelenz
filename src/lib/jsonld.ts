@@ -1,6 +1,6 @@
 // Nodurile JSON-LD din §6.3. Funcțiile primesc date simple (de ex. `entry.data` din colecții), nu intrări Astro.
 // Pe fiecare pagină nodurile se adună într-un singur `@graph` prin `graf(...)`, legate prin `@id`.
-import { SERVICII } from '../form-rules';
+import { gasesteServiciu, SERVICII } from '../form-rules';
 import { site } from '../site.config';
 import { intrebariVizibile, type IntrebareFrecventa } from './faq';
 import { areValoare } from './marker';
@@ -13,9 +13,7 @@ const ROMANIA = { '@type': 'Country', name: 'România' } as const;
 
 const absolut = (cale: string): string => new URL(cale, site.url).href;
 
-/** O valoare opțională există dacă nu e goală și nu e un marcaj `[DE COMPLETAT:#…]` (§2 #17). */
-
-const numeServiciu = (slug: string): string | undefined => SERVICII.find((s) => s.slug === slug)?.nume;
+const numeServiciu = (slug: string): string | undefined => gasesteServiciu(slug)?.nume;
 
 /** Data în formatul ISO `AAAA-LL-ZZ`; un text primit rămâne neschimbat. */
 const data = (d: Date | string): string => (typeof d === 'string' ? d : d.toISOString().slice(0, 10));

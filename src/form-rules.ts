@@ -23,6 +23,18 @@ export const SERVICII: readonly Serviciu[] = [
   { slug: 'mentenanta-site', nume: 'Mentenanță site', grup: 'reparatie', ordine: 6 },
 ];
 
+/** Serviciul cu slug-ul dat, sau `undefined` (de exemplu „nu-stiu” sau un câmp gol trimis din formular). */
+export const gasesteServiciu = (slug: string): Serviciu | undefined => SERVICII.find((s) => s.slug === slug);
+
+/** Serviciul cu slug-ul dat; un slug necunoscut oprește build-ul și spune cine l-a cerut (`deUnde`). */
+export function cereServiciu(slug: string, deUnde: string): Serviciu {
+  const serviciu = gasesteServiciu(slug);
+  if (serviciu === undefined) {
+    throw new Error(`${deUnde}: serviciul „${slug}” nu e în src/form-rules.ts (${SERVICII.map((s) => s.slug).join(', ')})`);
+  }
+  return serviciu;
+}
+
 /** Opțiunea din formular pentru cine nu știe încă de ce serviciu are nevoie; în subiectul e-mailului contează ca „fără serviciu”. */
 export const FARA_SERVICIU = { slug: 'nu-stiu', nume: 'Nu știu încă' } as const;
 

@@ -4,12 +4,12 @@
 // Se folosește varianta `mimetext/browser`: cea pentru Node ia sfârșitul de rând din `node:os`.
 import { EmailMessage } from 'cloudflare:email';
 import { createMimeMessage, Mailbox } from 'mimetext/browser';
-import { FARA_SERVICIU, SERVICII } from '../src/form-rules';
+import { FARA_SERVICIU, gasesteServiciu } from '../src/form-rules';
 import type { Cerere } from './validate';
 
 const GOL = '—';
 
-const numeServiciu = (slug: string): string | undefined => SERVICII.find((s) => s.slug === slug)?.nume;
+const numeServiciu = (slug: string): string | undefined => gasesteServiciu(slug)?.nume;
 
 export function buildEmailParts(date: Cerere): { subiect: string; corp: string } {
   const serviciu = numeServiciu(date.serviciu);

@@ -15,11 +15,11 @@ const { Resvg } = cere('@resvg/resvg-js') as typeof import('@resvg/resvg-js');
 const LATIME = 1200;
 const INALTIME = 630;
 
-/** Culorile din src/styles/tokens.css (§5.2); satori nu citește CSS-ul site-ului. */
-const CULORI = { ink: '#14161A', ink2: '#3F4650', paper: '#FFFFFF', blue: '#2D6CDF' } as const;
+/** Culorile din src/styles/tokens.css (§5.2); satori nu citește CSS-ul site-ului, iar og.test.ts le compară cu tokenurile. */
+export const CULORI = { ink: '#14161A', ink2: '#3F4650', paper: '#FFFFFF', blue: '#2D6CDF' } as const;
 
 /** Liniile M1–M4 (§5.1): pe imagine linia e decor, deci galbenul tare e permis, ca pe harta din bandă. */
-const LINIA: Readonly<Record<Grup, string>> = {
+export const LINIA: Readonly<Record<Grup, string>> = {
   vizibilitate: '#2D6CDF',
   diagnostic: '#1F9D61',
   constructie: '#F5B21B',

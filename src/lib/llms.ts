@@ -2,7 +2,7 @@
 // Proiecte publicabile, Ghiduri aprobate, Despre, Contact. Proiectele și ghidurile apar după aceleași reguli ca paginile lor
 // (§3.4), deci niciun link nu duce spre o pagină care nu se construiește. Nu e prezentat ca factor de poziționare.
 import { getCollection } from 'astro:content';
-import { SERVICII } from '../form-rules';
+import { cereServiciu } from '../form-rules';
 import { site } from '../site.config';
 import { ghiduriDeConstruit, proiectePublicabile } from './publish';
 import { PAGINI_STATICE } from './routes';
@@ -18,7 +18,7 @@ export async function llmsTxt(draft: boolean): Promise<string> {
   const servicii = (await getCollection('servicii')).map((i) => i.data).sort((a, b) => a.ordine - b.ordine);
   const proiecte = proiectePublicabile((await getCollection('proiecte')).map((i) => i.data), draft);
   const ghiduri = ghiduriDeConstruit((await getCollection('ghiduri')).map((i) => i.data), draft);
-  const nume = (slug: string) => SERVICII.find((s) => s.slug === slug)?.nume ?? slug;
+  const nume = (slug: string) => cereServiciu(slug, 'llms.txt').nume;
   const statica = (cale: keyof typeof PAGINI_STATICE, text: string) => link(text, cale, PAGINI_STATICE[cale].descriere);
 
   return [

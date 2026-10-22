@@ -5,7 +5,7 @@
 import { getCollection } from 'astro:content';
 import { paginaAprobata } from '../../approvals';
 import Cta from '../../components/Cta.astro';
-import { SERVICII, type Grup } from '../../form-rules';
+import { cereServiciu, type Grup } from '../../form-rules';
 import Base from '../../layouts/Base.astro';
 import { nodColectie } from '../../lib/jsonld';
 import { PAGINI_STATICE } from '../../lib/routes';
@@ -26,7 +26,7 @@ const LIVRABILE_PE_SCURT = 3;
 const servicii = (await getCollection('servicii'))
   .map((intrare) => intrare.data)
   .sort((a, b) => a.ordine - b.ordine)
-  .map((s) => ({ ...s, nume: SERVICII.find((x) => x.slug === s.slug)?.nume ?? s.titlu, cale: `/servicii/${s.slug}/` }));
+  .map((s) => ({ ...s, nume: cereServiciu(s.slug, 'servicii/').nume, cale: `/servicii/${s.slug}/` }));
 
 // Liniile, în ordinea în care apar primele lor servicii.
 const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, servicii: servicii.filter((s) => s.grup === grup) }));
@@ -82,23 +82,7 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
 </Base>
 
 <style>
-  /* Culorile liniilor (§5.2), pe segmentul din fața titlului: grafică cu sens, deci construcția ia galbenul închis. */
-  .linie-grup[data-grup='vizibilitate'] {
-    --culoare: var(--blue);
-  }
-
-  .linie-grup[data-grup='diagnostic'] {
-    --culoare: var(--green);
-  }
-
-  .linie-grup[data-grup='constructie'] {
-    --culoare: var(--yellow-dark);
-  }
-
-  .linie-grup[data-grup='reparatie'] {
-    --culoare: var(--red);
-  }
-
+  /* Culoarea liniei, `--culoare`, vine din `data-grup` (tokens.css) și dă segmentul din fața titlului și marcajele listei. */
   .servicii {
     padding-block: 1rem 3rem;
   }

@@ -7,7 +7,7 @@
 import type { CollectionEntry } from 'astro:content';
 import Indemn from '../components/Indemn.astro';
 import TextSauMarcaj from '../components/TextSauMarcaj.astro';
-import { SERVICII } from '../form-rules';
+import { cereServiciu } from '../form-rules';
 import { dataIso, ziLunaAn } from '../lib/format';
 import { nodArticle } from '../lib/jsonld';
 import { site } from '../site.config';
@@ -20,8 +20,7 @@ interface Props {
 const { ghid: g } = Astro.props;
 
 const cale = `/ghiduri/${g.slug}/`;
-const serviciu = SERVICII.find((s) => s.slug === g.serviciuLegat);
-if (serviciu === undefined) throw new Error(`${g.slug}: serviciul legat „${g.serviciuLegat}” nu e în src/form-rules.ts`);
+const serviciu = cereServiciu(g.serviciuLegat, `ghiduri/${g.slug}`);
 ---
 
 <Base

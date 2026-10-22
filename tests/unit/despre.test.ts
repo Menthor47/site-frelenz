@@ -3,7 +3,7 @@ import { render, textOf } from './helpers';
 
 // /despre/ (§4.5, §6.3, registrul #4–#6, decizia 22): biografia, experiența și instrumentele, fără studii, scrise din faptele lui
 // Alex; profilurile apar doar dacă există; fără fotografie și fără cadru gol. ProfilePage cu mainEntity #alex și Person complet.
-const stare = vi.hoisted(() => ({ draft: false, profiluri: [] as string[] }));
+const stare = vi.hoisted(() => ({ draft: false, profiluri: [] as string[], proiecte: [] as { data: Record<string, unknown> }[] }));
 
 vi.mock('../../src/lib/env', () => ({
   get DRAFT() {
@@ -17,12 +17,16 @@ vi.mock('../../src/site.config', async (original) => {
   return { site: new Proxy(site, { get: (tinta, cheie) => (cheie === 'profiluri' ? stare.profiluri : Reflect.get(tinta, cheie)) }) };
 });
 
-vi.mock('astro:content', () => ({ getCollection: async () => [] }));
+vi.mock('astro:content', () => ({ getCollection: async (colectie: string) => (colectie === 'proiecte' ? stare.proiecte : []) }));
 
 beforeEach(() => {
   stare.draft = false;
   stare.profiluri.splice(0);
+  stare.proiecte.splice(0);
 });
+
+/** Studiul szitrans, publicabil (acord și aprobat) sau nu. */
+const szitrans = (aprobat: boolean) => ({ data: { slug: 'szitrans', client: 'szitrans.eu', acord: true, aprobat } });
 
 const main = (h: string) => h.slice(h.indexOf('<main'), h.indexOf('</main>'));
 const titluri = (h: string, nivel: number) =>
@@ -54,6 +58,17 @@ describe('/despre/ (§4.5)', () => {
     const text = textOf(main(await render(PaginaDespre))).toLowerCase();
     expect(text).toContain('szitrans.eu');
     expect(text).not.toMatch(/amsterdam|headshop/);
+  });
+
+  test('szitrans.eu e link spre studiul de caz doar când acela se construiește', async () => {
+    const link = /<a href="\/proiecte\/szitrans\/"[^>]*>szitrans\.eu<\/a>/;
+    stare.proiecte.push(szitrans(false));
+    expect(main(await render(PaginaDespre))).not.toMatch(link);
+    stare.proiecte.splice(0, 1, szitrans(true));
+    const h = main(await render(PaginaDespre));
+    expect(h).toMatch(link);
+    // Linkul stă lipit de text: fără spațiu înaintea virgulei de după el.
+    expect(h).toMatch(/Am construit <a href="\/proiecte\/szitrans\/"[^>]*>szitrans\.eu<\/a>, site-ul bilingv/);
   });
 
   test('fără fotografie și fără cadru gol', async () => {

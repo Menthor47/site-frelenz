@@ -9,7 +9,11 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "preview": "npm run build && wrangler dev",
     "preview:draft": "cross-env DRAFT=1 astro build",
+    "preview:draft:serve": "cross-env DRAFT=1 astro preview",
+    "test": "npm run test:unit && npm run test:worker",
+    "verify": "astro check && npm test && npm run build && npm run check && npm run check:links",
     "test:unit": "vitest run",
     "report:placeholders": "node scripts/report-placeholders.mjs",
     "test:e2e": "playwright test",
@@ -18,7 +22,7 @@
     "check:links": "linkinator dist --recurse --skip \"^https?://(?!127[.]0[.]0[.]1)\"",
     "test:worker": "vitest run --config worker/vitest.config.ts",
     "check:launch": "npm run report:placeholders && node scripts/check-launch.mjs",
-    "deploy": "npm run build && npm run check && npm run check:launch && wrangler deploy",
+    "deploy": "npm test && npm run build && npm run check && npm run check:launch && wrangler deploy",
     "report": "node scripts/report-final.mjs"
   },
   "dependencies": {
@@ -41,6 +45,6 @@
     "satori": "0.30.0",
     "typescript": "6.0.3",
     "vitest": "5.0.5",
-    "wrangler": "4.148.0"
+    "wrangler": "4.152.0"
   }
 }

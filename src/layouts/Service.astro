@@ -8,7 +8,7 @@
 import type { CollectionEntry } from 'astro:content';
 import Indemn from '../components/Indemn.astro';
 import Faq from '../components/Faq.astro';
-import { SERVICII } from '../form-rules';
+import { cereServiciu } from '../form-rules';
 import { DRAFT } from '../lib/env';
 import { nodFaq, nodService } from '../lib/jsonld';
 import Base from './Base.astro';
@@ -29,7 +29,7 @@ const NOTA_GARANTII = 'Nu garantez poziții în Google și nici apariții în r�
 const { serviciu: s, inrudite, ghiduri, proiect } = Astro.props;
 
 const cale = `/servicii/${s.slug}/`;
-const nume = SERVICII.find((x) => x.slug === s.slug)?.nume ?? s.titlu;
+const { nume } = cereServiciu(s.slug, `servicii/${s.slug}`);
 const firimituri = [
   { nume: 'Acasă', cale: '/' },
   { nume: 'Servicii', cale: '/servicii/' },
@@ -116,28 +116,8 @@ const firimituri = [
 </Base>
 
 <style>
-  /* Culoarea grupului (§5.2): `--culoare` dă bulinele (grafică cu sens, deci construcția ia galbenul închis), iar
-     `--culoare-text` dă numerele pașilor, care sunt text: varianta închisă, singura care trece de 4,5:1 pe alb. */
-  .serviciu[data-grup='vizibilitate'] {
-    --culoare: var(--blue);
-    --culoare-text: var(--blue-dark);
-  }
-
-  .serviciu[data-grup='diagnostic'] {
-    --culoare: var(--green);
-    --culoare-text: var(--green-dark);
-  }
-
-  .serviciu[data-grup='constructie'] {
-    --culoare: var(--yellow-dark);
-    --culoare-text: var(--yellow-dark);
-  }
-
-  .serviciu[data-grup='reparatie'] {
-    --culoare: var(--red);
-    --culoare-text: var(--red-dark);
-  }
-
+  /* Culoarea grupului vine din `data-grup` (tokens.css): `--culoare` dă bulinele, iar `--culoare-text` numerele pașilor,
+     care sunt text, deci varianta închisă, singura care trece de 4,5:1 pe alb. */
   .serviciu {
     padding-block: 1rem 3rem;
   }

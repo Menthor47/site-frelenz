@@ -5,8 +5,12 @@ import { readFileSync } from 'node:fs';
 import { CAMPURI, CAPCANA, DESTINATAR, SERVICII } from '../src/form-rules';
 import { buildEmail, buildEmailParts } from './email';
 import worker from './index';
+import * as modulPrincipal from './index';
 import { countLinks } from './links';
-import { validate, type Cerere } from './validate';
+import { CORP_MAXIM, validate, type Cerere } from './validate';
+
+// workerd tratează orice export numit al modulului principal ca punct de intrare și refuză să pornească dacă nu e o funcție.
+test('modulul principal (wrangler.jsonc „main”) exportă doar handler-ul', () => expect(Object.keys(modulPrincipal)).toEqual(['default']));
 
 const VALORI_IMPLICITE = { nume: 'Ana Pop', email: 'ana@exemplu.ro', mesaj: 'Salut' };
 
@@ -291,6 +295,20 @@ describe('fetch (§3.5, pașii 1–7)', () => {
     }
   });
 
+  test('cu DEBUG_FORM=1 (doar sub wrangler dev), eroarea ajunge în consolă, fără datele din formular', async () => {
+    const spion = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const e = { ...mediu({ trimitere: async () => Promise.reject(new Error('destinatar neverificat')) }), DEBUG_FORM: '1' };
+      expect((await post(f({ nume: 'Nume-Secret', mesaj: 'Mesaj-Secret' }), '/api/contact', e)).headers.get('location')).toBe('/contact/eroare/');
+      expect(spion).toHaveBeenCalledTimes(1);
+      const text = String(spion.mock.calls[0]?.[0]);
+      expect(text).toContain('Error: destinatar neverificat');
+      expect(text).not.toMatch(/Nume-Secret|Mesaj-Secret/);
+    } finally {
+      spion.mockRestore();
+    }
+  });
+
   test('nimic din formular nu ajunge în consolă, nici la trimiterea eșuată', async () => {
     const spioni = (['log', 'info', 'warn', 'error', 'debug'] as const).map((m) => vi.spyOn(console, m).mockImplementation(() => {}));
     try {
@@ -302,6 +320,53 @@ describe('fetch (§3.5, pașii 1–7)', () => {
     } finally {
       for (const s of spioni) s.mockRestore();
     }
+  });
+});
+
+describe('cererile care nu vin de la formularul site-ului', () => {
+  const trimite = (antete: Record<string, string>, corp: BodyInit = f()) =>
+    worker.fetch(new Request(`${ORIGINE}/api/contact`, { method: 'POST', body: corp, headers: { 'cf-connecting-ip': '203.0.113.7', ...antete } }), env);
+
+  test.each([
+    ['Sec-Fetch-Site: cross-site', { 'sec-fetch-site': 'cross-site' }],
+    ['Origin de pe alt site', { origin: 'https://alt-site.example' }],
+    ['Origin pe http în loc de https', { origin: 'http://site-provizoriu.example' }],
+  ])('%s: eroare, fără limitator și fără e-mail', async (_, antete) => {
+    const r = await trimite(antete);
+    expect(r.status).toBe(303);
+    expect(r.headers.get('location')).toBe('/contact/eroare/');
+    expect(env.RATE_LIMITER.limit).not.toHaveBeenCalled();
+    expect(env.EMAIL.send).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    ['Sec-Fetch-Site: same-origin și Origin-ul site-ului', { 'sec-fetch-site': 'same-origin', origin: ORIGINE }],
+    ['Origin: null (navigare privată, extensii)', { origin: 'null' }],
+    ['fără Origin și fără Sec-Fetch-Site (clienți vechi)', {}],
+  ])('%s: cererea pleacă', async (_, antete) => {
+    expect((await trimite(antete)).headers.get('location')).toBe('/contact/multumim/');
+    expect(env.EMAIL.send).toHaveBeenCalledTimes(1);
+  });
+
+  test(`un corp declarat peste ${CORP_MAXIM} octeți duce la eroare, fără să fie citit`, async () => {
+    const corp = new URLSearchParams({ ...VALORI_IMPLICITE, mesaj: 'a'.repeat(CORP_MAXIM) });
+    const r = await trimite({ 'content-length': String(corp.toString().length) }, corp);
+    expect(r.headers.get('location')).toBe('/contact/eroare/');
+    expect(env.RATE_LIMITER.limit).not.toHaveBeenCalled();
+    expect(env.EMAIL.send).not.toHaveBeenCalled();
+  });
+
+  test('cel mai mare formular valid, numai din „ (9 octeți urlencoded fiecare), încape sub limită și pleacă', async () => {
+    const plin = Object.fromEntries(
+      Object.entries(CAMPURI)
+        .filter(([camp, r]) => r.maxLength !== undefined && camp !== 'email')
+        .map(([camp, r]) => [camp, '„'.repeat(r.maxLength ?? 0)]),
+    );
+    const corp = new URLSearchParams({ ...plin, email: `${'a'.repeat(242)}@exemplu.ro`, serviciu: 'nu-stiu' });
+    const lungime = new TextEncoder().encode(corp.toString()).length;
+    expect(lungime).toBeGreaterThan(30_000);
+    expect(lungime).toBeLessThan(CORP_MAXIM);
+    expect((await trimite({ 'content-length': String(lungime) }, corp)).headers.get('location')).toBe('/contact/multumim/');
   });
 });
 

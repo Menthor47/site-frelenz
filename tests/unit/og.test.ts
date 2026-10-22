@@ -1,4 +1,18 @@
-import { imagineOg } from '../../src/lib/og';
+import { readFileSync } from 'node:fs';
+import { CULORI, imagineOg, LINIA } from '../../src/lib/og';
+
+// satori nu citește CSS, deci og.ts își ține o copie a culorilor; testul o ține la zi cu tokens.css.
+test('culorile din og.ts sunt cele din tokens.css', () => {
+  const tokenuri = readFileSync(new URL('../../src/styles/tokens.css', import.meta.url), 'utf8');
+  const tok = (nume: string) => new RegExp(String.raw`--${nume}\s*:\s*(#[0-9a-fA-F]{6})\b`).exec(tokenuri)?.[1]?.toUpperCase();
+  expect({ ink: CULORI.ink, ink2: CULORI.ink2, paper: CULORI.paper, blue: CULORI.blue }).toEqual({
+    ink: tok('ink'),
+    ink2: tok('ink-2'),
+    paper: tok('paper'),
+    blue: tok('blue'),
+  });
+  expect(LINIA).toEqual({ vizibilitate: tok('blue'), diagnostic: tok('green'), constructie: tok('yellow'), reparatie: tok('red') });
+});
 
 // Imaginea Open Graph (§6.2, §3.7): 1200×630, PNG, cu fontul static Atkinson Hyperlegible Next 800 (latin + latin-ext).
 

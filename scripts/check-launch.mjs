@@ -55,7 +55,7 @@ export function verificaLansarea({ site, aprobari, paginiDist, marcaje, marcajeD
 export function avertismenteLansare({ date }) {
   return [
     ...date.map(({ cale, data }) => `${cale}: data din text e ${data}; pune data aprobării, dacă e alta`),
-    'wrangler 4.148.0 avea o vulnerabilitate doar în dezvoltare (sharp, prin miniflare): actualizează la 4.151.3 sau mai nou și rulează `npm audit`',
+    'rulează `npm audit` înainte de lansare: avertismentele noi apar mai ales la uneltele de dezvoltare (wrangler, miniflare)',
   ];
 }
 

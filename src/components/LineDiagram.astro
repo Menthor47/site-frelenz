@@ -46,23 +46,7 @@ const { randuri } = Astro.props;
     container-type: inline-size;
   }
 
-  /* Culorile grupurilor (§5.2). Segmentul e grafică cu sens: galbenul tare are 1,86:1 pe alb, deci construcția
-     folosește galbenul închis (5,77:1); albastrul, verdele și roșul trec de 3:1. Numele serviciului e și el text. */
-  .linie-rand[data-grup='vizibilitate'] {
-    --culoare: var(--blue);
-  }
-
-  .linie-rand[data-grup='diagnostic'] {
-    --culoare: var(--green);
-  }
-
-  .linie-rand[data-grup='constructie'] {
-    --culoare: var(--yellow-dark);
-  }
-
-  .linie-rand[data-grup='reparatie'] {
-    --culoare: var(--red);
-  }
+  /* Culoarea segmentului, `--culoare`, vine din `data-grup` (tokens.css): grafică cu sens, deci construcția ia galbenul închis. */
 
   /* Pe mobil: problema pe un rând, dedesubt stația, segmentul și capătul de linie. */
   .linie-rand {

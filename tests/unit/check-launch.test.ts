@@ -59,6 +59,8 @@ describe('avertismenteLansare', () => {
   test('cere verificarea datelor scrise de mână (ghiduri, pagini legale) și a dependențelor', () => {
     const a = avertismenteLansare({ date: [{ cale: '/ghiduri/ce-este-geo/', data: '2026-10-22' }] });
     expect(a.some((x) => x.includes('/ghiduri/ce-este-geo/') && x.includes('2026-10-22'))).toBe(true);
-    expect(a.some((x) => x.includes('npm audit') && x.includes('4.151.3'))).toBe(true);
+    expect(a.some((x) => x.includes('npm audit'))).toBe(true);
+    // Avertismentul vechi despre wrangler 4.148.0 a dispărut odată cu actualizarea la 4.152.0.
+    expect(a.some((x) => x.includes('4.148.0'))).toBe(false);
   });
 });
