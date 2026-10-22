@@ -1,6 +1,7 @@
 ---
 // Etichetele din <head> care țin de indexare și de partajare (§4.2, §6.1, §6.2).
-// `lang="ro"` stă pe <html>, în Base. `og:image` și `twitter:card` vin la Task 19.
+// `lang="ro"` stă pe <html>, în Base. Imaginea OG (1200×630) o generează src/pages/og/[...cale].png.ts.
+import { ogPentru } from '../lib/routes';
 import { titluPagina } from '../lib/seo';
 import { site } from '../site.config';
 
@@ -17,6 +18,7 @@ interface Props {
 const { titlu, descriere, cale, noindex = false } = Astro.props;
 const titluComplet = titluPagina(titlu);
 const canonical = new URL(cale, site.url).href;
+const imagine = new URL(ogPentru(cale), site.url).href;
 ---
 
 <title>{titluComplet}</title>
@@ -29,3 +31,8 @@ const canonical = new URL(cale, site.url).href;
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="ro_RO" />
 <meta property="og:site_name" content={site.nume} />
+<meta property="og:image" content={imagine} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={titluComplet} />
+<meta name="twitter:card" content="summary_large_image" />

@@ -11,6 +11,7 @@ import Base from '../../layouts/Base.astro';
 import { DRAFT } from '../../lib/env';
 import { nodColectie } from '../../lib/jsonld';
 import { proiectePublicabile } from '../../lib/publish';
+import { PAGINI_STATICE } from '../../lib/routes';
 
 export const getStaticPaths = (async () => {
   const proiecte = proiectePublicabile((await getCollection('proiecte')).map((intrare) => intrare.data), DRAFT);
@@ -25,8 +26,8 @@ const CALE = '/proiecte/';
 ---
 
 <Base
-  titlu="Proiecte"
-  descriere="Proiectele lui Alex Ionescu: studii de caz cu problema fiecărui site, ce am făcut și rezultatul care s-a putut dovedi, cu sursa și data lui, scrise ca text."
+  titlu={PAGINI_STATICE['/proiecte/'].titlu}
+  descriere={PAGINI_STATICE['/proiecte/'].descriere}
   cale={CALE}
   aprobat={paginaAprobata(CALE)}
   jsonld={nodColectie('proiecte', proiecte.map((p) => ({ nume: p.titlu, cale: `/proiecte/${p.slug}/` })))}

@@ -9,13 +9,14 @@ import ContacteDirecte from '../../components/ContacteDirecte.astro';
 import LegalId from '../../components/LegalId.astro';
 import Base from '../../layouts/Base.astro';
 import { nodContactPage } from '../../lib/jsonld';
+import { PAGINI_STATICE } from '../../lib/routes';
 
 const CALE = '/contact/';
 ---
 
 <Base
-  titlu="Contact"
-  descriere="Cere o ofertă lui Alex Ionescu: completează formularul sau scrie-i direct pe e-mail, la telefon sau pe WhatsApp. Lucrează cu firme din toată țara."
+  titlu={PAGINI_STATICE['/contact/'].titlu}
+  descriere={PAGINI_STATICE['/contact/'].descriere}
   cale={CALE}
   aprobat={paginaAprobata(CALE)}
   jsonld={[nodContactPage()]}

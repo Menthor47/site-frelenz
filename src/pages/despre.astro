@@ -12,6 +12,7 @@ import { DRAFT } from '../lib/env';
 import { nodPerson, nodProfilePage } from '../lib/jsonld';
 import { areValoare, faraMarcaje, hasMarker } from '../lib/marker';
 import { site } from '../site.config';
+import { PAGINI_STATICE } from '../lib/routes';
 
 const CALE = '/despre/';
 
@@ -29,8 +30,8 @@ const profiluri = site.profiluri.filter(areValoare);
 ---
 
 <Base
-  titlu="Despre mine"
-  descriere="Cine e Alex Ionescu, consultant SEO și web design din București: ce face, cum lucrează și cu cine, ce experiență are și ce instrumente folosește."
+  titlu={PAGINI_STATICE['/despre/'].titlu}
+  descriere={PAGINI_STATICE['/despre/'].descriere}
   cale={CALE}
   aprobat={paginaAprobata(CALE)}
   jsonld={[nodProfilePage(), nodPerson(true)]}

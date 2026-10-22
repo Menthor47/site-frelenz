@@ -8,6 +8,7 @@ import Indemn from '../components/Indemn.astro';
 import RouteMap from '../components/RouteMap.astro';
 import Base from '../layouts/Base.astro';
 import { nodWebPage } from '../lib/jsonld';
+import { PAGINI_STATICE } from '../lib/routes';
 
 const CALE = '/cum-lucrez/';
 
@@ -33,8 +34,8 @@ const PASI = [
 ---
 
 <Base
-  titlu="Cum lucrez"
-  descriere="Cum lucrează Alex Ionescu: evaluare, ofertă, lucru și raport. Alegi o remediere unică sau o remediere urmată de un abonament lunar, pentru firma ta."
+  titlu={PAGINI_STATICE['/cum-lucrez/'].titlu}
+  descriere={PAGINI_STATICE['/cum-lucrez/'].descriere}
   cale={CALE}
   aprobat={paginaAprobata(CALE)}
   jsonld={[nodWebPage(CALE)]}

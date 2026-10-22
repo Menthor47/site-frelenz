@@ -11,6 +11,7 @@ import Base from '../../layouts/Base.astro';
 import { DRAFT } from '../../lib/env';
 import { nodColectie } from '../../lib/jsonld';
 import { ghiduriDeConstruit } from '../../lib/publish';
+import { PAGINI_STATICE } from '../../lib/routes';
 
 export const getStaticPaths = (async () => {
   const ghiduri = ghiduriDeConstruit((await getCollection('ghiduri')).map((intrare) => intrare.data), DRAFT).sort(
@@ -27,8 +28,8 @@ const CALE = '/ghiduri/';
 ---
 
 <Base
-  titlu="Ghiduri"
-  descriere="Ghidurile lui Alex Ionescu: răspunsuri pe înțeles la întrebările pe care și le pun firmele despre SEO, site-uri și căutarea AI, cu răspunsul chiar la început."
+  titlu={PAGINI_STATICE['/ghiduri/'].titlu}
+  descriere={PAGINI_STATICE['/ghiduri/'].descriere}
   cale={CALE}
   aprobat={paginaAprobata(CALE)}
   jsonld={nodColectie('ghiduri', ghiduri.map((g) => ({ nume: g.titlu, cale: `/ghiduri/${g.slug}/` })))}

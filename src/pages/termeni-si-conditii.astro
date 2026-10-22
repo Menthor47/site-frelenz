@@ -4,11 +4,12 @@
 // avocat, cu acceptare expresă pentru clauzele din art. 1203 Cod civil. Ciornă: o aprobă Alex.
 import LegalId from '../components/LegalId.astro';
 import Legal from '../layouts/Legal.astro';
+import { PAGINI_STATICE } from '../lib/routes';
 ---
 
 <Legal
-  titlu="Termeni și condiții"
-  descriere="Termenii site-ului lui Alex Ionescu: cine îl administrează, cu cine lucrează, ce înseamnă o cerere de ofertă și ce nu se garantează pe acest site."
+  titlu={PAGINI_STATICE['/termeni-si-conditii/'].titlu}
+  descriere={PAGINI_STATICE['/termeni-si-conditii/'].descriere}
   cale="/termeni-si-conditii/"
   actualizat={new Date('2026-10-22T00:00:00Z')}
 >

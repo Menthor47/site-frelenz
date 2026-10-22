@@ -7,6 +7,7 @@ import Placeholder from '../components/Placeholder.astro';
 import { CAMPURI } from '../form-rules';
 import Legal from '../layouts/Legal.astro';
 import { site } from '../site.config';
+import { PAGINI_STATICE } from '../lib/routes';
 
 /** Etichetele câmpurilor obligatorii, ca în formular (ContactForm), enumerate firesc: „Nume, E-mail și Mesaj”. */
 const ETICHETE: Readonly<Record<string, string>> = { nume: 'Nume', email: 'E-mail', mesaj: 'Mesaj' };
@@ -18,8 +19,8 @@ const obligatorii = new Intl.ListFormat('ro', { type: 'conjunction' }).format(
 ---
 
 <Legal
-  titlu="Politica de confidențialitate"
-  descriere="Ce date prelucrează Alex Ionescu când îi scrii prin formular, pe e-mail sau pe WhatsApp: de ce, pe ce temei, cine le mai primește, cât timp și ce drepturi ai."
+  titlu={PAGINI_STATICE['/politica-de-confidentialitate/'].titlu}
+  descriere={PAGINI_STATICE['/politica-de-confidentialitate/'].descriere}
   cale="/politica-de-confidentialitate/"
   actualizat={new Date('2026-10-22T00:00:00Z')}
 >

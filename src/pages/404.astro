@@ -4,13 +4,14 @@
 // (`not_found_handling: "404-page"` din wrangler.jsonc).
 import { paginaAprobata } from '../approvals';
 import Base from '../layouts/Base.astro';
+import { PAGINI_STATICE } from '../lib/routes';
 
 const CALE = '/404/';
 ---
 
 <Base
-  titlu="Pagina nu există"
-  descriere="Pagina pe care ai deschis-o nu există pe site-ul lui Alex Ionescu. Mergi la pagina de pornire, la servicii sau la contact ca să găsești ce căutai acolo."
+  titlu={PAGINI_STATICE['/404/'].titlu}
+  descriere={PAGINI_STATICE['/404/'].descriere}
   cale={CALE}
   aprobat={paginaAprobata(CALE)}
   noindex

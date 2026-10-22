@@ -3,11 +3,12 @@
 // Cloudflare poate cere o verificare și seta `cf_clearance`. Afirmația rămâne adevărată doar cu setările de zonă din §3.6,
 // verificate în producție înainte de lansare și după orice schimbare (antetele Set-Cookie, stocarea din browser, HTML-ul).
 import Legal from '../layouts/Legal.astro';
+import { PAGINI_STATICE } from '../lib/routes';
 ---
 
 <Legal
-  titlu="Politica de cookie-uri"
-  descriere="Ce politică de cookie-uri are site-ul lui Alex Ionescu: fără cookie-uri de analiză sau de marketing; singura excepție e un cookie strict necesar al Cloudflare."
+  titlu={PAGINI_STATICE['/politica-cookies/'].titlu}
+  descriere={PAGINI_STATICE['/politica-cookies/'].descriere}
   cale="/politica-cookies/"
   actualizat={new Date('2026-10-22T00:00:00Z')}
 >

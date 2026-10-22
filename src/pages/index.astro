@@ -19,6 +19,7 @@ import Base from '../layouts/Base.astro';
 import { DRAFT } from '../lib/env';
 import { nodFaq, nodWebPage } from '../lib/jsonld';
 import { proiectePublicabile } from '../lib/publish';
+import { PAGINI_STATICE } from '../lib/routes';
 
 const CALE = '/';
 
@@ -64,8 +65,8 @@ const intrebari = [
 ---
 
 <Base
-  titlu="Consultant SEO din București"
-  descriere="Sunt Alex Ionescu, consultant SEO din București. Lucrez la SEO, site-uri de prezentare și audituri pentru firme care vor să fie găsite în Google."
+  titlu={PAGINI_STATICE['/'].titlu}
+  descriere={PAGINI_STATICE['/'].descriere}
   cale={CALE}
   aprobat={paginaAprobata(CALE)}
   jsonld={[nodWebPage(CALE, { despreAlex: true }), ...nodFaq(intrebari, DRAFT)]}
