@@ -1,0 +1,68 @@
+// Stratul de suprafețe (decizia 29), verificat în browser: ce se vede, nu doar clasele din HTML.
+// Paginile sunt cele din build-ul de producție, servit pe portul din playwright.config.ts.
+import type { Page } from '@playwright/test';
+import { expect, test } from './helpers';
+
+/** Mărimea fontului unui element, în pixeli. */
+const marime = (page: Page, selector: string) => page.locator(selector).evaluate((el) => Number.parseFloat(getComputedStyle(el).fontSize));
+
+/** Pe câte rânduri stă `cuvant` în textul elementului (1 = cuvântul nu e rupt). */
+const randuriCuvant = (page: Page, selector: string, cuvant: string) =>
+  page.locator(selector).evaluate((el, c) => {
+    const nod = [...el.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && (n.textContent ?? '').includes(c));
+    if (nod === undefined) throw new Error(`„${c}” nu e în textul elementului`);
+    const start = (nod.textContent ?? '').indexOf(c);
+    const interval = document.createRange();
+    interval.setStart(nod, start);
+    interval.setEnd(nod, start + c.length);
+    return new Set([...interval.getClientRects()].map((r) => Math.round(r.top))).size;
+  }, cuvant);
+
+test('Despre: în cardul de profil, titlul „Unelte” e mai mic decât numele', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/despre/');
+  expect(await marime(page, '.despre__unelte-titlu')).toBeLessThan(await marime(page, '.despre__nume'));
+});
+
+for (const latime of [1440, 1024]) {
+  test(`Contact la ${latime}px: „Sau scrie-mi direct” nu se rupe în „scrie-mi”`, async ({ page }) => {
+    await page.setViewportSize({ width: latime, height: 900 });
+    await page.goto('/contact/');
+    expect(await randuriCuvant(page, '#direct-titlu', 'scrie-mi')).toBe(1);
+  });
+}
+
+test('Servicii la 1440px: Diagnostic și Construcție stau alături, pe același rând', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/servicii/');
+  const diagnostic = await page.locator('section[data-grup="diagnostic"]').boundingBox();
+  const constructie = await page.locator('section[data-grup="constructie"]').boundingBox();
+  expect(Math.round(constructie?.y ?? -1)).toBe(Math.round(diagnostic?.y ?? -2));
+  expect(constructie?.x ?? 0).toBeGreaterThanOrEqual((diagnostic?.x ?? 0) + (diagnostic?.width ?? 0));
+});
+
+test('Servicii la 390px: Construcție stă sub Diagnostic', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/servicii/');
+  const diagnostic = await page.locator('section[data-grup="diagnostic"]').boundingBox();
+  const constructie = await page.locator('section[data-grup="constructie"]').boundingBox();
+  expect(constructie?.y ?? 0).toBeGreaterThanOrEqual((diagnostic?.y ?? 0) + (diagnostic?.height ?? 0));
+});
+
+test('Servicii: linia de deasupra îndemnului final se vede pe suprafață (cel puțin 1,1:1)', async ({ page }) => {
+  await page.goto('/servicii/');
+  const raport = await page.evaluate(() => {
+    const canale = (culoare: string) => (culoare.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+    const luminanta = (culoare: string) => {
+      const [r = 0, g = 0, b = 0] = canale(culoare).map((v) => {
+        const s = v / 255;
+        return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const linie = luminanta(getComputedStyle(document.querySelector('.servicii__final') as Element).borderTopColor);
+    const fundal = luminanta(getComputedStyle(document.querySelector('main') as Element).backgroundColor);
+    return (Math.max(linie, fundal) + 0.05) / (Math.min(linie, fundal) + 0.05);
+  });
+  expect(raport).toBeGreaterThanOrEqual(1.1);
+});

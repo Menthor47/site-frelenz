@@ -1,7 +1,8 @@
 ---
 // /contact/ (§4.5): formularul, contactele directe, „Din București, lucrez cu firme din toată țara” și datele firmei
 // (`#date-firma`, LegalId complet, ținta linkului „Date de identificare” din subsol). Harta din bandă are toate liniile
-// estompate (§5.6). Antetul nu are butonul „Cere o ofertă” aici (Header). Fără niciun JavaScript (§3.5).
+// estompate (§5.6). Antetul nu are butonul „Cere o ofertă” aici (Header). Formularul nu are JavaScript (§3.5); singurul
+// script al paginii e cel al trenurilor din bandă (decizia 28), iar formularul se trimite și fără el.
 // JSON-LD: ContactPage; BreadcrumbList vine din Base (ruling R10).
 import { paginaAprobata } from '../../approvals';
 import ContactForm from '../../components/ContactForm.astro';
@@ -39,7 +40,7 @@ const CALE = '/contact/';
         <ContactForm />
       </section>
 
-      <section class="carte" aria-labelledby="direct-titlu">
+      <section class="carte contact__direct" aria-labelledby="direct-titlu">
         <h2 id="direct-titlu">Sau scrie-mi direct</h2>
         <ContacteDirecte />
       </section>
@@ -89,6 +90,13 @@ const CALE = '/contact/';
 
   .contact__firma {
     margin-top: 1.5rem;
+  }
+
+  /* Cardul îngust din dreapta: titlul e mai mic, iar rândurile se umplu în ordine (nu echilibrat), ca „scrie-mi” să nu se
+     rupă la cratimă. Echilibrarea din base.css alegea tocmai ruptura „Sau scrie- / mi direct”; fontul nu are U+2011. */
+  .contact__direct h2 {
+    font-size: var(--text-lg);
+    text-wrap: wrap;
   }
 
   /* „Formularul” repetă H1-ul „Cere o ofertă”: rămâne pentru cititoarele de ecran, nu se vede. */

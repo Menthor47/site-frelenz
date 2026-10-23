@@ -240,9 +240,18 @@ describe('fetch (§3.5, pașii 1–7)', () => {
     expect(text).toContain('unu\r\ndoi');
   });
 
-  test('limita se verifică înaintea linkurilor și a regulilor', async () => {
+  // Limita numără doar cererile care chiar pleacă (decizia lui Alex din 2026-10-23): cine scoate un link și retrimite nu-și
+  // consumă încercările. Limitatorul spune „nu” în ambele teste, ca o consultare greșită să ducă la altă pagină.
+  test('prea multe linkuri duc la pagina lor fără să consulte limita', async () => {
     env = mediu({ limita: false });
-    expect((await post(f({ mesaj: 'a.ro www.b.ro www.c.ro www.d.ro www.e.ro' }))).headers.get('location')).toBe('/contact/eroare/');
+    expect((await post(f({ mesaj: 'a.ro www.b.ro www.c.ro www.d.ro www.e.ro' }))).headers.get('location')).toBe('/contact/prea-multe-linkuri/');
+    expect(env.RATE_LIMITER.limit).not.toHaveBeenCalled();
+  });
+
+  test('o regulă încălcată duce la eroare fără să consulte limita', async () => {
+    env = mediu({ limita: false });
+    expect((await post(f({ nume: 'a'.repeat(101) }))).headers.get('location')).toBe('/contact/eroare/');
+    expect(env.RATE_LIMITER.limit).not.toHaveBeenCalled();
   });
 
   test('o eroare neașteptată (de exemplu de la limitator) duce tot la eroare, nu la pagina platformei', async () => {
@@ -354,6 +363,35 @@ describe('cererile care nu vin de la formularul site-ului', () => {
     expect(r.headers.get('location')).toBe('/contact/eroare/');
     expect(env.RATE_LIMITER.limit).not.toHaveBeenCalled();
     expect(env.EMAIL.send).not.toHaveBeenCalled();
+  });
+
+  /** Un corp trimis pe bucăți, fără `Content-Length` (cum nu face niciun browser): mărimea se află doar citindu-l. */
+  const peBucati = (text: string) =>
+    worker.fetch(
+      new Request(`${ORIGINE}/api/contact`, {
+        method: 'POST',
+        body: new Blob([text]).stream(),
+        duplex: 'half',
+        headers: { 'cf-connecting-ip': '203.0.113.7', 'content-type': 'application/x-www-form-urlencoded' },
+      } as RequestInit),
+      env,
+    );
+
+  test(`un corp pe bucăți peste ${CORP_MAXIM} octeți duce la eroare, chiar dacă restul formularului e valid`, async () => {
+    // Câmpurile formularului sunt valide; surplusul stă într-un câmp pe care validarea nu-l citește.
+    const corp = `${new URLSearchParams(VALORI_IMPLICITE).toString()}&umplutura=${'a'.repeat(CORP_MAXIM)}`;
+    const r = await peBucati(corp);
+    expect(r.headers.get('location')).toBe('/contact/eroare/');
+    expect(env.RATE_LIMITER.limit).not.toHaveBeenCalled();
+    expect(env.EMAIL.send).not.toHaveBeenCalled();
+  });
+
+  test('un corp pe bucăți sub limită pleacă, cu textul neschimbat', async () => {
+    const r = await peBucati(new URLSearchParams({ ...VALORI_IMPLICITE, mesaj: 'Rând cu diacritice: ș, ț, „ și ”' }).toString());
+    expect(r.headers.get('location')).toBe('/contact/multumim/');
+    const trimis = env.EMAIL.send.mock.calls[0]?.[0] as unknown as { raw: string };
+    const text = Buffer.from((trimis.raw.split('\r\n\r\n')[1] ?? '').replaceAll('\r\n', ''), 'base64').toString('utf8');
+    expect(text).toContain('Rând cu diacritice: ș, ț, „ și ”');
   });
 
   test('cel mai mare formular valid, numai din „ (9 octeți urlencoded fiecare), încape sub limită și pleacă', async () => {

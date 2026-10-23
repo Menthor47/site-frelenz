@@ -1,5 +1,5 @@
 import Guide from '../../src/layouts/Guide.astro';
-import { render, textOf } from './helpers';
+import { cardulUnic, render, textOf } from './helpers';
 
 // Ghidul (§4.5, §6.3): titlul-întrebare, răspunsul în primul paragraf, detaliile, data publicării și a actualizării,
 // autorul (cu link spre Despre) și serviciul legat. Banda are linia serviciului legat, cu „Ești aici” (§5.6).
@@ -36,6 +36,19 @@ const main = (h: string) => h.slice(h.indexOf('<main'), h.indexOf('</main>'));
 describe('Guide (§4.5)', () => {
   test('stă pe suprafața deschisă (decizia 29)', async () => {
     expect(main(await render(Guide, { ghid: ghid() }, { default: CORP }))).toContain('class="main--suprafata"');
+  });
+
+  test('Open Graph îl prezintă ca articol (og:type „article”)', async () => {
+    expect(await render(Guide, { ghid: ghid() }, { default: CORP })).toMatch(/<meta property="og:type" content="article"/);
+  });
+
+  test('corpul și serviciul legat stau într-un singur card; titlul, răspunsul și autorul rămân deasupra lui', async () => {
+    const bucati = cardulUnic(main(await render(Guide, { ghid: ghid() }, { default: CORP })));
+    expect(bucati).not.toBeNull();
+    expect(bucati?.card).toContain('Detaliile ghidului.');
+    expect(textOf(bucati?.card ?? '')).toContain('Serviciul legat de acest ghid: Audit SEO');
+    expect(bucati?.inainte).toMatch(/<h1\b/);
+    expect(textOf(bucati?.inainte ?? '')).toContain('Scris de Alex Ionescu.');
   });
 
   test('H1-ul e titlul, iar primul paragraf de după el e răspunsul', async () => {

@@ -53,29 +53,31 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
       se desfășoară.
     </p>
 
-    {
-      linii.map((linie) => (
-        <section class="linie-grup" data-grup={linie.grup}>
-          <h2 class="linie-grup__titlu">{NUME_LINIE[linie.grup]}</h2>
-          <div class="linie-grup__servicii">
-            {linie.servicii.map((s) => (
-              <article class="serviciu serviciu-card">
-                <h3>
-                  <a href={s.cale}>{s.nume}</a>
-                </h3>
-                <p>{s.raspunsDirect}</p>
-                <p class="serviciu__eticheta">Ce primești, pe scurt:</p>
-                <ul>
-                  {s.livrabile.slice(0, LIVRABILE_PE_SCURT).map((t) => (
-                    <li>{t}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </section>
-      ))
-    }
+    <div class="linii">
+      {
+        linii.map((linie) => (
+          <section class:list={['linie-grup', linie.servicii.length > 1 && 'linie-grup--lata']} data-grup={linie.grup}>
+            <h2 class="linie-grup__titlu">{NUME_LINIE[linie.grup]}</h2>
+            <div class="linie-grup__servicii">
+              {linie.servicii.map((s) => (
+                <article class="serviciu serviciu-card">
+                  <h3>
+                    <a href={s.cale}>{s.nume}</a>
+                  </h3>
+                  <p>{s.raspunsDirect}</p>
+                  <p class="serviciu__eticheta">Ce primești, pe scurt:</p>
+                  <ul>
+                    {s.livrabile.slice(0, LIVRABILE_PE_SCURT).map((t) => (
+                      <li>{t}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
 
     <div class="servicii__final">
       <p>Nu știi de unde să începi? Spune-mi ce site ai sau de ce ai nevoie și îți spun ce serviciu ți se potrivește.</p>
@@ -99,16 +101,40 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
     line-height: 1.45;
   }
 
-  .linie-grup {
+  /* Liniile, într-o grilă (decizia din 2026-10-23): pe desktop, o linie cu două servicii ia tot rândul, iar liniile cu un
+     singur serviciu (Diagnostic, Construcție) stau câte două pe rând, ca rândul să nu rămână pe jumătate gol. Ordinea din
+     DOM (deci și a focusului) e cea a câmpului `ordine`: grila nu reordonează nimic. */
+  .linii {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3rem 1.5rem;
     margin-top: 3rem;
   }
 
+  @media (min-width: 48rem) {
+    .linii {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .linie-grup--lata {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Coloana: titlul, apoi cardurile, întinse până la capătul rândului, ca două linii alăturate să se termine la fel. */
+  .linie-grup {
+    display: flex;
+    flex-direction: column;
+  }
+
   /* Titlul liniei are în față un tronson drept în culoarea ei, ca segmentele de pe harta de metrou.
-     Desenul e decor: numele liniei e textul titlului. */
+     Desenul e decor: numele liniei e textul titlului. În coloana flex marginile nu se mai suprapun, deci spațiul de sub
+     titlu e doar cel de deasupra cardurilor (1,5rem). */
   .linie-grup__titlu {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    margin-bottom: 0;
     /* Textul e un element flex: fără `anywhere`, cu textul mărit la 200%, „Construcție” ar ieși din pagină la 320px. */
     overflow-wrap: anywhere;
   }
@@ -122,6 +148,7 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
   }
 
   .linie-grup__servicii {
+    flex: 1 1 auto;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 1.5rem;
@@ -129,7 +156,7 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
   }
 
   @media (min-width: 48rem) {
-    .linie-grup__servicii {
+    .linie-grup--lata .linie-grup__servicii {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
@@ -179,9 +206,10 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
     color: var(--culoare);
   }
 
+  /* Linia stă pe suprafață, unde --rule (1,05:1) nu se vede; conturul cardurilor (--card-contur) se vede. */
   .servicii__final {
     margin-top: 3rem;
     padding-top: 2rem;
-    border-top: 1px solid var(--rule);
+    border-top: 1px solid var(--card-contur);
   }
 </style>

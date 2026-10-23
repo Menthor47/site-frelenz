@@ -7,6 +7,19 @@ import { render, textOf } from './helpers';
 // `astro:content`; aici colecțiile sunt goale, ca rezultatul să nu depindă de src/content.
 vi.mock('astro:content', () => ({ getCollection: async () => [] }));
 
+// Producția, implicit; testele previzualizării pun `stare.draft = true`.
+const stare = vi.hoisted(() => ({ draft: false }));
+
+vi.mock('../../src/lib/env', () => ({
+  get DRAFT() {
+    return stare.draft;
+  },
+}));
+
+beforeEach(() => {
+  stare.draft = false;
+});
+
 const NOTA = 'Nu garantez poziții în Google și nici apariții în răspunsurile motoarelor AI.';
 
 const serviciu = {
@@ -115,6 +128,33 @@ describe('Service.astro (§4.4)', () => {
       'Întrebări frecvente',
       'Servicii înrudite',
     ]);
+  });
+
+  // Ca pe Acasă și pe studiul de caz (§3.4): niciun marcaj nu apare ca text brut. Un proiect fără titlu nu are cu ce să-și
+  // facă linkul, deci lipsește în producție; un context încă marcaj lipsește doar el.
+  const proiectCu = (suprascrieri: Record<string, string>) => ({
+    slug: 'szitrans',
+    titlu: 'Site-ul szitrans.eu',
+    context: 'O firmă de transport din Spania.',
+    ...suprascrieri,
+  });
+
+  test('în producție, un proiect al cărui titlu e încă marcaj nu apare deloc', async () => {
+    const h = main(await pagina({ proiect: proiectCu({ titlu: '[DE COMPLETAT:#21]' }) }));
+    expect(titluriH2(h)).not.toContain('Un proiect');
+    expect(h).not.toContain('DE COMPLETAT');
+  });
+
+  test('în producție, un context încă marcaj lipsește, iar titlul rămâne link spre studiu', async () => {
+    const h = main(await pagina({ proiect: proiectCu({ context: '[DE COMPLETAT:#21]' }) }));
+    expect(h).toMatch(/<a href="\/proiecte\/szitrans\/"[^>]*>Site-ul szitrans\.eu<\/a>/);
+    expect(h).not.toContain('DE COMPLETAT');
+  });
+
+  test('în previzualizare, marcajul din proiect trece prin Placeholder', async () => {
+    stare.draft = true;
+    const h = main(await pagina({ proiect: proiectCu({ context: '[DE COMPLETAT:#21]' }) }));
+    expect(h).toMatch(/<mark class="marcaj">\[DE COMPLETAT:#21\]/);
   });
 
   test('un singur îndemn „Cere o ofertă” în conținut', async () => {

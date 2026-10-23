@@ -201,6 +201,11 @@ describe('Base', () => {
     colectii.ghiduri = [];
   });
 
+  test('og:type e „website”, iar pe paginile-articol (ghiduri, studii de caz) e „article”, ca în JSON-LD', async () => {
+    expect(await pagina()).toMatch(/<meta property="og:type" content="website"/);
+    expect(await pagina({ articol: true })).toMatch(/<meta property="og:type" content="article"/);
+  });
+
   test('ordinea în pagină: linkul de salt, antetul, conținutul, subsolul', async () => {
     const h = await pagina();
     const pozitii = ['class="sari"', '<header', '<main', '<footer'].map((e) => h.indexOf(e));

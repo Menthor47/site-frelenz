@@ -77,6 +77,21 @@ describe('/servicii/ (§4.5)', () => {
     carduri.forEach((c) => expect(c.match(/<a\b/g)).toHaveLength(1));
   });
 
+  // Decizia lui Alex din 2026-10-23: liniile cu două servicii iau tot rândul, iar cele cu unul singur (Diagnostic și
+  // Construcție) stau alături, ca rândul să nu rămână pe jumătate gol. Ordinea din DOM rămâne cea a câmpului `ordine`.
+  test('liniile cu două servicii sunt late, cele cu unul singur nu, în ordinea liniilor', async () => {
+    const h = main(await render(PaginaServicii));
+    const linii = [...h.matchAll(/<section\b[^>]*\sclass="([^"]*)"[^>]*\sdata-grup="([^"]+)"/g)]
+      .filter((m) => /\blinie-grup\b/.test(m[1] ?? ''))
+      .map((m) => ({ grup: m[2], lata: /\blinie-grup--lata\b/.test(m[1] ?? '') }));
+    expect(linii).toEqual([
+      { grup: 'vizibilitate', lata: true },
+      { grup: 'diagnostic', lata: false },
+      { grup: 'constructie', lata: false },
+      { grup: 'reparatie', lata: true },
+    ]);
+  });
+
   test('pagina e pe suprafață, cu o grilă de carduri pentru fiecare linie', async () => {
     const h = await render(PaginaServicii);
     expect(h).toContain('class="main--suprafata"');

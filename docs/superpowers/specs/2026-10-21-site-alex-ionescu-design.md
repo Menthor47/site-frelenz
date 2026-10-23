@@ -60,7 +60,7 @@ Pornește de la `plan-site-alex-ionescu.md` (planul lui Alex) și de la deciziil
 | 26 | Traseul „Cum lucrăm” de pe Acasă (2a) | Fundal `#D9E4F7`, pe toată lățimea, aleasă de Alex pe 2026-10-23. Are 1,28:1 față de alb, unde `--tint-blue` (`#EAF0FB`) are 1,14:1. `--tint-blue` rămâne pentru celelalte locuri. |
 | 27 | Trenurile (3a) | Rămân doar pe Acasă, aleși de Alex pe 2026-10-23. Paginile de serviciu, de studiu, de ghid, `/servicii/`, `/cum-lucrez/`, `/despre/` și `/contact/` au harta statică, fără trenuri și fără buton de oprire. Un tren care trece o singură dată ar fi o extindere separată, nu e în spec. Înlocuită de decizia 28 (2026-10-23). |
 | 28 | Antet, bandă și trenuri pe toate paginile (înlocuiește 27, extinde 25) | Antetul e întunecat pe toate paginile, ca banda de sus (fundal `#0E1116`). Pe fiecare pagină cu hartă, banda are trenuri, linia grupului plină cu „Ești aici” și butonul „Oprește trenurile”. Butonul e mai mic (text 12,8px), cu fundal `#EAF0FB` și text `#14161A` (14,97:1), contur 1px `--ink`, zona de atingere 44px. Aleasă de Alex pe 2026-10-23. Reface §5.1, §5.6, §5.7 și §9.1. |
-| 29 | Suprafețe stratificate (2026-10-23) | Fundal `--suprafata` sub bandă, carduri albe cu contur `--card-contur` pentru secțiunile de conținut; Servicii cu șase carduri în grilă; Despre cu profil; Contact pe două coloane. Detalii în `docs/superpowers/specs/2026-10-23-layered-surfaces-design.md`. Benzile de îndemn și fișa folosesc și ele `#D9E4F7`. |
+| 29 | Suprafețe stratificate (2026-10-23) | Fundal `--suprafata` sub bandă, carduri albe cu contur `--card-contur` pentru secțiunile de conținut; Servicii cu șase carduri în grilă; Despre cu profil; Contact pe două coloane. Detalii în `docs/superpowers/specs/2026-10-23-layered-surfaces-design.md`. Benzile de îndemn și fișa folosesc și ele `#D9E4F7`. După revizuirea din aceeași zi, alese de Alex: ghidurile, studiile de caz și listele `/proiecte/` și `/ghiduri/` au conținutul într-un singur card alb (titlul rămâne pe suprafață); pe `/servicii/`, liniile cu un singur serviciu (Diagnostic, Construcție) stau alături, pe același rând. |
 
 ---
 
@@ -103,7 +103,7 @@ siteulet/
     client/                 două scripturi mici, puse inline: trains (Acasă), page-facts (acest-site)
   worker/
     index.ts                handler pentru POST /api/contact
-    index.test.ts           teste (vitest + pool-ul Workers)
+    index.test.ts           teste (vitest în Node, cu legăturile simulate; ruling R18)
   public/
     _headers                cache, securitate, noindex pe workers.dev
     favicon.svg
@@ -215,13 +215,13 @@ Fără CNP și fără bifă de acord. Formularul nu are JavaScript. Pagina de co
 **Ce face Worker-ul:**
 1. Primește `POST /api/contact`. Orice altă metodă primește 405, iar orice altă cale de sub `/api/` primește 404.
 2. **Capcana completată:** `303` spre `/contact/multumim/`, fără niciun e-mail.
-3. **Limita de trimiteri depășită** (3 cereri la 60 de secunde pe IP): `303` spre `/contact/eroare/`. E doar o protecție la rafale. Legătura de rate limit de la Cloudflare numără doar pe ferestre de 10 sau 60 de secunde, iar o limită pe oră ar cere stocarea IP-urilor.
-4. **Mesajul are peste 3 linkuri:** `303` spre `/contact/prea-multe-linkuri/`. În câmpul Mesaj se numără linkurile, nu prefixele, fără să conteze literele mari sau mici:
+3. **Mesajul are peste 3 linkuri:** `303` spre `/contact/prea-multe-linkuri/`. În câmpul Mesaj se numără linkurile, nu prefixele, fără să conteze literele mari sau mici:
    - fiecare `http://` sau `https://`;
    - fiecare `www.` care nu vine imediat după `//`.
 
    Astfel, `https://www.exemplu.ro` e un singur link.
-5. **Orice altă regulă încălcată** (posibilă doar dacă cineva ocolește browserul): `303` spre `/contact/eroare/`. Intră aici și `\r` sau `\n` în Nume, Firmă, Telefon ori Adresa site-ului, care ar permite injectarea de antete în e-mail.
+4. **Orice altă regulă încălcată** (posibilă doar dacă cineva ocolește browserul): `303` spre `/contact/eroare/`. Intră aici și `\r` sau `\n` în Nume, Firmă, Telefon ori Adresa site-ului, care ar permite injectarea de antete în e-mail.
+5. **Limita de trimiteri depășită** (3 trimiteri la 60 de secunde pe IP): `303` spre `/contact/eroare/`. Se verifică doar pentru cererile care au trecut de pașii 2–4, deci o cerere respinsă nu consumă din limită: cine scoate un link și retrimite nu-și pierde încercările (decizia lui Alex din 2026-10-23). E doar o protecție la rafale. Legătura de rate limit de la Cloudflare numără doar pe ferestre de 10 sau 60 de secunde, iar o limită pe oră ar cere stocarea IP-urilor.
 6. **Trimiterea e-mailului:** un singur mesaj prin `send_email`, de la `formular@<domeniu>` către `idealserv51@gmail.com`, cu Reply-To pe adresa vizitatorului.
    - **Subiectul:** „Cerere de ofertă: <serviciu> – <nume/firmă>”. Fără serviciu ales, devine „Cerere de ofertă – <nume/firmă>”.
    - **Codificarea:** subiectul se codifică după RFC 2047, ca să treacă diacriticele.
@@ -395,7 +395,7 @@ Secțiunile paginii de serviciu sunt carduri pe `--suprafata` (decizia 29): fiec
 
 ### 4.5 Celelalte pagini
 
-- **`/servicii/`:** serviciile grupate pe cele 4 linii, fiecare cu `raspunsDirect` și „Ce primești” pe scurt. Nu repetă „De unde pornești?” de pe Acasă. Fiecare serviciu este un card pe `--suprafata`, în grila grupului său: două coloane pe desktop, una pe telefon, cu bara din stânga de 4px în culoarea grupului (decizia 29).
+- **`/servicii/`:** serviciile grupate pe cele 4 linii, fiecare cu `raspunsDirect` și „Ce primești” pe scurt. Nu repetă „De unde pornești?” de pe Acasă. Fiecare serviciu este un card pe `--suprafata`, cu bara din stânga de 4px în culoarea grupului (decizia 29). Pe desktop, liniile cu două servicii iau tot rândul, cu cardurile alăturate, iar liniile cu un singur serviciu (Diagnostic, Construcție) stau alături, pe același rând; pe telefon, totul e pe o coloană. Ordinea din pagină rămâne cea a câmpului `ordine`.
 - **`/cum-lucrez/`:**
   - `RouteMap` mare, cu cei patru pași explicați;
   - cele două formate, fără cifre: „Prețul, reducerea și ce include abonamentul le stabilim după ce mă uit la site-ul tău.”;
@@ -582,7 +582,7 @@ Pe tot site-ul sunt două mișcări automate, ambele pe paginile cu hartă (Acas
 | # | Ce | Declanșare | Detalii | Cu „reduced motion” / fără suport |
 |---|---|---|---|---|
 | M1 | Liniile hărții se desenează | o dată, la încărcarea fiecărei pagini cu hartă (Acasă și banda de sus) | `stroke-dashoffset`, ~600ms, `ease-out`, doar CSS. H1-ul, subtitlul și butonul nu se animă niciodată. | liniile apar desenate, instant |
-| M2 | Trenurile pe hartă | continuu, pe Acasă și pe banda fiecărei pagini, după M1 | vezi 5.6. Halo-ul are opacitate 0,7 pe toate hărțile, fiindcă toate au fundal întunecat (decizia 28), ca trenurile să se vadă ca lumini. Valoarea 0,3 din regula de bază (`.tren__halou`, `metro.css`) nu se mai aplică pe nicio pagină. | trenurile și butonul ascunse |
+| M2 | Trenurile pe hartă | continuu, pe Acasă și pe banda fiecărei pagini, după M1 | vezi 5.6. Halo-ul are opacitate 0,7 pe toate hărțile, fiindcă toate au fundal întunecat (decizia 28), ca trenurile să se vadă ca lumini. | trenurile și butonul ascunse |
 | M3 | Segmentul din „De unde pornești?” devine banda paginii de serviciu | la clic, la navigare | CSS nativ: `@view-transition { navigation: auto; }` declarat doar în `@media (prefers-reduced-motion: no-preference)`, cu `view-transition-name` unic pe fiecare serviciu, dat prin clasă. Durata 300ms, `ease-in-out`. Pe celelalte navigări, cross-fade-ul implicit e oprit (`animation: none` pe `::view-transition-old(root)` și `::view-transition-new(root)`), ca singura mișcare să fie segmentul. Fără ClientRouter. | navigare normală, fără tranziție (la fel în Firefox și Samsung Internet) |
 | M4 | Micro-interacțiuni | hover, focus | subliniere în 150ms | fără tranziții |
 
@@ -842,7 +842,7 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
 8. **Marcaje:** build-ul de producție nu conține „[DE COMPLETAT” nicăieri în `dist/`. În previzualizarea `DRAFT=1` (din `dist-draft/`), marcajele apar, la fel și pagina de test pentru diacritice.
 9. **Capturi de ecran:** una pe mobil și una pe desktop, revizuite înainte de pagina următoare.
 
-**Worker-ul**, cu teste scrise înaintea codului (TDD), în vitest cu pool-ul Workers:
+**Worker-ul**, cu teste scrise înaintea codului (TDD), în vitest, în Node, cu legăturile simulate (ruling R18):
 - **paritatea regulilor:** testele citesc `form-rules.ts` și verifică limitele exacte:
   - 100 de caractere trec, 101 nu;
   - un mesaj de 3000 de caractere cu rânduri noi trimise ca CRLF trece;
@@ -854,7 +854,8 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
 - **orice regulă încălcată** (de exemplu 101 caractere sau un serviciu necunoscut): 303 spre `/contact/eroare/`, fără e-mail;
 - **`\r` sau `\n` în Nume, Firmă, Telefon sau Adresa site-ului:** 303 spre `/contact/eroare/`;
 - **câmpul-capcană:** 303 spre `/contact/multumim/`, fără e-mail;
-- **limita de trimiteri:** 303 spre `/contact/eroare/`;
+- **limita de trimiteri:** 303 spre `/contact/eroare/`; capcana, linkurile și regulile încălcate nu ajung la limitator;
+- **un corp fără `Content-Length`** se citește doar până la 64 KB; peste, 303 spre `/contact/eroare/`, fără e-mail;
 - **regula linkurilor:**
   - 3 linkuri trec, 4 nu;
   - se verifică toate formele: `http://`, `https://`, `www.`, cu litere mari sau mici;

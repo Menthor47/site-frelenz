@@ -1,4 +1,4 @@
-// Starea trenurilor de pe harta de pe Acasă (§5.6), fără DOM, ca s-o poată testa vitest.
+// Starea trenurilor de pe hărțile animate (Acasă și banda de sus a paginilor, §5.6), fără DOM, ca s-o poată testa vitest.
 // Două lucruri decid dacă trenurile merg: alegerea vizitatorului (butonul) și dacă harta e pe ecran (IntersectionObserver).
 // Alegerea are prioritate: după „Oprește trenurile”, doar butonul le mai repornește.
 

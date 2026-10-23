@@ -12,7 +12,7 @@ problema: "Un site de prezentare trebuie să spună repede ce face firma și und
 ceAmFacut:
   - "Paginile sunt statice, generate cu Astro și găzduite pe Cloudflare, deci serverul nu construiește nimic la fiecare vizită."
   - "Fontul, Atkinson Hyperlegible Next, e găzduit pe site: nicio cerere nu pleacă spre alte servere."
-  - "Fără biblioteci de JavaScript: singurele scripturi sunt trenurile de pe harta de pe Acasă și fișa de pe această pagină."
+  - "Fără biblioteci de JavaScript: singurele scripturi sunt trenurile de pe harta din banda de sus și fișa de pe această pagină."
   - "Formularul de contact merge fără JavaScript, iar site-ul nu are bază de date: cererea ta pleacă pe e-mail. Ce se prelucrează și cât timp e descris în Politica de confidențialitate."
   - "Fiecare pagină are date structurate (JSON-LD), ca Google și motoarele AI să înțeleagă ce e pe ea."
 rezultate: []

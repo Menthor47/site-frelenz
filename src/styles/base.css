@@ -1,6 +1,7 @@
 /* Stilurile de bază: reset minim, tipografia din §5.3, focusul și linkurile din §5.2, layoutul din §5.8. */
 
-/* Doar temă luminoasă (§5.1): și temele întunecate ale telefonului primesc pagina și câmpurile luminoase. */
+/* Temă luminoasă (§5.1): și temele întunecate ale telefonului primesc pagina și câmpurile luminoase. Antetul și banda de
+   sus sunt întunecate prin culorile lor (deciziile 25 și 28), nu printr-o temă. */
 :root {
   color-scheme: light;
   -webkit-text-size-adjust: 100%;

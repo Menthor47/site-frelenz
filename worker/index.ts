@@ -1,7 +1,9 @@
 // Worker-ul formularului (§3.5): primește doar `POST /api/contact` și răspunde doar cu redirecționări 303, 404 și 405.
-// Ordinea pașilor e cea din spec: capcana, limita de trimiteri pe IP, linkurile, restul regulilor, apoi un singur e-mail.
+// Ordinea pașilor e cea din spec: capcana, linkurile, restul regulilor, apoi limita de trimiteri pe IP și un singur e-mail.
+// Limita vine ultima, ca să numere doar cererile care chiar pleacă: o cerere respinsă nu consumă din ea (decizia din 2026-10-23).
 // Înaintea lor, două verificări ieftine, fără să citească formularul: cererea vine de pe site (nu un formular ascuns de pe
-// alt site, care s-ar trimite singur) și corpul are mărimea unui formular.
+// alt site, care s-ar trimite singur) și corpul are mărimea unui formular. Un corp fără mărime declarată se citește doar
+// până la aceeași limită.
 // Nu stochează nimic. În producție nu scrie nimic în consolă, nici în ramura de eroare (observability e oprit în
 // wrangler.jsonc); doar sub `wrangler dev`, cu `DEBUG_FORM=1` în `.dev.vars`, scrie tipul erorii, fără datele din formular.
 // Antetele le pune singur: `_headers` nu se aplică răspunsurilor generate de Worker (§3.6).
@@ -42,25 +44,57 @@ function dePeAltSite(cerere: Request, url: URL): boolean {
   return origine !== null && origine !== 'null' && origine !== url.origin;
 }
 
-/** Mărimea declarată a corpului; o cerere fără `Content-Length` (trimisă pe bucăți) e judecată după ce se citește. */
+/** Mărimea declarată a corpului; o cerere fără `Content-Length` (trimisă pe bucăți) e oprită de `citesteCorp`. */
 function preaMare(cerere: Request): boolean {
   const lungime = Number(cerere.headers.get('content-length') ?? 0);
   return Number.isFinite(lungime) && lungime > CORP_MAXIM;
 }
 
+/** Corpul cererii, citit cel mult până la `CORP_MAXIM` octeți; `null` dacă e mai mare, fără să-l citească până la capăt. */
+async function citesteCorp(cerere: Request): Promise<Uint8Array<ArrayBuffer> | null> {
+  if (cerere.body === null) return new Uint8Array();
+  const cititor = cerere.body.getReader();
+  const bucati: Uint8Array[] = [];
+  let total = 0;
+  for (let bucata = await cititor.read(); !bucata.done; bucata = await cititor.read()) {
+    total += bucata.value.byteLength;
+    if (total > CORP_MAXIM) {
+      await cititor.cancel();
+      return null;
+    }
+    bucati.push(bucata.value);
+  }
+  const corp = new Uint8Array(total);
+  let pozitie = 0;
+  for (const bucata of bucati) {
+    corp.set(bucata, pozitie);
+    pozitie += bucata.byteLength;
+  }
+  return corp;
+}
+
+/** Pagina pentru o cerere respinsă: capcana primește mulțumirea, ca robotul să nu afle că a fost prins. */
+const RESPINSA: Readonly<Record<'capcana' | 'linkuri' | 'invalid', Destinatie>> = {
+  capcana: '/contact/multumim/',
+  linkuri: '/contact/prea-multe-linkuri/',
+  invalid: '/contact/eroare/',
+};
+
 /**
- * Pașii 2–7 din §3.5, pentru un POST pe /api/contact: capcana, limita pe IP, linkurile, celelalte reguli, apoi e-mailul.
+ * Pașii 2–7 din §3.5, pentru un POST pe /api/contact: capcana, linkurile, celelalte reguli, limita pe IP, apoi e-mailul.
  * Orice eroare (un corp care nu e formular, limitatorul, construirea sau trimiterea e-mailului) ajunge în `fetch`.
  */
 async function destinatie(cerere: Request, env: Env, domeniu: string): Promise<Destinatie> {
-  const rezultat = validate(await cerere.formData());
-  if (!rezultat.ok && rezultat.motiv === 'capcana') return '/contact/multumim/';
+  const corp = await citesteCorp(cerere);
+  if (corp === null) return '/contact/eroare/';
+  // Corpul citit se parsează cu tipul cererii (urlencoded sau multipart, cu tot cu `boundary`).
+  const formular = await new Response(corp, { headers: { 'content-type': cerere.headers.get('content-type') ?? '' } }).formData();
+  const rezultat = validate(formular);
+  if (!rezultat.ok) return RESPINSA[rezultat.motiv];
 
   // Cloudflare pune mereu `cf-connecting-ip`; „necunoscut” e doar pentru cererile fără el (testele, `wrangler dev`).
   const { success } = await env.RATE_LIMITER.limit({ key: cerere.headers.get('cf-connecting-ip') ?? 'necunoscut' });
   if (!success) return '/contact/eroare/';
-
-  if (!rezultat.ok) return rezultat.motiv === 'linkuri' ? '/contact/prea-multe-linkuri/' : '/contact/eroare/';
 
   await env.EMAIL.send(buildEmail(rezultat.date, `formular@${domeniu}`, DESTINATAR));
   return '/contact/multumim/';

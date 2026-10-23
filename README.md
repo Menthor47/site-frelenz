@@ -83,7 +83,7 @@ Fiecare `wrangler deploy` face o versiune nouă; fișierele statice și Worker-u
 2. `npx wrangler rollback <id-ul versiunii bune>` o pune înapoi, în câteva secunde.
 3. Repari în cod, verifici (`npm run verify`, `npm run test:e2e`) și abia apoi faci un deploy nou.
 
-**Limita de trimiteri** (3 cereri pe minut de pe același IP) folosește spațiul de nume `1001` din `wrangler.jsonc`. Dacă ai alte limitatoare în același cont Cloudflare, alege alt număr.
+**Limita de trimiteri** (3 mesaje trimise pe minut de pe același IP; o cerere respinsă de reguli, de exemplu cu prea multe linkuri, nu se numără) folosește spațiul de nume `1001` din `wrangler.jsonc`. Dacă ai alte limitatoare în același cont Cloudflare, alege alt număr.
 
 ## Verificarea manuală a schemei, înainte de lansare
 

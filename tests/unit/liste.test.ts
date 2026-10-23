@@ -1,6 +1,6 @@
 import PaginaGhiduri from '../../src/pages/ghiduri/[...lista].astro';
 import PaginaProiecte from '../../src/pages/proiecte/[...lista].astro';
-import { render } from './helpers';
+import { cardulUnic, render } from './helpers';
 
 // Listele /proiecte/ și /ghiduri/ (§4.5), în stratul de suprafețe (decizia 29): stau pe suprafața deschisă, ca restul
 // paginilor publice cu bandă. Paginile primesc proprietățile pe care le calculează `getStaticPaths` la build; colecțiile,
@@ -30,5 +30,19 @@ describe('listele (decizia 29)', () => {
     const h = main(await render(PaginaGhiduri, { ghiduri: [ghid] }));
     expect(h).toContain('class="main--suprafata"');
     expect(h).toContain('De ce nu apare site-ul meu în Google');
+  });
+
+  test('/proiecte/: lista stă într-un singur card, sub titlu și introducere', async () => {
+    const bucati = cardulUnic(main(await render(PaginaProiecte, { proiecte: [proiect] })));
+    expect(bucati).not.toBeNull();
+    expect(bucati?.card).toContain('Un magazin online din București');
+    expect(bucati?.inainte).toMatch(/<h1\b[^>]*>Proiecte<\/h1>/);
+  });
+
+  test('/ghiduri/: lista stă într-un singur card, sub titlu și introducere', async () => {
+    const bucati = cardulUnic(main(await render(PaginaGhiduri, { ghiduri: [ghid] })));
+    expect(bucati).not.toBeNull();
+    expect(bucati?.card).toContain('De ce nu apare site-ul meu în Google');
+    expect(bucati?.inainte).toMatch(/<h1\b[^>]*>Ghiduri<\/h1>/);
   });
 });

@@ -1,6 +1,7 @@
 // Contact și paginile de răspuns (§3.5, §4.5, Task 14), pe build-ul servit de `wrangler dev`: formularul ajunge la Worker.
-// Limitatorul din `wrangler dev` numără real (3 cereri la 60 s pe aceeași cheie): fișierul face doar 2 POST-uri fără
-// capcană (trimiterea fără JS și prea multe linkuri). Modul serial oprește restul dacă un test pică.
+// Limitatorul din `wrangler dev` numără real (3 trimiteri la 60 s pe aceeași cheie), dar doar cererile care pleacă: fișierul
+// trimite un singur mesaj (fără JS); cererea cu prea multe linkuri și capcana nu ajung la limitator. Modul serial oprește
+// restul dacă un test pică.
 import AxeBuilder from '@axe-core/playwright';
 import { completeaza, expect, faraDerulareOrizontala, seSuprapun, test, textMarit } from './helpers';
 

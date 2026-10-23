@@ -12,6 +12,25 @@ export async function render(Component: Componenta, props: Record<string, unknow
   return (await container).renderToString(Component, { props, slots });
 }
 
+/**
+ * Singurul card (`<div>` cu clasa `carte`) dintr-un HTML, cu tot conținutul lui, și HTML-ul de dinaintea lui.
+ * `null` dacă nu există exact un astfel de card. Sfârșitul cardului e `</div>`-ul care îl închide (se numără `<div>`-urile
+ * din interior), nu primul `</div>` întâlnit.
+ */
+export function cardulUnic(html: string): { inainte: string; card: string } | null {
+  const deschideri = [...html.matchAll(/<div\b[^>]*\sclass="(?:[^"]*\s)?carte(?:\s[^"]*)?"[^>]*>/g)];
+  if (deschideri.length !== 1) return null;
+  const start = deschideri[0]?.index ?? 0;
+  const etichete = /<(\/?)div\b[^>]*>/g;
+  etichete.lastIndex = start;
+  let adancime = 0;
+  for (let m = etichete.exec(html); m !== null; m = etichete.exec(html)) {
+    adancime += m[1] === '/' ? -1 : 1;
+    if (adancime === 0) return { inainte: html.slice(0, start), card: html.slice(start, etichete.lastIndex) };
+  }
+  return null;
+}
+
 /** Etichetele care despart cuvinte; restul etichetelor (`span`, `a`, `strong`) dispar fără să lase spațiu. */
 const ETICHETE_DE_BLOC = /<\/?(?:address|br|dd|div|dl|dt|footer|h[1-6]|header|li|nav|ol|p|section|ul)\b[^>]*>/gi;
 

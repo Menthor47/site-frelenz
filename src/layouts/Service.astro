@@ -8,9 +8,11 @@
 import type { CollectionEntry } from 'astro:content';
 import Indemn from '../components/Indemn.astro';
 import Faq from '../components/Faq.astro';
+import TextSauMarcaj from '../components/TextSauMarcaj.astro';
 import { cereServiciu } from '../form-rules';
 import { DRAFT } from '../lib/env';
 import { nodFaq, nodService } from '../lib/jsonld';
+import { faraMarcaje, hasMarker } from '../lib/marker';
 import Base from './Base.astro';
 
 interface Props {
@@ -35,6 +37,11 @@ const firimituri = [
   { nume: 'Servicii', cale: '/servicii/' },
   { nume, cale },
 ];
+
+// Proiectul, după regula din ProiecteRezumat (§3.4): niciun marcaj ca text brut. Un titlu încă marcaj n-ar da text
+// linkului, deci în producție secțiunea lipsește; un context încă marcaj lipsește doar el. În previzualizare apar prin Placeholder.
+const [proiectVizibil] = proiect === undefined ? [] : faraMarcaje([proiect], (p) => hasMarker(p.titlu), DRAFT);
+const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([proiectVizibil.context], hasMarker, DRAFT)[0];
 ---
 
 <Base
@@ -73,13 +80,17 @@ const firimituri = [
     </section>
 
     {
-      proiect && (
+      proiectVizibil && (
         <section class="carte">
           <h2>Un proiect</h2>
           <p class="serviciu__proiect">
-            <a href={`/proiecte/${proiect.slug}/`}>{proiect.titlu}</a>
+            <a href={`/proiecte/${proiectVizibil.slug}/`}><TextSauMarcaj valoare={proiectVizibil.titlu} /></a>
           </p>
-          <p>{proiect.context}</p>
+          {contextProiect !== undefined && (
+            <p>
+              <TextSauMarcaj valoare={contextProiect} />
+            </p>
+          )}
         </section>
       )
     }

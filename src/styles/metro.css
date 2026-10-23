@@ -39,17 +39,6 @@
   --culoare: var(--green);
 }
 
-/* Liniile sunt estompate; pe harta statică, linia grupului paginii e plină (§5.6). Opacitatea pe grup estompează
-   și stațiile, care își acoperă linia înainte de compunere, deci linia nu se vede prin ele. */
-.harta__linie {
-  opacity: 0.28;
-}
-
-.harta__linie[data-plina] {
-  opacity: 1;
-}
-
-
 /* Capetele de linie se rotunjesc (§5.8); unghiurile sunt de 45°, din desen. */
 .harta__traseu {
   fill: none;
@@ -60,7 +49,6 @@
 }
 
 .harta__statie {
-  stroke: var(--ink);
   stroke-width: 3;
 }
 
@@ -71,12 +59,11 @@
   stroke-width: 5;
 }
 
-/* Eticheta are un contur alb sub litere, ca să rămână lizibilă peste liniile estompate. */
+/* Eticheta are un contur sub litere (culorile, în regulile hărții întunecate de mai jos), ca să rămână lizibilă peste linii. */
 .harta__eticheta {
   font-size: 22px;
   font-weight: 700;
   paint-order: stroke;
-  stroke: var(--paper);
   stroke-width: 6px;
   stroke-linejoin: round;
 }
@@ -108,10 +95,10 @@
   display: block;
 }
 
-/* Un punct cu miez alb și halou în culoarea liniei. Haloul e transparent, ca trenul să nu semene cu o stație. */
+/* Un punct cu miez alb și halou în culoarea liniei. Haloul e transparent (opacitatea, în regulile hărții întunecate), ca
+   trenul să nu semene cu o stație. */
 .tren__halou {
   fill: var(--culoare);
-  opacity: 0.3;
 }
 
 .tren__miez {
@@ -215,7 +202,9 @@
 }
 
 /* Harta e întunecată peste tot (decizia din 2026-10-23): banda de sus a fiecărei pagini și Acasă. Liniile, stațiile și
-   trenurile se citesc ca niște lumini. „Ești aici” e deschis, cu contur întunecat. Liniile rămân în culorile lor tari. */
+   trenurile se citesc ca niște lumini. „Ești aici” e deschis, cu contur întunecat. Liniile rămân în culorile lor tari.
+   Opacitatea e pe grupul liniei, deci estompează și stațiile, care își acoperă linia înainte de compunere: linia nu se vede
+   prin ele. */
 .banda {
   background: #0e1116;
 }

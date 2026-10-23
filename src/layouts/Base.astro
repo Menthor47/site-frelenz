@@ -25,6 +25,8 @@ interface Props {
   /** Aprobarea lui Alex pentru textul paginii. Nu ajunge în HTML: `check:launch` o citește din `src/approvals.ts` și din frontmatter. */
   aprobat: boolean;
   noindex?: boolean;
+  /** Ghidurile și studiile de caz (`Article` în JSON-LD): Open Graph le dă `og:type` „article”. */
+  articol?: boolean;
   /** Nodurile JSON-LD ale paginii; `WebSite` și `Person` minimal se adaugă singure (vezi `JsonLd`). */
   jsonld?: object[];
   /** Pașii de la Acasă până la pagina curentă. Se văd ca firimituri și intră în JSON-LD ca `BreadcrumbList`. Acasă și paginile fără firimituri nu îl dau. */
@@ -41,7 +43,7 @@ interface Props {
   suprafata?: boolean;
 }
 
-const { titlu, descriere, cale, noindex = false, jsonld = [], firimituri = [], harta, suprafata = false } = Astro.props;
+const { titlu, descriere, cale, noindex = false, articol = false, jsonld = [], firimituri = [], harta, suprafata = false } = Astro.props;
 
 // Ce secțiuni există în producție (§3.4). Antetul și subsolul primesc doar rezultatul, nu colecțiile.
 const proiecte = (await getCollection('proiecte')).map((intrare) => intrare.data);
@@ -59,7 +61,7 @@ const noduri = noduriPagina(jsonld, firimituri);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
-    <SeoHead titlu={titlu} descriere={descriere} cale={cale} noindex={noindex} />
+    <SeoHead titlu={titlu} descriere={descriere} cale={cale} noindex={noindex} articol={articol} />
     <!-- Favicon: stația plină albastră, ca „Ești aici” (§5.4, ruling R14). -->
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <JsonLd noduri={noduri} />

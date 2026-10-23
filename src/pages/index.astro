@@ -136,7 +136,7 @@ const intrebari = [
     align-self: start;
   }
 
-  /* Plăcuța de stație (§4.3 punctul 2): albă, opacă, cu contur de 1px și colțuri drepte, ca butonul de oprire.
+  /* Plăcuța de stație (§4.3 punctul 2): albă și opacă, cu colțuri drepte și text închis, pe banda întunecată (decizia 25).
      Marginea de sus o pune la 58% din înălțimea hărții, între M2 (la jumătate) și M3 (la două treimi), ca nicio linie să
      nu atingă muchia plăcuței: harta are înălțimea 1/5 din lățime, dar cel puțin 9rem (metro.css), deci 58% din înălțime
      e 11,6% din lățime sau 5,22rem. Procentul din `margin` se raportează la lățimea coloanei, aceeași cu a hărții. */
@@ -151,8 +151,9 @@ const intrebari = [
     max-inline-size: min(100%, 8.75em);
     margin: max(5.22rem, 11.6%) 0 0;
     padding: 0.35em 0.5em 0.4em;
-    border: 1px solid var(--ink);
+    border: 1px solid var(--paper);
     background: var(--paper);
+    color: var(--ink);
     /* Cu textul mărit la 200%, „București” n-ar încăpea întreg pe 320px. */
     overflow-wrap: break-word;
   }
@@ -239,11 +240,4 @@ const intrebari = [
     background: #0e1116;
     color: #e8ecf2;
   }
-
-  .acasa-sus__titlu {
-    background: var(--paper);
-    color: var(--ink);
-    border-color: var(--paper);
-  }
-
 </style>

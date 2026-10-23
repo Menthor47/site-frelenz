@@ -1,5 +1,5 @@
 import CaseStudy from '../../src/layouts/CaseStudy.astro';
-import { render, textOf } from './helpers';
+import { cardulUnic, render, textOf } from './helpers';
 
 // Studiul de caz (§4.5, §6.3): context → problema → ce am făcut → rezultat → serviciile folosite. La rezultat intră doar
 // ce se poate dovedi, cu sursa și data. Niciun marcaj nu apare ca text brut (§3.4): în producție, câmpul cu marcaj lipsește.
@@ -40,6 +40,19 @@ const titluri = (h: string, nivel: number) =>
 describe('CaseStudy (§4.5)', () => {
   test('stă pe suprafața deschisă (decizia 29)', async () => {
     expect(main(await render(CaseStudy, { proiect: proiect() }))).toContain('class="main--suprafata"');
+  });
+
+  test('Open Graph îl prezintă ca articol (og:type „article”)', async () => {
+    expect(await render(CaseStudy, { proiect: proiect() })).toMatch(/<meta property="og:type" content="article"/);
+  });
+
+  test('cele cinci secțiuni stau într-un singur card, iar titlul rămâne deasupra lui', async () => {
+    const bucati = cardulUnic(main(await render(CaseStudy, { proiect: proiect() })));
+    expect(bucati).not.toBeNull();
+    expect(bucati?.inainte).toMatch(/<h1\b/);
+    expect(bucati?.inainte).not.toMatch(/<section\b/);
+    // Contextul, Problema, Ce am făcut, Rezultatul, Serviciile folosite.
+    expect(bucati?.card.match(/<section\b/g)).toHaveLength(5);
   });
 
   test('H1-ul, apoi secțiunile în ordinea din spec', async () => {
