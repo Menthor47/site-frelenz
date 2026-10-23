@@ -230,6 +230,14 @@ export async function seSuprapun(page: Page, selectori: readonly string[]): Prom
   return rezultat.suprapuse;
 }
 
+/** Textul la 200%, ca din setarea browserului. Din CSSOM, nu din `<style>`: CSP-ul paginii blochează stilurile inline. */
+export async function textMarit(page: Page): Promise<void> {
+  await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = '200%';
+  });
+}
+
 // ——— Contact (Task 14) ———
 
 /** Deschide /contact/ și completează câmpurile obligatorii (Nume, E-mail, Mesaj), cu `suprascrieri` pe deasupra. */

@@ -2,6 +2,7 @@
 // /proiecte/ (§3.4, §4.5): lista proiectelor publicabile. Fără niciunul, pagina nu se construiește deloc (rest param
 // fără valoare = chiar /proiecte/), iar „Proiecte” lipsește din meniu, de pe Acasă, din subsol și din sitemap.
 // Harta are toate liniile estompate (§5.6). JSON-LD: CollectionPage; BreadcrumbList vine din Base (ruling R10).
+// Titlul și introducerea stau pe suprafață; lista, într-un singur card alb (decizia din 2026-10-23).
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
 import { paginaAprobata } from '../../approvals';
@@ -36,6 +37,7 @@ const CALE = '/proiecte/';
     { nume: 'Proiecte', cale: CALE },
   ]}
   harta={{}}
+  suprafata={true}
 >
   <div class="contener lista-proiecte">
     <h1>Proiecte</h1>
@@ -43,7 +45,9 @@ const CALE = '/proiecte/';
       Eu, Alex Ionescu, scriu aici despre site-urile la care am lucrat: ce problemă aveau, ce am făcut și ce rezultat s-a putut
       dovedi, cu sursa și data lui.
     </p>
-    <ProiecteRezumat proiecte={proiecte} nivelTitlu={2} />
+    <div class="carte">
+      <ProiecteRezumat proiecte={proiecte} nivelTitlu={2} />
+    </div>
   </div>
 
   <Indemn text="Spune-mi ce site ai și ce te încurcă." />

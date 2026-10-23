@@ -66,6 +66,7 @@ const intrebari = [
   cale={CALE}
   aprobat={paginaAprobata(CALE)}
   jsonld={[nodWebPage(CALE, { despreAlex: true }), ...nodFaq(intrebari, DRAFT)]}
+  suprafata={true}
 >
   <div class="acasa-sus">
     <h1 class="acasa-sus__titlu">Consultant SEO din București</h1>
@@ -76,8 +77,8 @@ const intrebari = [
     <MetroMap variant="animated" />
   </div>
 
-  <section class="acasa-sectiune" aria-labelledby="de-unde-pornesti">
-    <div class="contener">
+  <section class="acasa-sectiune acasa-sectiune--carte" aria-labelledby="de-unde-pornesti">
+    <div class="contener carte">
       <h2 id="de-unde-pornesti">De unde pornești?</h2>
       <LineDiagram randuri={randuri} />
     </div>
@@ -92,8 +93,8 @@ const intrebari = [
 
   {
     proiecte.length > 0 && (
-      <section class="acasa-sectiune" aria-labelledby="proiecte">
-        <div class="contener">
+      <section class="acasa-sectiune acasa-sectiune--carte" aria-labelledby="proiecte">
+        <div class="contener carte">
           <h2 id="proiecte">Proiecte</h2>
           <ProiecteRezumat proiecte={proiecte} />
         </div>
@@ -101,8 +102,8 @@ const intrebari = [
     )
   }
 
-  <section class="acasa-sectiune" aria-labelledby="intrebari">
-    <div class="contener">
+  <section class="acasa-sectiune acasa-sectiune--carte" aria-labelledby="intrebari">
+    <div class="contener carte">
       <h2 id="intrebari">Întrebări frecvente</h2>
       <Faq intrebari={intrebari} />
     </div>
@@ -135,7 +136,7 @@ const intrebari = [
     align-self: start;
   }
 
-  /* Plăcuța de stație (§4.3 punctul 2): albă, opacă, cu contur de 1px și colțuri drepte, ca butonul de oprire.
+  /* Plăcuța de stație (§4.3 punctul 2): albă și opacă, cu colțuri drepte și text închis, pe banda întunecată (decizia 25).
      Marginea de sus o pune la 58% din înălțimea hărții, între M2 (la jumătate) și M3 (la două treimi), ca nicio linie să
      nu atingă muchia plăcuței: harta are înălțimea 1/5 din lățime, dar cel puțin 9rem (metro.css), deci 58% din înălțime
      e 11,6% din lățime sau 5,22rem. Procentul din `margin` se raportează la lățimea coloanei, aceeași cu a hărții. */
@@ -150,10 +151,19 @@ const intrebari = [
     max-inline-size: min(100%, 8.75em);
     margin: max(5.22rem, 11.6%) 0 0;
     padding: 0.35em 0.5em 0.4em;
-    border: 1px solid var(--ink);
+    border: 1px solid var(--paper);
     background: var(--paper);
+    color: var(--ink);
     /* Cu textul mărit la 200%, „București” n-ar încăpea întreg pe 320px. */
     overflow-wrap: break-word;
+  }
+
+  /* Pe telefon, butonul „Oprește trenurile” stă deasupra hărții (metro.css), deci harta coboară cu el; plăcuța H1-ului
+     coboară cu aceeași înălțime, ca să rămână la aceeași distanță de muchia hărții: 0,5rem de sus și 44px de buton. */
+  @media (max-width: 47.98rem) {
+    .acasa-sus__titlu {
+      margin-top: calc(max(5.22rem, 11.6%) + 0.5rem + 44px);
+    }
   }
 
   .acasa-sus__subtitlu {
@@ -173,13 +183,25 @@ const intrebari = [
     padding-block: 3.5rem;
   }
 
+  /* Secțiunile-card stau pe suprafață, nu pe fundal alb: cardul (`.carte`) are deja padding-ul lui, deci între carduri
+     rămâne doar un spațiu mic. Vine după regula de sus, cu aceeași specificitate, deci câștigă. */
+  .acasa-sectiune--carte {
+    padding-block: 1.5rem;
+  }
+
+  /* Două carduri una sub alta: spațiul dintre ele e cel de 1,5rem, nu dublul padding-ului. */
+  .acasa-sectiune--carte + .acasa-sectiune--carte {
+    padding-top: 0;
+  }
+
   .acasa-sectiune h2 {
     margin-bottom: 1.5rem;
   }
 
-  /* Traseele stau pe albastru deschis, pe toată lățimea (§4.3 punctul 4). */
+  /* Traseele stau pe toată lățimea (§4.3 punctul 4), pe #D9E4F7 (opțiunea 2a, aleasă de Alex 2026-10-23). E mai
+     vizibilă decât --tint-blue, care e 1,14:1 față de alb. Restul locurilor cu --tint-blue rămân neschimbate. */
   .acasa-trasee {
-    background: var(--tint-blue);
+    background: #d9e4f7;
   }
 
   /* Banda albastră cu îndemnul final (§4.3 punctul 7). Pe albastru, doar text alb (§5.2); butonul devine alb, cu text
@@ -208,5 +230,14 @@ const intrebari = [
   .acasa-final :global(.buton-cta:hover) {
     background: var(--paper);
     color: var(--ink);
+  }
+
+  /* Varianta 1b, aleasă de Alex (2026-10-23): banda de sus e întunecată, ca un prag. Liniile și trenurile stau pe
+     întuneric și se citesc ca niște lumini, iar plăcuța H1-ului rămâne albă, ca o plăcuță de stație. Restul paginii
+     rămâne luminos. Culorile sunt cele din previzualizarea aprobată: text #E8ECF2 pe #0E1116 are 15,95:1. */
+  .acasa-sus {
+    padding-top: 0.5rem;
+    background: #0e1116;
+    color: #e8ecf2;
   }
 </style>

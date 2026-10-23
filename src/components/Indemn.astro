@@ -1,7 +1,7 @@
 ---
 // Banda cu îndemnul final (§4.4 punctul 10): o frază și butonul „Cere o ofertă”, pe albastru deschis, ca butonul albastru
-// să rămână vizibil pe ea. O folosesc paginile de serviciu, Cum lucrez, Proiecte și studiile de caz; Acasă are banda ei,
-// albastră plină (§4.3 punctul 7).
+// să rămână vizibil pe ea. O folosesc paginile de serviciu, Cum lucrez, Despre, listele de Proiecte și de Ghiduri,
+// studiile de caz și ghidurile; Acasă are banda ei, albastră plină (§4.3 punctul 7).
 import Cta from './Cta.astro';
 
 interface Props {
@@ -21,7 +21,8 @@ const { text } = Astro.props;
 <style>
   .indemn {
     padding-block: 2rem;
-    background: var(--tint-blue);
+    /* Albastrul benzii de trasee (decizia 26): se vede pe suprafața paginii (1,10:1), pe care --tint-blue (1,02:1) se pierde. */
+    background: #d9e4f7;
   }
 
   .indemn__rand {

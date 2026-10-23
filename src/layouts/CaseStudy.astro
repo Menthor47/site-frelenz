@@ -7,6 +7,7 @@
 // cu tot cu secțiunea lui dacă rămâne goală. Un rezultat cu marcaj nu e verificabil, deci lipsește (și nu primește dată).
 // `serviciiDeConfirmat` e marcajul serviciilor încă provizorii: se vede doar în previzualizare, lângă listă.
 // Doar pe /proiecte/acest-site/ (§4.5, §5.5): rezultatul sunt scorurile măsurate în producție, iar la final vine fișa paginii.
+// Titlul stă pe suprafață; secțiunile, într-un singur card alb (decizia din 2026-10-23).
 import type { CollectionEntry } from 'astro:content';
 import Indemn from '../components/Indemn.astro';
 import PageFacts from '../components/PageFacts.astro';
@@ -51,122 +52,124 @@ const servicii = p.servicii.map((slug) => cereServiciu(slug, `proiecte/${p.slug}
 const grup = servicii[0]?.grup;
 ---
 
-<Base titlu={p.titlu} descriere={p.descriere} cale={cale} aprobat={p.aprobat} jsonld={jsonld} firimituri={firimituri} harta={{ line: grup }}>
+<Base titlu={p.titlu} descriere={p.descriere} cale={cale} aprobat={p.aprobat} jsonld={jsonld} firimituri={firimituri} harta={{ line: grup }} suprafata={true} articol={true}>
   <div class="contener caz">
     <h1><TextSauMarcaj valoare={p.titlu} /></h1>
 
-    {
-      context !== undefined && (
-        <section>
-          <h2>Contextul</h2>
-          <p class="caz__context">
-            <TextSauMarcaj valoare={context} />
-          </p>
-        </section>
-      )
-    }
-
-    {
-      problema !== undefined && (
-        <section>
-          <h2>Problema</h2>
-          <p>
-            <TextSauMarcaj valoare={problema} />
-          </p>
-        </section>
-      )
-    }
-
-    {
-      ceAmFacut.length > 0 && (
-        <section>
-          <h2>Ce am făcut</h2>
-          <ul>
-            {ceAmFacut.map((t) => (
-              <li>
-                <TextSauMarcaj valoare={t} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )
-    }
-
-    {
-      areRezultat && (
-        <section>
-          <h2>Rezultatul</h2>
-          {acestSite &&
-            (scoruri.length > 0 ? (
-              <ul>
-                {scoruri.map((s) => (
-                  <li>
-                    {s.sursa}: {s.valoare} (Lighthouse {s.versiuneLighthouse}, {lunaAn(s.data)})
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>
-                <Placeholder nr={11} />
-              </p>
-            ))}
-          {rezultate.length > 0 && (
-            <ul>
-              {rezultate.map((r) =>
-                rezultatCuMarcaj(r) ? (
-                  <li>
-                    <TextSauMarcaj valoare={r.text} /> <TextSauMarcaj valoare={r.sursa} />
-                  </li>
-                ) : (
-                  <li>
-                    {r.text} Sursa: {r.sursa}, {lunaAn(r.data)}.
-                  </li>
-                ),
-              )}
-            </ul>
-          )}
-          {p.capturi.map((c) => (
-            <figure class="caz__captura">
-              <img src={c.src} alt={c.alt} loading="lazy" decoding="async" />
-            </figure>
-          ))}
-        </section>
-      )
-    }
-
-    <section>
-      <h2>Serviciile folosite</h2>
-      <ul class="caz__servicii">
-        {
-          servicii.map((s) => (
-            <li>
-              <a href={`/servicii/${s.slug}/`}>{s.nume}</a>
-            </li>
-          ))
-        }
-      </ul>
+    <div class="caz__corp carte">
       {
-        p.serviciiDeConfirmat !== undefined && DRAFT && (
-          <p>
-            <TextSauMarcaj valoare={p.serviciiDeConfirmat} />
-          </p>
+        context !== undefined && (
+          <section>
+            <h2>Contextul</h2>
+            <p class="caz__context">
+              <TextSauMarcaj valoare={context} />
+            </p>
+          </section>
         )
       }
-    </section>
 
-    {
-      acestSite && (
-        <section>
-          <h2>Fișa acestei pagini</h2>
-          <p>
-            Site-ul nu setează niciun cookie și nu încarcă scripturi de la alte firme. Excepția, un cookie strict necesar pe care
-            Cloudflare îl poate pune în anumite situații, e explicată în <a href="/politica-cookies/">Politica de cookie-uri</a>.
-            Fișa de mai jos le măsoară chiar pe pagina asta.
-          </p>
-          <PageFacts tipuriSchema={tipuriPagina(jsonld, firimituri)} />
-        </section>
-      )
-    }
+      {
+        problema !== undefined && (
+          <section>
+            <h2>Problema</h2>
+            <p>
+              <TextSauMarcaj valoare={problema} />
+            </p>
+          </section>
+        )
+      }
+
+      {
+        ceAmFacut.length > 0 && (
+          <section>
+            <h2>Ce am făcut</h2>
+            <ul>
+              {ceAmFacut.map((t) => (
+                <li>
+                  <TextSauMarcaj valoare={t} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        areRezultat && (
+          <section>
+            <h2>Rezultatul</h2>
+            {acestSite &&
+              (scoruri.length > 0 ? (
+                <ul>
+                  {scoruri.map((s) => (
+                    <li>
+                      {s.sursa}: {s.valoare} (Lighthouse {s.versiuneLighthouse}, {lunaAn(s.data)})
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>
+                  <Placeholder nr={11} />
+                </p>
+              ))}
+            {rezultate.length > 0 && (
+              <ul>
+                {rezultate.map((r) =>
+                  rezultatCuMarcaj(r) ? (
+                    <li>
+                      <TextSauMarcaj valoare={r.text} /> <TextSauMarcaj valoare={r.sursa} />
+                    </li>
+                  ) : (
+                    <li>
+                      {r.text} Sursa: {r.sursa}, {lunaAn(r.data)}.
+                    </li>
+                  ),
+                )}
+              </ul>
+            )}
+            {p.capturi.map((c) => (
+              <figure class="caz__captura">
+                <img src={c.src} alt={c.alt} loading="lazy" decoding="async" />
+              </figure>
+            ))}
+          </section>
+        )
+      }
+
+      <section>
+        <h2>Serviciile folosite</h2>
+        <ul class="caz__servicii">
+          {
+            servicii.map((s) => (
+              <li>
+                <a href={`/servicii/${s.slug}/`}>{s.nume}</a>
+              </li>
+            ))
+          }
+        </ul>
+        {
+          p.serviciiDeConfirmat !== undefined && DRAFT && (
+            <p>
+              <TextSauMarcaj valoare={p.serviciiDeConfirmat} />
+            </p>
+          )
+        }
+      </section>
+
+      {
+        acestSite && (
+          <section>
+            <h2>Fișa acestei pagini</h2>
+            <p>
+              Site-ul nu setează niciun cookie și nu încarcă scripturi de la alte firme. Excepția, un cookie strict necesar pe care
+              Cloudflare îl poate pune în anumite situații, e explicată în <a href="/politica-cookies/">Politica de cookie-uri</a>.
+              Fișa de mai jos le măsoară chiar pe pagina asta.
+            </p>
+            <PageFacts tipuriSchema={tipuriPagina(jsonld, firimituri)} />
+          </section>
+        )
+      }
+    </div>
   </div>
 
   <Indemn text="Spune-mi ce site ai și ce te încurcă." />
@@ -185,6 +188,11 @@ const grup = servicii[0]?.grup;
   .caz :global(section) {
     max-width: 70ch;
     margin-top: 2.5rem;
+  }
+
+  /* Secțiunile stau într-un singur card alb (decizia din 2026-10-23); prima stă sub paddingul cardului, fără spațiul dintre secțiuni. */
+  .caz__corp > :global(section:first-child) {
+    margin-top: 0;
   }
 
   /* Contextul e primul paragraf, cel pe care îl citesc motoarele AI (§6.4). */

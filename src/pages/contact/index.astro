@@ -1,7 +1,8 @@
 ---
 // /contact/ (§4.5): formularul, contactele directe, „Din București, lucrez cu firme din toată țara” și datele firmei
 // (`#date-firma`, LegalId complet, ținta linkului „Date de identificare” din subsol). Harta din bandă are toate liniile
-// estompate (§5.6). Antetul nu are butonul „Cere o ofertă” aici (Header). Fără niciun JavaScript (§3.5).
+// estompate (§5.6). Antetul nu are butonul „Cere o ofertă” aici (Header). Formularul nu are JavaScript (§3.5); singurul
+// script al paginii e cel al trenurilor din bandă (decizia 28), iar formularul se trimite și fără el.
 // JSON-LD: ContactPage; BreadcrumbList vine din Base (ruling R10).
 import { paginaAprobata } from '../../approvals';
 import ContactForm from '../../components/ContactForm.astro';
@@ -25,6 +26,7 @@ const CALE = '/contact/';
     { nume: 'Contact', cale: CALE },
   ]}
   harta={{}}
+  suprafata={true}
 >
   <div class="contener contact">
     <h1>Cere o ofertă</h1>
@@ -33,18 +35,18 @@ const CALE = '/contact/';
     </p>
 
     <div class="contact__grila">
-      <section aria-labelledby="formular-titlu">
-        <h2 id="formular-titlu">Formularul</h2>
+      <section class="carte carte--formular" aria-labelledby="formular-titlu">
+        <h2 id="formular-titlu" class="ascuns">Formularul</h2>
         <ContactForm />
       </section>
 
-      <section aria-labelledby="direct-titlu">
+      <section class="carte contact__direct" aria-labelledby="direct-titlu">
         <h2 id="direct-titlu">Sau scrie-mi direct</h2>
         <ContacteDirecte />
       </section>
     </div>
 
-    <section class="contact__firma" id="date-firma" aria-labelledby="date-firma-titlu">
+    <section class="carte contact__firma" id="date-firma" aria-labelledby="date-firma-titlu">
       <h2 id="date-firma-titlu">Date de identificare</h2>
       <LegalId variant="complet" />
     </section>
@@ -69,8 +71,14 @@ const CALE = '/contact/';
   .contact__grila {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 3rem;
+    gap: 1.5rem;
     margin-top: 2.5rem;
+    align-items: start;
+  }
+
+  /* Containerul grilei din formular: lățimea cardului (nu a ecranului) hotărăște când câmpurile trec pe două coloane. */
+  .carte--formular {
+    container-type: inline-size;
   }
 
   /* Pe desktop, formularul la stânga, contactele directe la dreapta, aliniate sus. */
@@ -81,8 +89,26 @@ const CALE = '/contact/';
   }
 
   .contact__firma {
-    margin-top: 3.5rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--rule);
+    margin-top: 1.5rem;
+  }
+
+  /* Cardul îngust din dreapta: titlul e mai mic, iar rândurile se umplu în ordine (nu echilibrat), ca „scrie-mi” să nu se
+     rupă la cratimă. Echilibrarea din base.css alegea tocmai ruptura „Sau scrie- / mi direct”; fontul nu are U+2011. */
+  .contact__direct h2 {
+    font-size: var(--text-lg);
+    text-wrap: wrap;
+  }
+
+  /* „Formularul” repetă H1-ul „Cere o ofertă”: rămâne pentru cititoarele de ecran, nu se vede. */
+  .ascuns {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
   }
 </style>

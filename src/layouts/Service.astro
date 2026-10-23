@@ -8,9 +8,11 @@
 import type { CollectionEntry } from 'astro:content';
 import Indemn from '../components/Indemn.astro';
 import Faq from '../components/Faq.astro';
+import TextSauMarcaj from '../components/TextSauMarcaj.astro';
 import { cereServiciu } from '../form-rules';
 import { DRAFT } from '../lib/env';
 import { nodFaq, nodService } from '../lib/jsonld';
+import { faraMarcaje, hasMarker } from '../lib/marker';
 import Base from './Base.astro';
 
 interface Props {
@@ -35,6 +37,11 @@ const firimituri = [
   { nume: 'Servicii', cale: '/servicii/' },
   { nume, cale },
 ];
+
+// Proiectul, după regula din ProiecteRezumat (§3.4): niciun marcaj ca text brut. Un titlu încă marcaj n-ar da text
+// linkului, deci în producție secțiunea lipsește; un context încă marcaj lipsește doar el. În previzualizare apar prin Placeholder.
+const [proiectVizibil] = proiect === undefined ? [] : faraMarcaje([proiect], (p) => hasMarker(p.titlu), DRAFT);
+const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([proiectVizibil.context], hasMarker, DRAFT)[0];
 ---
 
 <Base
@@ -45,12 +52,13 @@ const firimituri = [
   jsonld={[nodService(s), ...nodFaq(s.faq, DRAFT)]}
   firimituri={firimituri}
   harta={{ line: s.grup, tranzitie: s.slug }}
+  suprafata={true}
 >
   <div class="contener serviciu" data-grup={s.grup}>
     <h1>{s.h1}</h1>
     <p class="serviciu__raspuns">{s.raspunsDirect}</p>
 
-    <div class="serviciu__doua">
+    <div class="serviciu__doua carte">
       <section>
         <h2>Pentru cine e</h2>
         <ul>{s.pentruCine.map((t) => <li>{t}</li>)}</ul>
@@ -61,36 +69,40 @@ const firimituri = [
       </section>
     </div>
 
-    <section>
+    <section class="carte">
       <h2>Ce primești</h2>
       <ul>{s.livrabile.map((t) => <li>{t}</li>)}</ul>
     </section>
 
-    <section>
+    <section class="carte">
       <h2>Cum se desfășoară</h2>
       <ol class="serviciu__pasi">{s.pasi.map((t) => <li>{t}</li>)}</ol>
     </section>
 
     {
-      proiect && (
-        <section>
+      proiectVizibil && (
+        <section class="carte">
           <h2>Un proiect</h2>
           <p class="serviciu__proiect">
-            <a href={`/proiecte/${proiect.slug}/`}>{proiect.titlu}</a>
+            <a href={`/proiecte/${proiectVizibil.slug}/`}><TextSauMarcaj valoare={proiectVizibil.titlu} /></a>
           </p>
-          <p>{proiect.context}</p>
+          {contextProiect !== undefined && (
+            <p>
+              <TextSauMarcaj valoare={contextProiect} />
+            </p>
+          )}
         </section>
       )
     }
 
-    <section>
+    <section class="carte">
       <h2>Întrebări frecvente</h2>
       <Faq intrebari={s.faq} />
     </section>
 
     {s.notaGarantii && <p class="serviciu__nota">{NOTA_GARANTII}</p>}
 
-    <section>
+    <section class="carte">
       <h2>Servicii înrudite</h2>
       <ul class="inrudite">
         {
@@ -133,14 +145,18 @@ const firimituri = [
     line-height: 1.45;
   }
 
-  section {
-    margin-top: 2.5rem;
+  /* Cardurile stau la 1,5rem unul de altul. „Pentru cine e” și „Semne că ai nevoie” sunt un singur card, deci spațiul
+     dintre ele e în card. */
+  .serviciu > .carte {
+    margin-top: 1.5rem;
   }
 
-  /* „Pentru cine e” și „Semne că ai nevoie” stau una lângă alta pe desktop, una sub alta pe mobil. */
+  /* „Pentru cine e” și „Semne că ai nevoie” stau într-un singur card: una lângă alta pe desktop, cu 3rem între coloane,
+     și una sub alta pe mobil, cu 2,5rem între rânduri. */
   .serviciu__doua {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
+    row-gap: 2.5rem;
     column-gap: 3rem;
   }
 

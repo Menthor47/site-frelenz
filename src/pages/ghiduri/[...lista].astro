@@ -2,6 +2,7 @@
 // /ghiduri/ (§3.4, §4.5): lista ghidurilor, construită doar când există cel puțin 2 aprobate (rest param fără valoare =
 // chiar /ghiduri/, ca la /proiecte/). Fără ele, „Ghiduri” lipsește din meniu, din sitemap și din paginile de servicii.
 // Harta are toate liniile estompate (§5.6). JSON-LD: CollectionPage și ItemList; BreadcrumbList vine din Base (R10).
+// Titlul și introducerea stau pe suprafață; lista, într-un singur card alb (decizia din 2026-10-23).
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro';
 import { paginaAprobata } from '../../approvals';
@@ -38,6 +39,7 @@ const CALE = '/ghiduri/';
     { nume: 'Ghiduri', cale: CALE },
   ]}
   harta={{}}
+  suprafata={true}
 >
   <div class="contener lista-ghiduri">
     <h1>Ghiduri</h1>
@@ -45,20 +47,22 @@ const CALE = '/ghiduri/';
       Eu, Alex Ionescu, scriu aici răspunsuri la întrebările pe care și le pun firmele despre site-uri, Google și căutarea AI. Fiecare
       ghid începe cu răspunsul.
     </p>
-    <ul class="ghiduri">
-      {
-        ghiduri.map((g) => (
-          <li>
-            <h2>
-              <a href={`/ghiduri/${g.slug}/`}>{g.titlu}</a>
-            </h2>
-            <p>
-              <TextSauMarcaj valoare={g.raspuns} />
-            </p>
-          </li>
-        ))
-      }
-    </ul>
+    <div class="carte lista-ghiduri__carte">
+      <ul class="ghiduri">
+        {
+          ghiduri.map((g) => (
+            <li>
+              <h2>
+                <a href={`/ghiduri/${g.slug}/`}>{g.titlu}</a>
+              </h2>
+              <p>
+                <TextSauMarcaj valoare={g.raspuns} />
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
   </div>
 
   <Indemn text="Spune-mi ce site ai și ce te încurcă." />
@@ -79,9 +83,14 @@ const CALE = '/ghiduri/';
     line-height: 1.45;
   }
 
+  /* Lista stă într-un singur card alb (decizia din 2026-10-23); spațiul de deasupra e al cardului, nu al listei. */
+  .lista-ghiduri__carte {
+    margin-top: 2.5rem;
+  }
+
   .ghiduri {
     max-width: 70ch;
-    margin: 2.5rem 0 0;
+    margin: 0;
     padding: 0;
     list-style: none;
   }

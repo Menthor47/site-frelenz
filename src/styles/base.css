@@ -1,6 +1,7 @@
 /* Stilurile de bază: reset minim, tipografia din §5.3, focusul și linkurile din §5.2, layoutul din §5.8. */
 
-/* Doar temă luminoasă (§5.1): și temele întunecate ale telefonului primesc pagina și câmpurile luminoase. */
+/* Temă luminoasă (§5.1): și temele întunecate ale telefonului primesc pagina și câmpurile luminoase. Antetul și banda de
+   sus sunt întunecate prin culorile lor (deciziile 25 și 28), nu printr-o temă. */
 :root {
   color-scheme: light;
   -webkit-text-size-adjust: 100%;
@@ -78,8 +79,8 @@ h4 {
 
 p,
 li {
-  /* Cel mult ~70 de caractere pe rând. */
-  max-width: 70ch;
+  /* Cel mult ~70 de caractere pe rând. `ch` e lat în Atkinson (~0,65em), deci 70ch dădea ~90; 34em dă ~70. */
+  max-width: 34em;
 }
 
 p {
@@ -158,6 +159,28 @@ main:focus-visible {
 .contener {
   width: min(100% - 2 * var(--gutter), var(--container));
   margin-inline: auto;
+}
+
+.main--suprafata {
+  background: var(--suprafata);
+}
+
+/* Cardul din §5.2 al designului 2026-10-23: alb, cu contur de 1px, fără umbră și fără colțuri rotunjite. */
+.carte {
+  background: var(--card);
+  border: 1px solid var(--card-contur);
+  padding: 1.5rem;
+}
+
+@media (min-width: 48rem) {
+  .carte {
+    padding: 2rem;
+  }
+}
+
+/* Ultimul element din card nu lasă margine de jos (cea a paragrafelor, de pildă): sub text rămâne doar paddingul cardului. */
+.carte > :last-child {
+  margin-bottom: 0;
 }
 
 /* Marcajul [DE COMPLETAT:#nr], vizibil doar în previzualizarea DRAFT=1 (componenta Placeholder). */

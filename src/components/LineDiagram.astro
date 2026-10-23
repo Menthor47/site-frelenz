@@ -3,7 +3,7 @@
 // stația cu problema, segmentul în culoarea grupului și capătul de linie, cu serviciul ca link text, fără chenar.
 // Semantic e o listă `<ul>` de linkuri, în ordinea primită (pagina o sortează după `ordine`); nu e o secvență, deci nu are numere (§9.2).
 // Desenul (stațiile și segmentul) e doar forma listei, ascuns din arborele de accesibilitate.
-// - Rândul e `<li class="linie-rand" data-grup="…">` (ruling R11); culoarea vine din `data-grup`, în CSS (CSP: fără `style`).
+// - Rândul e `<li class="linie-rand" data-grup="…">`; culoarea vine din `data-grup`, în CSS (CSP: fără `style`).
 // - Segmentul poartă clasa `vt-<slug>` (ruling R5): `transitions.css` îi dă `view-transition-name: segment-<slug>`,
 //   același nume ca banda paginii de serviciu. Declarația nu e aici.
 import type { Grup } from '../form-rules';
@@ -50,6 +50,7 @@ const { randuri } = Astro.props;
 
   /* Pe mobil: problema pe un rând, dedesubt stația, segmentul și capătul de linie. */
   .linie-rand {
+    position: relative;
     display: grid;
     /* A treia coloană se poate strânge (`minmax(0, auto)`), ca un serviciu cu nume lung să încapă și cu textul mărit la 200%. */
     grid-template-columns: var(--d) minmax(1rem, 1fr) minmax(0, auto);
@@ -107,11 +108,24 @@ const { randuri } = Astro.props;
     overflow-wrap: anywhere;
   }
 
+  /* Tot rândul e un singur link: capătul își întinde zona de click peste rând, ca problema și stația să ducă spre
+     serviciu. Linkul are tot un singur nume, cel al serviciului, deci cititoarele de ecran nu aud rândul de două ori. */
+  .linie-rand__capat::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+
   /* Problema, stația, segmentul și capătul de linie pe același rând, în coloane care se aliniază de la un rând la altul,
-     când lista are cel puțin 45rem (720px, adică un ecran de 768px cu text normal). Container query, nu media query:
+     când lista are cel puțin 40rem (640px). Pragul e 40rem, nu 45rem, pentru că lista de pe Acasă stă într-un card cu
+     chenar și padding de 2rem de la 48rem în sus, care îi iau 4rem din lățime: la un ecran de 768px cu text normal lista are
+     ~654px, deci cu 45rem rândul ar rămâne pe mai multe linii tocmai la 768px. Cifra de 654px e fără bară de defilare
+     clasică; cu una clasică, de 15–17px, lista are ~637px la 768px și rândul se așază pe mai multe linii și cu pragul de
+     40rem. Container query, nu media query:
      aici `rem` crește odată cu textul, deci cu textul mărit la 200% rândurile rămân ca pe mobil, în loc ca pistele
      fixe (7rem și 16rem) să împingă pagina în afara ecranului. */
-  @container (min-width: 45rem) {
+  @container (min-width: 40rem) {
     .linie-rand {
       grid-template-columns: minmax(0, 1fr) var(--d) 7rem 16rem;
     }

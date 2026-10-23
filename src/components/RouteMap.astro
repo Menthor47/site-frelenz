@@ -4,11 +4,11 @@
 // (320px, text la 200%), iar etichetele stațiilor din buclă sunt text care se rupe ca restul paginii.
 // Desenul (stațiile și liniile) e făcut din pseudo-elemente, deci nu apare în arborele de accesibilitate.
 // Se vede întreg de la început: fără script, fără animație, fără desenare la derulare (§5.7).
-//   - Remedierea unică: linia în galbenul închis #8A5A00 (--yellow-dark); galbenul tare are 1,63:1 pe --tint-blue (§5.2).
+//   - Remedierea unică: linia în galbenul închis #8A5A00 (--yellow-dark); galbenul tare are 1,63:1 pe --tint-blue (§5.2), iar #8A5A00 are 4,63:1 pe #D9E4F7.
 //   - Abonamentul: linia albastră, aceiași pași, apoi o buclă lunară. Etichetele stațiilor din buclă le-a ales Alex
 //     (#15, 2026-10-22): Verificare, Actualizări, Raport.
 //   - Diferența dintre trasee nu stă doar în culoare: fiecare are o etichetă text vizibilă.
-// Fundalul --tint-blue îl pune pagina. `marime` schimbă doar scara: `compact` pe Acasă, `mare` pe /cum-lucrez/ (pașii explicați vin de la pagină).
+// Fundalul (#D9E4F7, albastrul benzii de trasee) îl pune pagina. `marime` schimbă doar scara: `compact` pe Acasă, `mare` pe /cum-lucrez/ (pașii explicați vin de la pagină).
 interface Props {
   marime: 'compact' | 'mare';
 }
@@ -72,7 +72,7 @@ const idAbonament = `traseu-abonament-${marime}`;
     font-size: var(--text-md);
   }
 
-  /* Culorile traseelor. Pe --tint-blue: #8A5A00 are 5,18:1, albastrul 4,2:1, ambele peste pragul de 3:1 pentru grafică. */
+  /* Culorile traseelor. Pe #D9E4F7: #8A5A00 are 4,63:1, albastrul 3,79:1, ambele peste pragul de 3:1 pentru grafică. */
   .traseu--unic {
     --culoare: var(--yellow-dark);
   }

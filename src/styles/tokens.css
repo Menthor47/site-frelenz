@@ -20,6 +20,9 @@
   --tint-red: #FCEDEA;
   --rule: #E6E8EC;
   --field-border: #8A8F98;
+  --suprafata: #E9EEF5;
+  --card: #FFFFFF;
+  --card-contur: #D5DCE6;
 
   /* Scara tipografică (raport ~1,25; rădăcina rămâne 16px, textul de bază e 18px) */
   --text-sm: 0.9rem;

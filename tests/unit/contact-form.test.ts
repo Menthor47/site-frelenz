@@ -82,12 +82,20 @@ describe('ContactForm (§3.5)', () => {
     expect(inputuri.sort()).toEqual([...PE_UN_RAND].sort());
   });
 
-  test('butonul „Trimite cererea” și nota despre date, cu link spre politica de confidențialitate', async () => {
+  test('butonul „Cere o ofertă” și nota despre date, cu link spre politica de confidențialitate', async () => {
     const h = await render(ContactForm);
-    expect(h).toMatch(/<button\b[^>]*\btype="submit"[^>]*>\s*Trimite cererea\s*<\/button>/);
+    expect(h).toMatch(/<button\b[^>]*\btype="submit"[^>]*>\s*Cere o ofertă\s*<\/button>/);
     const text = textOf(h);
     expect(text).toContain('Folosesc datele trimise ca să-ți răspund la cerere și pentru discuțiile care urmează. Detalii în Politica de confidențialitate.');
     expect(h).toMatch(/<a href="\/politica-de-confidentialitate\/"[^>]*>Politica de confidențialitate<\/a>/);
+  });
+
+  test('câmpul Mesaj e ultimul câmp și are clasa de rând întreg; ordinea câmpurilor nu s-a schimbat', async () => {
+    const h = await render(ContactForm);
+    // Clasa stă pe `<div>`-ul care conține câmpul `mesaj` (nicio altă etichetă `div` între deschiderea lui și câmp).
+    expect(h).toMatch(/<div\b[^>]*\sclass="[^"]*\bformular__camp--mesaj\b[^"]*"[^>]*>(?:(?!<\/?div\b)[\s\S])*?\bname="mesaj"/);
+    const ordine = [...h.matchAll(/name="([^"]+)"/g)].map((m) => m[1]).filter((n) => n !== CAPCANA);
+    expect(ordine).toEqual(['nume', 'email', 'telefon', 'firma', 'site', 'serviciu', 'mesaj']);
   });
 
   test('fără CNP și fără bifă de acord', async () => {

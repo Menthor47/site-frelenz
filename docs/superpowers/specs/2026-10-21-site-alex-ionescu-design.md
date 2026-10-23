@@ -36,7 +36,7 @@ Pornește de la `plan-site-alex-ionescu.md` (planul lui Alex) și de la deciziil
 | 2 | Statistici | Niciun script de statistici: Search Console, Bing Webmaster Tools și statisticile Cloudflare de pe server. Fără banner de cookie-uri. Cloudflare Web Analytics rămâne oprit, inclusiv injectarea automată. |
 | 3 | Culori | Hexurile din plan, cu albastrul dominant. Proporții: 60% alb, 30% culoare, 10% negru (subsolul). |
 | 4 | Pagina Acasă | Zona de sus are un singur rol: H1-ul „Consultant SEO din București”, un subtitlu de o frază și butonul „Cere o ofertă”, peste harta de metrou. Urmează „De unde pornești?” (schema de linie din vagon), traseul cu cele două formate, proiectele, întrebările frecvente și îndemnul final. Fișa paginii se mută pe `/proiecte/acest-site/`. |
-| 5 | Harta de metrou | Animată doar pe Acasă: trenuri continue, cu un buton mic „Oprește trenurile”. Pe paginile de serviciu, de studiu de caz și de ghid e statică, cu linia grupului în față și marcajul „Ești aici”. Pe celelalte pagini, vezi tabelul din 5.6. |
+| 5 | Harta de metrou | Animată doar pe Acasă: trenuri continue, cu un buton mic „Oprește trenurile”. Pe paginile de serviciu, de studiu de caz și de ghid e statică, cu linia grupului în față și marcajul „Ești aici”. Pe celelalte pagini, vezi tabelul din 5.6. Înlocuită de decizia 28 (2026-10-23) pentru trenuri și banda de sus. |
 | 6 | Ghiduri | 2 la lansare: „De ce nu apare site-ul meu în Google” și „Ce este GEO și prin ce diferă de SEO și AEO”. Secțiunea apare în meniu și în sitemap doar după ce Alex aprobă textele. |
 | 7 | Google Business Profile | Da, cu zonă deservită (București și Ilfov) și adresa ascunsă. Îl face Alex. Recenzii doar de la clienți reali. |
 | 8 | Clienți | Doar profesioniști (B2B), declarat pe site. Fără pictograma ANPC, fără procedura de retragere în 14 zile și fără link SOL (platforma s-a închis în iulie 2025). |
@@ -56,6 +56,11 @@ Pornește de la `plan-site-alex-ionescu.md` (planul lui Alex) și de la deciziil
 | 22 | Despre fără studii | Decizia lui Alex din 2026-10-22: pagina Despre nu are secțiunea „Studii”, iar experiența îi ține locul. |
 | 23 | szitrans | Firma e a vărului lui Alex, care i-a lăsat proiectul: acordul (#7) e dat. Alex a făcut site-ul și SEO-ul (2026-10-22). |
 | 24 | Bucla lunară | Stațiile buclei din traseul abonamentului: Verificare, Actualizări, Raport (#15, 2026-10-22). |
+| 25 | Banda de sus a Acasă (1b) | Întunecată, ca un prag: fundal `#0E1116`, text `#E8ECF2`, liniile și trenurile luminate, plăcuța H1-ului albă. Aleasă de Alex pe 2026-10-23 dintr-un set de patru variante. Excepție de la §5.1 („Doar temă luminoasă”), doar pentru această bandă. Pe telefon, butonul „Oprește trenurile” stă deasupra hărții, pe dreapta, iar plăcuța H1-ului coboară cu el. Extinsă de decizia 28: pe toate paginile. |
+| 26 | Traseul „Cum lucrăm” de pe Acasă (2a) | Fundal `#D9E4F7`, pe toată lățimea, aleasă de Alex pe 2026-10-23. Are 1,28:1 față de alb, unde `--tint-blue` (`#EAF0FB`) are 1,14:1. `--tint-blue` rămâne pentru celelalte locuri. |
+| 27 | Trenurile (3a) | Rămân doar pe Acasă, aleși de Alex pe 2026-10-23. Paginile de serviciu, de studiu, de ghid, `/servicii/`, `/cum-lucrez/`, `/despre/` și `/contact/` au harta statică, fără trenuri și fără buton de oprire. Un tren care trece o singură dată ar fi o extindere separată, nu e în spec. Înlocuită de decizia 28 (2026-10-23). |
+| 28 | Antet, bandă și trenuri pe toate paginile (înlocuiește 27, extinde 25) | Antetul e întunecat pe toate paginile, ca banda de sus (fundal `#0E1116`). Pe fiecare pagină cu hartă, banda are trenuri, linia grupului plină cu „Ești aici” și butonul „Oprește trenurile”. Butonul e mai mic (text 12,8px), cu fundal `#EAF0FB` și text `#14161A` (14,97:1), contur 1px `--ink`, zona de atingere 44px. Aleasă de Alex pe 2026-10-23. Reface §5.1, §5.6, §5.7 și §9.1. |
+| 29 | Suprafețe stratificate (2026-10-23) | Fundal `--suprafata` sub bandă, carduri albe cu contur `--card-contur` pentru secțiunile de conținut; Servicii cu șase carduri în grilă; Despre cu profil; Contact pe două coloane. Detalii în `docs/superpowers/specs/2026-10-23-layered-surfaces-design.md`. Benzile de îndemn și fișa folosesc și ele `#D9E4F7`. După revizuirea din aceeași zi, alese de Alex: ghidurile, studiile de caz și listele `/proiecte/` și `/ghiduri/` au conținutul într-un singur card alb (titlul rămâne pe suprafață); pe `/servicii/`, liniile cu un singur serviciu (Diagnostic, Construcție) stau alături, pe același rând. |
 
 ---
 
@@ -98,7 +103,7 @@ siteulet/
     client/                 două scripturi mici, puse inline: trains (Acasă), page-facts (acest-site)
   worker/
     index.ts                handler pentru POST /api/contact
-    index.test.ts           teste (vitest + pool-ul Workers)
+    index.test.ts           teste (vitest în Node, cu legăturile simulate; ruling R18)
   public/
     _headers                cache, securitate, noindex pe workers.dev
     favicon.svg
@@ -116,10 +121,10 @@ Fiecare componentă are un singur rol și își primește datele prin props, din
 |---|---|---|
 | `SeoHead` | title, description, canonical, Open Graph, robots, `lang="ro"` | site.config, props de pagină |
 | `JsonLd` | un singur `@graph` per pagină (vezi 6.3) | site.config, conținutul paginii |
-| `Header` | logo, meniu și butonul „Cere o ofertă”. Butonul lipsește pe Acasă (acolo butonul plin e sub titlu) și pe `/contact/` (ar trimite la aceeași pagină). „Contact” rămâne în meniu. | site.config |
+| `Header` | logo, meniu și butonul „Cere o ofertă”. Butonul lipsește pe Acasă (acolo butonul plin e sub titlu) și pe `/contact/` (ar trimite la aceeași pagină). „Contact” rămâne în meniu. Antetul e întunecat pe toate paginile (decizia 28). | site.config |
 | `Footer` | servicii, pagini, contact, `LegalId` în varianta scurtă, linkuri legale. Fraza despre cum e făcut site-ul apare doar după ce `/proiecte/acest-site/` există. | site.config, colecția servicii |
 | `LegalId` | datele firmei cerute de Legea 365/2002: `variant="scurt"` în subsol, `variant="complet"` pe Contact, în Termeni și în Confidențialitate | site.config |
-| `MetroMap` | harta SVG: `variant="animated"` pe Acasă și `variant="static"` în rest. `line` e opțional: cu `line`, linia aceea e plină și are „Ești aici”; fără `line`, toate liniile sunt estompate. Unde apare și cum, vezi tabelul din 5.6. | tokenuri de culoare |
+| `MetroMap` | harta SVG: `variant="animated"` pe Acasă și `variant="banda"` pe banda de sus a celorlalte pagini, cu trenuri (decizia 28); `variant="static"` fără trenuri. `line` e opțional: cu `line`, linia aceea e plină și are „Ești aici”; fără `line`, toate liniile sunt estompate. Unde apare și cum, vezi tabelul din 5.6. | tokenuri de culoare |
 | `LineDiagram` | „De unde pornești?”: fiecare rând e un tronson scurt de linie, cu stația-problemă, segmentul în culoarea grupului și capătul de linie cu serviciul, ca link | colecția servicii (câmpurile `problema`, `ordine`) |
 | `RouteMap` | cele două trasee (remediere unică, abonament), desenate static | text din conținut |
 | `PageFacts` | fișa paginii, doar pe `/proiecte/acest-site/` (vezi 5.5) | script inline mic |
@@ -203,20 +208,20 @@ Așa o persoană reală nu primește pe server altă eroare decât cea anunțat�
 **Textele formularului** (ciorne, le aprobă Alex):
 - sub câmpul Mesaj: „Cel mult 3000 de caractere și cel mult 3 linkuri.”;
 - sub buton: „Folosesc datele trimise ca să-ți răspund la cerere și pentru discuțiile care urmează. Detalii în Politica de confidențialitate.”;
-- butonul: „Trimite cererea”.
+- butonul: „Cere o ofertă”.
 
-Fără CNP și fără bifă de acord. Pagina de contact nu are niciun JavaScript.
+Fără CNP și fără bifă de acord. Formularul nu are JavaScript. Pagina de contact are doar scriptul trenurilor de pe bandă (decizia 28), iar formularul se trimite și fără el.
 
 **Ce face Worker-ul:**
 1. Primește `POST /api/contact`. Orice altă metodă primește 405, iar orice altă cale de sub `/api/` primește 404.
 2. **Capcana completată:** `303` spre `/contact/multumim/`, fără niciun e-mail.
-3. **Limita de trimiteri depășită** (3 cereri la 60 de secunde pe IP): `303` spre `/contact/eroare/`. E doar o protecție la rafale. Legătura de rate limit de la Cloudflare numără doar pe ferestre de 10 sau 60 de secunde, iar o limită pe oră ar cere stocarea IP-urilor.
-4. **Mesajul are peste 3 linkuri:** `303` spre `/contact/prea-multe-linkuri/`. În câmpul Mesaj se numără linkurile, nu prefixele, fără să conteze literele mari sau mici:
+3. **Mesajul are peste 3 linkuri:** `303` spre `/contact/prea-multe-linkuri/`. În câmpul Mesaj se numără linkurile, nu prefixele, fără să conteze literele mari sau mici:
    - fiecare `http://` sau `https://`;
    - fiecare `www.` care nu vine imediat după `//`.
 
    Astfel, `https://www.exemplu.ro` e un singur link.
-5. **Orice altă regulă încălcată** (posibilă doar dacă cineva ocolește browserul): `303` spre `/contact/eroare/`. Intră aici și `\r` sau `\n` în Nume, Firmă, Telefon ori Adresa site-ului, care ar permite injectarea de antete în e-mail.
+4. **Orice altă regulă încălcată** (posibilă doar dacă cineva ocolește browserul): `303` spre `/contact/eroare/`. Intră aici și `\r` sau `\n` în Nume, Firmă, Telefon ori Adresa site-ului, care ar permite injectarea de antete în e-mail.
+5. **Limita de trimiteri depășită** (3 trimiteri la 60 de secunde pe IP): `303` spre `/contact/eroare/`. Se verifică doar pentru cererile care au trecut de pașii 2–4, deci o cerere respinsă nu consumă din limită: cine scoate un link și retrimite nu-și pierde încercările (decizia lui Alex din 2026-10-23). E doar o protecție la rafale. Legătura de rate limit de la Cloudflare numără doar pe ferestre de 10 sau 60 de secunde, iar o limită pe oră ar cere stocarea IP-urilor.
 6. **Trimiterea e-mailului:** un singur mesaj prin `send_email`, de la `formular@<domeniu>` către `idealserv51@gmail.com`, cu Reply-To pe adresa vizitatorului.
    - **Subiectul:** „Cerere de ofertă: <serviciu> – <nume/firmă>”. Fără serviciu ales, devine „Cerere de ofertă – <nume/firmă>”.
    - **Codificarea:** subiectul se codifică după RFC 2047, ca să treacă diacriticele.
@@ -347,11 +352,11 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
 
 1. **Antetul:** logo-ul și meniul (Servicii, Cum lucrez, Proiecte, Ghiduri — doar după aprobare —, Despre, Contact). Pe Acasă, antetul nu are butonul „Cere o ofertă”.
 2. **Zona de sus**, peste harta de metrou animată:
-   - H1-ul, „Consultant SEO din București”, pe un fundal alb, ca un indicator de stație;
+   - H1-ul, „Consultant SEO din București”, pe o plăcuță albă, pe banda întunecată de sus (decizia 25), ca un indicator de stație;
    - subtitlul, de o frază (ciornă): „SEO, site-uri și audituri pentru firme care vor să fie găsite în Google și în căutarea AI.”;
    - butonul plin „Cere o ofertă”, imediat sub subtitlu;
-   - butonul mic „Oprește trenurile”, într-un colț al hărții (vezi 5.6).
-3. **„De unde pornești?”**, pe fundal alb. Componenta `LineDiagram` e desenată ca schema de linie din vagonul de metrou. Fiecare rând e un tronson scurt:
+   - butonul mic „Oprește trenurile”, într-un colț al hărții pe desktop și deasupra hărții, pe dreapta, pe telefon (vezi 5.6 și decizia 25).
+3. **„De unde pornești?”**, într-un singur card pe fundalul `--suprafata` (decizia 29). Componenta `LineDiagram` e desenată ca schema de linie din vagonul de metrou. Fiecare rând e un tronson scurt:
    - stația, cu problema;
    - segmentul, în culoarea grupului;
    - capătul de linie, cu serviciul, ca link.
@@ -363,7 +368,7 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
    - Creare site (galben, desenat în #8A5A00): „Nu ai încă un site sau ai doar o pagină de Facebook.”
    - Redesign (roșu): „Site-ul arată învechit și nu mai seamănă cu firma de acum.”
    - Mentenanță (roșu): „Site-ul n-a mai fost actualizat de mult și se încarcă greu pe telefon.”
-4. **„Cum lucrăm: două trasee”.** Componenta `RouteMap`, pe `--tint-blue`, desenată complet de la început:
+4. **„Cum lucrăm: două trasee”.** Componenta `RouteMap`, pe `#D9E4F7` (decizia 26), desenată complet de la început:
    - **Linia remedierii unice:** Evaluare → Ofertă → Lucru → Raport. Se desenează în #8A5A00 (5,18:1 pe #EAF0FB), nu în galbenul tare, care pe fundalul albastru deschis are doar 1,63:1.
    - **Linia abonamentului**, albastră: aceleași stații, plus o buclă lunară.
    - **Etichete text vizibile** pe fiecare traseu, „Remediere unică” și „Remediere + abonament lunar”, ca diferența să nu stea doar în culoare.
@@ -375,7 +380,7 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
 
 ### 4.4 Pagina de serviciu (un singur șablon pentru toate 6)
 
-1. **Banda de sus:** harta statică, cu linia grupului în față și marcajul „Ești aici” pe ea. Sub bandă, firimiturile.
+1. **Banda de sus:** harta întunecată, cu trenuri și buton de oprire, linia grupului în față și marcajul „Ești aici” pe ea. Sub bandă, firimiturile.
 2. **H1-ul** cu cuvântul-cheie, apoi `raspunsDirect`: 2–3 fraze despre ce e serviciul și cui îi folosește.
 3. **„Pentru cine e”** și **„Semne că ai nevoie”**.
 4. **„Ce primești”:** lista de livrabile.
@@ -386,9 +391,11 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
 9. **Serviciile înrudite** (legături interne) și ghidul legat, dacă există și e aprobat.
 10. **Un singur îndemn:** „Cere o ofertă”.
 
+Secțiunile paginii de serviciu sunt carduri pe `--suprafata` (decizia 29): fiecare secțiune cu H2 este un card, iar „Pentru cine e” și „Semne că ai nevoie” stau alături într-un singur card. Ordinea secțiunilor, banda de sus, „Un singur îndemn” și „Servicii înrudite” nu se schimbă.
+
 ### 4.5 Celelalte pagini
 
-- **`/servicii/`:** serviciile grupate pe cele 4 linii, fiecare cu `raspunsDirect` și „Ce primești” pe scurt. Nu repetă „De unde pornești?” de pe Acasă.
+- **`/servicii/`:** serviciile grupate pe cele 4 linii, fiecare cu `raspunsDirect` și „Ce primești” pe scurt. Nu repetă „De unde pornești?” de pe Acasă. Fiecare serviciu este un card pe `--suprafata`, cu bara din stânga de 4px în culoarea grupului (decizia 29). Pe desktop, liniile cu două servicii iau tot rândul, cu cardurile alăturate, iar liniile cu un singur serviciu (Diagnostic, Construcție) stau alături, pe același rând; pe telefon, totul e pe o coloană. Ordinea din pagină rămâne cea a câmpului `ordine`.
 - **`/cum-lucrez/`:**
   - `RouteMap` mare, cu cei patru pași explicați;
   - cele două formate, fără cifre: „Prețul, reducerea și ce include abonamentul le stabilim după ce mă uit la site-ul tău.”;
@@ -403,7 +410,7 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
 
   Pagina se construiește doar când există scoruri reale (3.4).
 - **Ghidul:** titlul-întrebare, răspunsul în primul paragraf, detaliile, data publicării și a actualizării, autorul (cu link spre Despre) și serviciul legat.
-- **`/despre/`:** biografia reală, studiile, experiența, instrumentele, linkurile de profil (opționale) și o fotografie reală, când există. Până atunci, doar text, fără un cadru gol. E condiție de lansare.
+- **`/despre/`:** biografia reală, experiența, instrumentele, linkurile de profil (opționale) și o fotografie reală, când există. Până atunci, doar text, fără un cadru gol. E condiție de lansare. Pe desktop, două coloane pe `--suprafata` (decizia 29): în stânga cardurile „Cine sunt”, „Experiență” și „Instrumente”, plus „Profiluri” când există linkuri de profil, în dreapta un card de profil cu numele, rolul, locul, lista de unelte și un link către `/contact/#date-firma`. Fotografia apare doar când există una reală. Pagina nu are secțiune de studii (decizia 22).
 - **`/contact/`:**
   - formularul;
   - telefonul (`tel:`);
@@ -411,6 +418,8 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
   - `contact@<domeniu>`;
   - „Din București, lucrez cu firme din toată țara”;
   - secțiunea `#date-firma`, cu `LegalId` complet.
+
+  Pe desktop, două coloane pe `--suprafata` (decizia 29): în stânga cardul cu formularul, în dreapta cardul cu contactul direct. În formular, câmpurile scurte stau câte două pe rând (Nume și E-mail; Telefon și Firmă; Adresa site-ului și Serviciu), iar mesajul ocupă rândul întreg. Ordinea din DOM, deci și cea de focus, nu se schimbă. Secțiunea `#date-firma` rămâne sub cardul de contact.
 - **Paginile de răspuns ale formularului:** vezi 3.5.
 - **Paginile legale:** vezi capitolul 7.
 - **404:** un mesaj care spune ce s-a întâmplat și linkuri spre Acasă, Servicii și Contact. Fără hartă.
@@ -422,11 +431,12 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
 ### 5.1 Principii
 
 - **O singură metaforă, metroul.** Site-ul se prezintă ca o hartă de metrou a serviciilor. Cele patru culori sunt cele ale liniilor M1–M4 din București (M1 galben, M2 albastru, M3 roșu, M4 verde), nu ale Google. Vocabularul vizual și de text rămâne în aceeași lume: linii, stații, trasee, capăt de linie, „Ești aici”. Fără imagini de cabinet medical, laborator sau dosar.
-- **Îndrăzneala stă într-un singur loc:** harta din zona de sus a paginii Acasă. Tot restul rămâne liniștit și disciplinat.
+- **Îndrăzneala stă în banda de sus:** harta întunecată, aceeași pe toate paginile (decizia 28). Tot restul rămâne liniștit și disciplinat.
 - **Interzise:** carduri colorate egale, umbre, gradiente decorative, imagini stoc, carusele și etichete cu majuscule deasupra titlurilor.
+- **Permise (decizia 29):** cardurile albe (`--card`) cu contur de 1px `--card-contur`, pe fundalul `--suprafata`, cu colțuri drepte și fără umbră. Rămân interzise cardurile colorate egale, umbrele și gradientele.
 - Numerotare doar unde conținutul chiar e o secvență (pașii).
 - Totul e aliniat la stânga.
-- Doar temă luminoasă, pentru că paleta e construită pe alb.
+- Tema e luminoasă, cu o excepție: antetul și banda de sus sunt întunecate pe toate paginile (deciziile 25 și 28, 2026-10-23). Pe bandă, liniile și trenurile se citesc ca niște lumini, iar plăcuța H1-ului rămâne albă. Restul paginii rămâne pe alb, pe `--suprafata` (decizia 29), pe tinturi sau pe subsolul negru.
 
 ### 5.2 Culori (tokenuri)
 
@@ -435,12 +445,17 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
 | `--ink` | #14161A | text principal, subsol |
 | `--ink-2` | #3F4650 | text secundar, „consultant SEO” din logo |
 | `--paper` | #FFFFFF | fundal (~60%) |
+| `--suprafata` | #E9EEF5 | fundalul conținutului sub bandă (decizia 29). Text `#14161A` pe el: 15,54:1; față de alb: 1,17:1. |
+| `--card` | #FFFFFF | fundalul cardurilor (decizia 29) |
+| `--card-contur` | #D5DCE6 | conturul de 1px al cardurilor (decizia 29). Față de alb: 1,38:1. |
 | `--blue` | #2D6CDF | culoarea principală: virgula din logo, butoane, benzi, linia M2, „Ești aici” |
 | `--blue-dark` | #1A4FB8 | linkuri, butoane la hover (cu text alb: 7,36:1) |
 | `--green` / `--green-dark` | #1F9D61 / #157347 | grupul diagnostic, linia M4 / text pe alb |
 | `--yellow` / `--yellow-dark` | #F5B21B / #8A5A00 | grupul construcție, linia M1 / text și grafică cu sens pe alb |
 | `--red` / `--red-dark` | #E0533D / #B8382A | grupul reparație, linia M3 / text pe alb, erori |
-| `--tint-blue` | #EAF0FB | traseul „Cum lucrăm”, fișa de pe `acest-site` |
+| `--tint-blue` | #EAF0FB | butonul „Oprește trenurile” și celelalte locuri care nu sunt benzile de mai jos |
+| — (fără token) | #D9E4F7 | fundalul benzii traseului „Cum lucrăm” de pe Acasă (pe toată lățimea), al benzilor de îndemn de pe paginile pe suprafață (componenta `Indemn`), al benzii de trasee de pe `/cum-lucrez/` și al fișei de pe `/proiecte/acest-site/`. Decizia din 2026-10-23 (varianta 2a): 1,28:1 față de alb, unde `--tint-blue` are 1,14:1; pe suprafața `#E9EEF5` are 1,10:1, iar `--tint-blue` are 1,02:1 și dispare. |
+| — (fără token) | #0E1116 / #E8ECF2 | banda de sus și antetul, pe toate paginile, întunecate (decizia 28). Text `#E8ECF2` pe `#0E1116`: 15,95:1. |
 | `--tint-yellow` | #FEF3D7 | blocuri din grupul construcție |
 | `--tint-green` | #E8F5EE | blocuri din grupul diagnostic |
 | `--tint-red` | #FCEDEA | blocuri din grupul reparație |
@@ -451,7 +466,8 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
 - Pe albastru apare doar text alb (4,86:1). Textul negru pe albastru are 3,73:1 și e interzis.
 - Negru pe verde: 5,22:1; pe galben: 9,72:1; pe roșu: 4,72:1. Textul alb pe verde, galben sau roșu e interzis.
 - Variantele închise pe alb: între 5,77:1 și 7,36:1.
-- Pe tinturi (8–12%), textul închis trece de 4,96:1.
+- Pe tinturi (8–12%), textul închis trece de 4,96:1. Pe `#D9E4F7` textul negru are 14,14:1, albastrul închis `#1A4FB8` are 5,74:1 și galbenul închis `#8A5A00` are 4,63:1.
+- Pe benzile întunecate de sus, pe toate paginile (`#0E1116`), liniile au culorile lor tari, nu cele de pe alb: M1 galben `#F5B21B` 10,15:1, M2 albastru `#2D6CDF` 3,89:1, M3 roșu `#E0533D` 4,93:1, M4 verde `#1F9D61` 5,45:1. Galbenul închis `#8A5A00` nu se folosește acolo: are 3,19:1 pe întuneric. Plăcuța H1-ului e albă, cu text `#14161A` (18,11:1). Butonul rămâne `#2D6CDF` cu text alb (4,86:1). Butonul „Oprește trenurile” are fundal `#EAF0FB` și text `#14161A` (14,97:1).
 - Galbenul tare pe alb are 1,86:1, așa că nu se folosește pentru contururi, iconițe sau focus. Grafica galbenă cu sens (segmentul galben din „De unde pornești?”, traseul remedierii unice) folosește #8A5A00. Verdele (3,47:1) și roșul (3,84:1) trec pragul de 3:1 pentru grafică.
 - **Hover:** butonul nu se închide la culoare cu text negru pe el. Fie trece pe varianta închisă, cu text alb, fie primește doar subliniere sau contur.
 - **Linkurile din text** sunt mereu subliniate.
@@ -462,7 +478,7 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
   - linkurile spre servicii au culoarea grupului: galben, verde, roșu, iar albastrul e #6B9BF0 (6,53:1 pe #14161A);
   - celelalte linkuri sunt albe și subliniate.
 
-**Proporții:** ~60% alb, ~30% culoare (benzi albastre pline cu text alb, plus tinturi deschise), ~10% negru. Culorile tari de verde, galben și roșu apar doar pe elemente mici: linii, stații, segmente, etichete. Cele patru culori nu stau niciodată în ordine, ca patru blocuri egale.
+**Proporții:** ~60% alb, ~30% culoare (benzi albastre pline cu text alb, plus tinturi deschise), ~10% negru. Culorile tari de verde, galben și roșu apar doar pe elemente mici: linii, stații, segmente, etichete. Cele patru culori nu stau niciodată în ordine, ca patru blocuri egale. Pe Acasă, banda de sus întunecată (§5.1) se adaugă ca negru lângă subsol; proporțiile de mai sus se aplică restului paginii.
 
 ### 5.3 Tipografie
 
@@ -490,13 +506,13 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
   - „consultant SEO” în 400, `--ink-2`.
 
   Sub 380px, „consultant SEO” trece pe rândul următor.
-- **„Ești aici”:** o stație plină albastră, cu inel alb, pusă pe linia grupului în harta statică.
+- **„Ești aici”:** o stație plină albastră, cu inel alb, pusă pe linia grupului, pe banda de sus.
 - **Favicon:** aceeași stație plină albastră.
 - **Iconițe:** puține, SVG inline, doar unde au sens: eroare, telefon, WhatsApp, e-mail.
 
 ### 5.5 Fișa paginii (doar pe `/proiecte/acest-site/`)
 
-O listă `<dl>` pe `--tint-blue`. Fiecare rând are o explicație pe înțeles, pentru că un proprietar de firmă nu știe ce înseamnă „greutate” sau „JSON-LD”.
+O listă `<dl>` pe `#D9E4F7`, ca benzile: pe suprafața paginii `--tint-blue` are 1,02:1 și fișa nu s-ar vedea. Fiecare rând are o explicație pe înțeles, pentru că un proprietar de firmă nu știe ce înseamnă „greutate” sau „JSON-LD”.
 
 | Rând | Ce arată | Explicația de sub rând (ciornă) |
 |---|---|---|
@@ -518,26 +534,26 @@ O listă `<dl>` pe `--tint-blue`. Fiecare rând are o explicație pe înțeles, 
 
 **Construcție:**
 - SVG inline, decorativ (`aria-hidden="true"`);
-- patru linii, M1–M4, în culorile grupurilor, la opacitate redusă, cu unghiuri de 45° ca pe hărțile de metrou;
-- stații albe, cu contur;
+- patru linii, M1–M4, în culorile tari ale grupurilor, pe fundal întunecat (`#0E1116`), cu unghiuri de 45° ca pe hărțile de metrou. Pe Acasă toate liniile sunt pline. Pe banda de sus a celorlalte pagini sunt la opacitate 0,35, în afară de linia grupului paginii, care e plină; pe paginile fără linie proprie, toate rămân la 0,35;
+- stații cu miez întunecat (`#0E1116`) și contur deschis (`#E8ECF2`), ca niște lumini pe fundalul întunecat;
 - fără etichete de stații și fără logo Metrorex.
 
-**Pe Acasă: liniile se desenează, apoi circulă trenurile.**
+**Pe Acasă și pe banda de sus a fiecărei pagini: liniile se desenează, apoi circulă trenurile.**
 - **Liniile** se desenează o singură dată la încărcare (M1 în 5.7). E doar CSS.
 - **Trenurile circulă continuu.** Pe fiecare linie merge câte un „tren”: un punct cu miez alb și halou în culoarea liniei. Viteza e constantă, cu 7–11 secunde pe parcurs, iar trenurile pornesc decalat.
-- **Pe mobil:** sub 640px rămân 2 linii, M2 (albastru) și M3 (roșu), cu 2 trenuri.
+- **Pe mobil, doar pe Acasă:** sub 640px rămân 2 linii, M2 (albastru) și M3 (roșu), cu 2 trenuri. Banda de sus a celorlalte pagini păstrează cele patru linii și cele patru trenuri și pe telefon, fiindcă linia grupului paginii trebuie să rămână.
 - **Lizibilitatea:** titlul stă pe o plăcuță albă și opacă, peste marginea de jos a hărții; liniile și trenurile trec pe sub ea, ca într-o stație, deci textul rămâne lizibil când trece un tren (decizia lui Alex din 2026-10-22, ruling R17).
 
 **Pornirea depinde de script:**
 - Trenurile stau într-un `<g class="trenuri">` din SVG, ascuns din CSS (`display: none`) până când scriptul pune clasa de pornire. Atributul `hidden` nu ajunge aici, pentru că regula implicită a browserului pentru `[hidden]` se aplică doar elementelor HTML, nu celor din SVG.
 - Butonul e un element HTML și folosește atributul `hidden`.
-- Scriptul de pe Acasă (~1 KB) le afișează și pornește animația doar după ce a legat butonul și doar dacă `prefers-reduced-motion: no-preference`. Cu SMIL, animația are `begin="indefinite"` și o pornește scriptul; cu CSS, o pornește o clasă pusă de script.
+- Scriptul inline (~1 KB), de pe fiecare pagină cu harta animată, nu doar de pe Acasă, le afișează și pornește animația doar după ce a legat butonul și doar dacă `prefers-reduced-motion: no-preference`. Cu SMIL, animația are `begin="indefinite"` și o pornește scriptul; cu CSS, o pornește o clasă pusă de script.
 - Fără JavaScript sau cu „reduced motion”, harta rămâne statică, fără trenuri și fără buton.
 
 Așa nu există niciodată mișcare fără un buton de oprire care funcționează (WCAG 2.2.2).
 
 **Butonul „Oprește trenurile” / „Pornește trenurile”:**
-- e mic și secundar: text de 14,4px, fundal alb, contur de 1px `--ink`, colțuri drepte, într-un colț al hărții, departe de titlu și de butonul principal;
+- e mic și secundar: text de 12,8px, fundal `#EAF0FB` (`--tint-blue`), contur de 1px `--ink`, zona de atingere 44px (decizia 28), colțuri drepte, pe desktop într-un colț al hărții, departe de titlu și de butonul principal; pe telefon deasupra hărții, aliniat la dreapta, pentru că plăcuța H1-ului acoperă colțul de jos și stațiile de sus ocupă colțul de sus (decizia 25);
 - are totuși zona de atingere de minimum 44×44px și focusul din 5.2;
 - eticheta alternează și nu folosește `aria-pressed` (cele două tipare se exclud);
 - e cerut de WCAG 2.2.2, pentru că animația durează mai mult de 5 secunde.
@@ -553,24 +569,26 @@ Așa nu există niciodată mișcare fără un buton de oprire care funcționeaz�
 | Pagina | Harta |
 |---|---|
 | Acasă | animată: liniile se desenează, apoi circulă trenurile. Are butonul de oprire. |
-| Paginile de serviciu | statică: linia grupului plină, cu „Ești aici”, celelalte estompate. Toate patru și pe mobil. |
-| Studiu de caz | statică: linia primului serviciu din `servicii[]` plină, cu „Ești aici” |
-| Ghid | statică: linia din `serviciuLegat` plină, cu „Ești aici” |
-| `/servicii/`, `/cum-lucrez/`, `/proiecte/`, `/ghiduri/`, `/despre/`, `/contact/` | statică, toate liniile la fel de estompate, fără „Ești aici” |
+| Paginile de serviciu | cu trenuri (decizia 28): linia grupului plină, cu „Ești aici”, celelalte estompate. Toate patru și pe mobil. |
+| Studiu de caz | cu trenuri: linia primului serviciu din `servicii[]` plină, cu „Ești aici” |
+| Ghid | cu trenuri: linia din `serviciuLegat` plină, cu „Ești aici” |
+| `/servicii/`, `/cum-lucrez/`, `/proiecte/`, `/ghiduri/`, `/despre/`, `/contact/` | cu trenuri, toate liniile la fel de estompate, fără „Ești aici” |
 | Paginile legale, 404, paginile de răspuns ale formularului | fără hartă |
 
 ### 5.7 Mișcare
 
-Pe tot site-ul sunt două mișcări automate, ambele pe Acasă: desenarea liniilor (o dată) și trenurile (continuu, cu oprire). La ele se adaugă o tranziție care răspunde unui clic.
+Pe tot site-ul sunt două mișcări automate, ambele pe paginile cu hartă (Acasă și banda de sus a fiecărei pagini): desenarea liniilor (o dată) și trenurile (continuu, cu oprire). La ele se adaugă o tranziție care răspunde unui clic.
 
 | # | Ce | Declanșare | Detalii | Cu „reduced motion” / fără suport |
 |---|---|---|---|---|
-| M1 | Liniile hărții se desenează | o dată, la încărcarea paginii Acasă | `stroke-dashoffset`, ~600ms, `ease-out`, doar CSS. H1-ul, subtitlul și butonul nu se animă niciodată. | liniile apar desenate, instant |
-| M2 | Trenurile pe hartă | continuu, doar pe Acasă, după M1 | vezi 5.6 | trenurile și butonul ascunse |
+| M1 | Liniile hărții se desenează | o dată, la încărcarea fiecărei pagini cu hartă (Acasă și banda de sus) | `stroke-dashoffset`, ~600ms, `ease-out`, doar CSS. H1-ul, subtitlul și butonul nu se animă niciodată. | liniile apar desenate, instant |
+| M2 | Trenurile pe hartă | continuu, pe Acasă și pe banda fiecărei pagini, după M1 | vezi 5.6. Halo-ul are opacitate 0,7 pe toate hărțile, fiindcă toate au fundal întunecat (decizia 28), ca trenurile să se vadă ca lumini. | trenurile și butonul ascunse |
 | M3 | Segmentul din „De unde pornești?” devine banda paginii de serviciu | la clic, la navigare | CSS nativ: `@view-transition { navigation: auto; }` declarat doar în `@media (prefers-reduced-motion: no-preference)`, cu `view-transition-name` unic pe fiecare serviciu, dat prin clasă. Durata 300ms, `ease-in-out`. Pe celelalte navigări, cross-fade-ul implicit e oprit (`animation: none` pe `::view-transition-old(root)` și `::view-transition-new(root)`), ca singura mișcare să fie segmentul. Fără ClientRouter. | navigare normală, fără tranziție (la fel în Firefox și Samsung Internet) |
 | M4 | Micro-interacțiuni | hover, focus | subliniere în 150ms | fără tranziții |
 
 **Tăiate față de varianta anterioară:** completarea animată a fișei și traseul desenat la derulare. Traseul explică cele două moduri de lucru, așa că e desenat complet de la început.
+
+**Trenurile circulă pe toate paginile cu hartă** (decizia 28, 2026-10-23, care înlocuiește varianta 3a). Acasă are harta animată, cu butonul de oprire. Fiecare pagină cu bandă are aceeași hartă, cu trenuri și buton, linia grupului plină și „Ești aici”. Paginile fără bandă (legale, 404, paginile de răspuns ale formularului) nu au hartă.
 
 **Reguli:**
 - Conținutul e vizibil mereu, inclusiv fără JavaScript. Nimic nu ascunde text până rulează un script.
@@ -766,7 +784,7 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
 - **Aprobare:** eu scriu ciornele (paginile, întrebările frecvente, cele 2 ghiduri), iar Alex le aprobă pagină cu pagină. Un text neaprobat nu ajunge în producție: aprobarea e câmpul `aprobat` din colecții și din `src/approvals.ts` (3.4), verificat de `check:launch`.
 - **Același verb pe tot parcursul:**
   - „Cere o ofertă” (îndemnul);
-  - „Trimite cererea” (butonul din formular);
+  - „Cere o ofertă” (butonul din formular);
   - „Am primit cererea ta” (pagina de mulțumire).
 
 ---
@@ -776,9 +794,9 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
 ### 9.1 Bugete
 
 - **JavaScript:**
-  - ~1 KB pe Acasă (trenurile și butonul);
+  - ~1 KB pe fiecare pagină cu hartă (trenurile și butonul de oprire);
   - sub 1 KB pe `/proiecte/acest-site/` (fișa);
-  - 0 KB pe toate celelalte pagini, inclusiv Contact.
+  - 0 KB pe paginile fără hartă (legale, 404, paginile de răspuns ale formularului). Formularul nu are JavaScript.
 - **CSS:** cel mult 25 KB pe pagină, necomprimat.
 - **Fonturi:** o singură familie, Atkinson Hyperlegible Next variabilă, cu latin și latin-ext, ~53–60 KB, ambele subseturi preîncărcate.
 - **Greutatea paginii Acasă:** sub 150 KB transferați. Se măsoară în producție, cu Brotli și cache gol (auditul `total-byte-weight` din Lighthouse, rulat pe domeniu). Pe `wrangler dev` nu există compresia Cloudflare, deci măsurătoarea de acolo nu contează.
@@ -814,7 +832,7 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
    - „reduced motion”: harta statică, fără buton;
    - butonul „Oprește trenurile”: oprește, iar IntersectionObserver nu repornește trenurile după ce vizitatorul le-a oprit;
    - harta de pe Acasă fără JavaScript: statică, fără buton;
-   - pagina de contact nu are niciun `<script>` executabil (singurul permis e `<script type="application/ld+json">`), iar formularul se trimite fără JavaScript;
+   - pagina de contact are un singur `<script>` executabil, al trenurilor de pe bandă (decizia 28), iar formularul se trimite fără JavaScript;
    - nu apare nicio încălcare CSP în consolă, pe build.
 5. Lighthouse 13 pe mobil, rulat local cu `wrangler dev`, mediana din 3 rulări, cu pragurile din capitolul 1. Paginile noindex au excepțiile de acolo. Chrome e instalat pe mașină. Greutatea paginii se judecă doar în producție (9.1).
 6. **JSON-LD:**
@@ -824,7 +842,7 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
 8. **Marcaje:** build-ul de producție nu conține „[DE COMPLETAT” nicăieri în `dist/`. În previzualizarea `DRAFT=1` (din `dist-draft/`), marcajele apar, la fel și pagina de test pentru diacritice.
 9. **Capturi de ecran:** una pe mobil și una pe desktop, revizuite înainte de pagina următoare.
 
-**Worker-ul**, cu teste scrise înaintea codului (TDD), în vitest cu pool-ul Workers:
+**Worker-ul**, cu teste scrise înaintea codului (TDD), în vitest, în Node, cu legăturile simulate (ruling R18):
 - **paritatea regulilor:** testele citesc `form-rules.ts` și verifică limitele exacte:
   - 100 de caractere trec, 101 nu;
   - un mesaj de 3000 de caractere cu rânduri noi trimise ca CRLF trece;
@@ -836,7 +854,8 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
 - **orice regulă încălcată** (de exemplu 101 caractere sau un serviciu necunoscut): 303 spre `/contact/eroare/`, fără e-mail;
 - **`\r` sau `\n` în Nume, Firmă, Telefon sau Adresa site-ului:** 303 spre `/contact/eroare/`;
 - **câmpul-capcană:** 303 spre `/contact/multumim/`, fără e-mail;
-- **limita de trimiteri:** 303 spre `/contact/eroare/`;
+- **limita de trimiteri:** 303 spre `/contact/eroare/`; capcana, linkurile și regulile încălcate nu ajung la limitator;
+- **un corp fără `Content-Length`** se citește doar până la 64 KB; peste, 303 spre `/contact/eroare/`, fără e-mail;
 - **regula linkurilor:**
   - 3 linkuri trec, 4 nu;
   - se verifică toate formele: `http://`, `https://`, `www.`, cu litere mari sau mici;
@@ -931,7 +950,7 @@ Comanda `npm run check:launch` refuză lansarea până când:
 - **Email Routing ocupă înregistrările MX** ale domeniului (vezi 3.5).
 - **Regula de 3 linkuri** poate opri un mesaj real. Riscul e acceptat de Alex. Îl reduc nota din formular („Cel mult 3000 de caractere și cel mult 3 linkuri.”) și pagina dedicată, care explică cum se recuperează textul (butonul Înapoi).
 - **Textul recuperat cu Înapoi** depinde de browser. Majoritatea păstrează valorile din formular la întoarcere, dar nu toate. Paginile de eroare dau oricum contactele directe.
-- **Trenurile continue** consumă puțin procesor pe telefoanele slabe. Le limitează cele 2 trenuri de sub 640px și oprirea când harta iese din ecran.
+- **Trenurile continue** consumă puțin procesor pe telefoanele slabe. Pe Acasă, sub 640px, rămân doar cele 2 trenuri ale liniilor M2 și M3. Pe bandele paginilor sunt cele 4, fiindcă linia grupului trebuie să rămână. Oprirea le limitează și când harta iese din ecran.
 - **Firefox și Samsung Internet** nu au tranziții între pagini. Pe ele site-ul funcționează normal, doar fără efect.
 - **Lighthouse local** poate da altceva decât PageSpeed Insights, care rulează pe o versiune mai veche de Lighthouse. Pe site se publică doar valori măsurate în producție, cu data și versiunea.
 - **Formularul fără confirmare** pe e-mail pentru vizitator e o limitare acceptată.

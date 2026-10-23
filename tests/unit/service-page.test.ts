@@ -7,6 +7,19 @@ import { render, textOf } from './helpers';
 // `astro:content`; aici colecțiile sunt goale, ca rezultatul să nu depindă de src/content.
 vi.mock('astro:content', () => ({ getCollection: async () => [] }));
 
+// Producția, implicit; testele previzualizării pun `stare.draft = true`.
+const stare = vi.hoisted(() => ({ draft: false }));
+
+vi.mock('../../src/lib/env', () => ({
+  get DRAFT() {
+    return stare.draft;
+  },
+}));
+
+beforeEach(() => {
+  stare.draft = false;
+});
+
 const NOTA = 'Nu garantez poziții în Google și nici apariții în răspunsurile motoarelor AI.';
 
 const serviciu = {
@@ -117,6 +130,33 @@ describe('Service.astro (§4.4)', () => {
     ]);
   });
 
+  // Ca pe Acasă și pe studiul de caz (§3.4): niciun marcaj nu apare ca text brut. Un proiect fără titlu nu are cu ce să-și
+  // facă linkul, deci lipsește în producție; un context încă marcaj lipsește doar el.
+  const proiectCu = (suprascrieri: Record<string, string>) => ({
+    slug: 'szitrans',
+    titlu: 'Site-ul szitrans.eu',
+    context: 'O firmă de transport din Spania.',
+    ...suprascrieri,
+  });
+
+  test('în producție, un proiect al cărui titlu e încă marcaj nu apare deloc', async () => {
+    const h = main(await pagina({ proiect: proiectCu({ titlu: '[DE COMPLETAT:#21]' }) }));
+    expect(titluriH2(h)).not.toContain('Un proiect');
+    expect(h).not.toContain('DE COMPLETAT');
+  });
+
+  test('în producție, un context încă marcaj lipsește, iar titlul rămâne link spre studiu', async () => {
+    const h = main(await pagina({ proiect: proiectCu({ context: '[DE COMPLETAT:#21]' }) }));
+    expect(h).toMatch(/<a href="\/proiecte\/szitrans\/"[^>]*>Site-ul szitrans\.eu<\/a>/);
+    expect(h).not.toContain('DE COMPLETAT');
+  });
+
+  test('în previzualizare, marcajul din proiect trece prin Placeholder', async () => {
+    stare.draft = true;
+    const h = main(await pagina({ proiect: proiectCu({ context: '[DE COMPLETAT:#21]' }) }));
+    expect(h).toMatch(/<mark class="marcaj">\[DE COMPLETAT:#21\]/);
+  });
+
   test('un singur îndemn „Cere o ofertă” în conținut', async () => {
     const h = main(await pagina());
     expect(h.match(/class="buton-cta"/g)).toHaveLength(1);
@@ -130,10 +170,28 @@ describe('Service.astro (§4.4)', () => {
     expect(tipuri.filter((t) => ['Service', 'FAQPage', 'BreadcrumbList'].includes(t)).sort()).toEqual(['BreadcrumbList', 'FAQPage', 'Service']);
   });
 
-  test('fără atribute style și fără scripturi în afară de JSON-LD (CSP, 0 KB JavaScript)', async () => {
+  test('conținutul stă pe suprafață, în carduri; „Pentru cine e” și „Semne că ai nevoie” stau într-un singur card', async () => {
+    const h = await pagina({
+      proiect: { slug: 'magazin-online', titlu: 'Un magazin online', context: 'Un magazin cu vizite puține din Google.' },
+    });
+    expect(h).toContain('class="main--suprafata"');
+    // Primele două secțiuni sunt un singur card (§5 din designul stratului de suprafețe,
+    // docs/superpowers/specs/2026-10-23-layered-surfaces-design.md): `.serviciu__doua` e cardul, iar secțiunile din el
+    // sunt simple.
+    expect(h).toMatch(/<div\b[^>]*class="serviciu__doua carte"/);
+    // Cardul nu e gol: prima lui secțiune e „Pentru cine e”.
+    expect(h).toMatch(/class="serviciu__doua carte"[^>]*>\s*<section[^>]*>\s*<h2[^>]*>Pentru cine e/);
+    const sectiuni = [...h.matchAll(/<section\b([^>]*)>/g)].map((m) => m[1] ?? '');
+    // 7 secțiuni de conținut, cu „Un proiect” inclus: 2 în cardul comun și 5 carduri proprii. Banda, nota despre garanții
+    // și îndemnul nu sunt carduri.
+    expect(sectiuni).toHaveLength(7);
+    expect(sectiuni.filter((s) => s.includes('class="carte"'))).toHaveLength(5);
+  });
+
+  test('fără atribute style; în afară de JSON-LD, singurul script e al trenurilor de pe bandă (CSP)', async () => {
     const h = await pagina();
     expect(h).not.toMatch(/\sstyle=/);
-    expect(h.match(/<script\b(?![^>]*application\/ld\+json)/g)).toBeNull();
+    expect(h.match(/<script\b(?![^>]*application\/ld\+json)/g)).toHaveLength(1);
   });
 });
 

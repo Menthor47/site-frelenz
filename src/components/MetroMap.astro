@@ -1,17 +1,22 @@
 ---
-// Harta de metrou (§5.6), semnătura vizuală a site-ului: patru linii în culorile grupurilor, la 45°, cu stații albe conturate.
-// - `static` (banda de sus a paginilor, prin `Base`): linia grupului `line` e plină și are „Ești aici”, celelalte sunt
-//   estompate; fără `line`, toate sunt la fel de estompate. Fără JavaScript.
+// Harta de metrou (§5.6), semnătura vizuală a site-ului: patru linii în culorile grupurilor, la 45°, pe fundal întunecat,
+// cu stații luminate (miez întunecat, contur deschis).
+// - `banda` (banda de sus a paginilor, prin `Base`): cu trenuri și buton de oprire, ca pe Acasă. Linia grupului `line` e
+//   plină și are „Ești aici”, celelalte sunt estompate; fără `line`, toate sunt la fel de estompate.
 // - `animated` (doar pe Acasă, în zona de sus): liniile se desenează o dată, apoi circulă câte un tren pe fiecare linie.
-//   Trenurile și butonul de oprire apar doar după ce pornește scriptul (src/client/trains.ts).
+//   Fără „Ești aici”.
+// - `static` (nu o folosește nicio pagină publică, doar pagina internă /_test/harta/): ca banda, dar fără trenuri,
+//   fără buton și fără script.
+// Trenurile și butonul de oprire apar doar după ce pornește scriptul (src/client/trains.ts).
 // Desenul e decorativ (`aria-hidden`); butonul stă în afara SVG-ului, ca să rămână în arborele de accesibilitate.
 // Culorile vin din metro.css, prin `data-linie` (CSP: fără atribute `style`). Rădăcina are clasa `harta` (ruling R2).
 import type { Grup } from '../form-rules';
 import '../styles/metro.css';
 
 interface Props {
-  variant: 'animated' | 'static';
-  /** Doar pe harta statică: grupul paginii. Linia lui e plină și are marcajul „Ești aici”. */
+  /** `animated`: harta de pe Acasă. `banda`: banda de sus a paginilor, cu trenuri ca Acasă (decizia din 2026-10-23). `static`: fără trenuri. */
+  variant: 'animated' | 'banda' | 'static';
+  /** Pe bandă și pe harta statică: grupul paginii. Linia lui e plină și are marcajul „Ești aici”. */
   line?: Grup | undefined;
 }
 
@@ -92,13 +97,14 @@ function mers({ drum, plecare: p }: Traseu['tren']) {
 }
 
 const { variant, line } = Astro.props;
-const animata = variant === 'animated';
-const plina = !animata && line !== undefined ? LINIA_GRUPULUI[line] : undefined;
+// Trenurile, butonul de oprire și scriptul sunt pe Acasă și pe banda de sus a tuturor paginilor (WCAG 2.2.2 cere oprire).
+const cuTrenuri = variant === 'animated' || variant === 'banda';
+const plina = variant !== 'animated' && line !== undefined ? LINIA_GRUPULUI[line] : undefined;
 // Linia plină se desenează ultima, deasupra celor estompate.
 const ordine = [...TRASEE.filter((t) => t.linie !== plina), ...TRASEE.filter((t) => t.linie === plina)];
 ---
 
-<div class:list={['harta', animata ? 'harta--animata' : 'harta--statica']}>
+<div class:list={['harta', 'harta--noapte', cuTrenuri ? 'harta--animata' : 'harta--statica', variant === 'banda' && 'harta--banda', variant === 'animated' && 'harta--pe-acasa', plina !== undefined && 'harta--cu-linie']}>
   <svg class="harta__desen" viewBox="0 0 1200 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     {
       ordine.map((t) => (
@@ -117,7 +123,7 @@ const ordine = [...TRASEE.filter((t) => t.linie !== plina), ...TRASEE.filter((t)
       ))
     }
     {
-      animata && (
+      cuTrenuri && (
         <g class="trenuri">
           {TRASEE.map((t) => (
             <g class="tren" data-linie={t.linie}>
@@ -130,12 +136,12 @@ const ordine = [...TRASEE.filter((t) => t.linie !== plina), ...TRASEE.filter((t)
       )
     }
   </svg>
-  {animata && <button type="button" class="harta__buton" hidden>Oprește trenurile</button>}
-  {animata && <p class="harta__anunt" aria-live="polite" data-stare-trenuri />}
+  {cuTrenuri && <button type="button" class="harta__buton" hidden>Oprește trenurile</button>}
+  {cuTrenuri && <p class="harta__anunt" aria-live="polite" data-stare-trenuri />}
 </div>
 
 {
-  animata && (
+  cuTrenuri && (
     <script>
       import { initTrains } from '../client/trains';
 

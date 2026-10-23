@@ -1,4 +1,4 @@
-// Trenurile de pe harta animată de pe Acasă (§5.6, mișcarea M2 din §5.7).
+// Trenurile de pe harta animată (Acasă) și de pe banda de sus a paginilor (§5.6, mișcarea M2 din §5.7).
 //
 // Alegerea: SMIL `animateMotion`, cu `begin="indefinite"` și cu traseul în atributul `path`. Scriptul îl pornește cu
 // `beginElement()`, iar butonul și IntersectionObserver îl opresc pe loc cu `svg.pauseAnimations()` și îl repornesc cu

@@ -1,15 +1,6 @@
 // Acasă (§4.3, §5.6, §5.7, Task 11). Rulează pe build-ul de producție, ca vizitatorul: marcajele nu se văd, iar Proiecte
 // lipsește cât nu există niciun proiect publicabil.
-import type { Page } from '@playwright/test';
-import { elementeCareDepasesc, expect, faraDerulareOrizontala, ordineFocus, seSuprapun, test, trenuriInMiscare } from './helpers';
-
-/** Textul la 200%, ca din setarea browserului. Din CSSOM, nu din `<style>`: CSP-ul paginii blochează stilurile inline. */
-async function textMarit(page: Page) {
-  await page.evaluate(() => document.fonts.ready);
-  await page.evaluate(() => {
-    document.documentElement.style.fontSize = '200%';
-  });
-}
+import { elementeCareDepasesc, expect, faraDerulareOrizontala, ordineFocus, seSuprapun, test, textMarit, trenuriInMiscare } from './helpers';
 
 test('zona de sus are un singur rol', async ({ page }) => {
   await page.goto('/');

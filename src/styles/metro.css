@@ -39,20 +39,6 @@
   --culoare: var(--green);
 }
 
-/* Liniile sunt estompate; pe harta statică, linia grupului paginii e plină (§5.6). Opacitatea pe grup estompează
-   și stațiile, care își acoperă linia înainte de compunere, deci linia nu se vede prin ele. */
-.harta__linie {
-  opacity: 0.28;
-}
-
-.harta__linie[data-plina] {
-  opacity: 1;
-}
-
-.harta--animata .harta__linie {
-  opacity: 0.5;
-}
-
 /* Capetele de linie se rotunjesc (§5.8); unghiurile sunt de 45°, din desen. */
 .harta__traseu {
   fill: none;
@@ -63,8 +49,6 @@
 }
 
 .harta__statie {
-  fill: var(--paper);
-  stroke: var(--ink);
   stroke-width: 3;
 }
 
@@ -75,15 +59,30 @@
   stroke-width: 5;
 }
 
-/* Eticheta are un contur alb sub litere, ca să rămână lizibilă peste liniile estompate. */
+/* Eticheta are un contur sub litere (culorile, în regulile hărții întunecate de mai jos), ca să rămână lizibilă peste linii. */
 .harta__eticheta {
-  fill: var(--ink);
   font-size: 22px;
   font-weight: 700;
   paint-order: stroke;
-  stroke: var(--paper);
   stroke-width: 6px;
   stroke-linejoin: round;
+}
+
+/* Pe telefon, banda de sus a paginilor (cu trenuri ca toate benzile; la fel și harta statică) are 6rem în loc de 9rem,
+   ca H1-ul să urce. Desenul se micșorează cu ea, deci „Ești aici” crește în același raport: 44 de unități la 0,4 din
+   desen ≈ 17,6px, nu 8,8px. */
+@media (max-width: 47.98rem) {
+  .harta--banda .harta__desen,
+  .harta--statica .harta__desen {
+    min-height: 6rem;
+  }
+
+  /* Halou mai gros, ca eticheta mărită să rămână lizibilă peste liniile din jur. */
+  .harta--banda .harta__eticheta,
+  .harta--statica .harta__eticheta {
+    font-size: 44px;
+    stroke-width: 10px;
+  }
 }
 
 /* Trenurile (§5.6): ascunse până le pornește scriptul. `hidden` nu ar ajunge aici: regula implicită pentru [hidden]
@@ -96,10 +95,10 @@
   display: block;
 }
 
-/* Un punct cu miez alb și halou în culoarea liniei. Haloul e transparent, ca trenul să nu semene cu o stație. */
+/* Un punct cu miez alb și halou în culoarea liniei. Haloul e transparent (opacitatea, în regulile hărții întunecate), ca
+   trenul să nu semene cu o stație. */
 .tren__halou {
   fill: var(--culoare);
-  opacity: 0.3;
 }
 
 .tren__miez {
@@ -110,33 +109,46 @@
 
 /* Sub 640px, harta animată păstrează doar M2 și M3, fiecare cu trenul ei. Harta statică le arată pe toate patru. */
 @media (max-width: 639.98px) {
-  .harta--animata [data-linie='M1'],
-  .harta--animata [data-linie='M4'] {
+  .harta--pe-acasa [data-linie='M1'],
+  .harta--pe-acasa [data-linie='M4'] {
     display: none;
   }
 }
 
-/* Butonul „Oprește trenurile” (§5.6): mic și secundar, cu zona de atingere de 44×44px. Stă în colțul de sus din dreapta,
-   departe de titlu și de butonul principal la orice lățime: pe Acasă, plăcuța H1-ului acoperă marginea de jos a hărții.
+/* Butonul „Oprește trenurile” (§5.6): mic și secundar, cu zona de atingere de 44×44px. Pe desktop stă în colțul de jos
+   din dreapta al hărții, unde n-ajung liniile; pe telefon stă deasupra hărții, aliniat la dreapta (regula de mai jos).
    Focusul e cel global, din base.css. Nu primește `display`, ca atributul `hidden` să-l ascundă în continuare. */
 .harta__buton {
   position: absolute;
-  top: 0.5rem;
-  right: var(--gutter);
+  right: 0;
+  bottom: 0;
   min-width: 44px;
   min-height: 44px;
-  padding: 0 0.75rem;
+  padding: 0 0.5rem;
   border: 1px solid var(--ink);
-  background: var(--paper);
+  background: var(--tint-blue);
   color: var(--ink);
-  font-size: var(--text-sm);
+  font-size: 0.8rem;
   line-height: 1.2;
   cursor: pointer;
 }
 
-@media (min-width: 48rem) {
+/* Pe telefon colțurile hărții nu sunt libere: plăcuța H1-ului acoperă colțul de jos (și la 200% de text, aproape tot
+   pătratul), iar în partea de sus stau stații. Butonul stă deci deasupra hărții, în dreapta, în flux. `order` îl pune
+   înaintea SVG-ului vizual; în DOM rămâne după „Cere o ofertă”, ca în spec (§4.3). Acasă compensează plăcuța (index.astro). */
+@media (max-width: 47.98rem) {
+  .harta--animata {
+    display: flex;
+    flex-direction: column;
+  }
+
   .harta__buton {
-    right: 0;
+    order: -1;
+    position: relative;
+    right: auto;
+    bottom: auto;
+    align-self: flex-end;
+    margin: 0.5rem var(--gutter) 0 0;
   }
 }
 
@@ -187,4 +199,40 @@
   from {
     opacity: 0;
   }
+}
+
+/* Harta e întunecată peste tot (decizia din 2026-10-23): banda de sus a fiecărei pagini și Acasă. Liniile, stațiile și
+   trenurile se citesc ca niște lumini. „Ești aici” e deschis, cu contur întunecat. Liniile rămân în culorile lor tari.
+   Opacitatea e pe grupul liniei, deci estompează și stațiile, care își acoperă linia înainte de compunere: linia nu se vede
+   prin ele. */
+.banda {
+  background: #0e1116;
+}
+
+.harta--noapte .harta__linie {
+  opacity: 1;
+}
+
+/* Pe bandă și pe harta statică, liniile sunt estompate, în afară de linia grupului paginii (cea plină). */
+.harta--statica .harta__linie,
+.harta--banda .harta__linie {
+  opacity: 0.35;
+}
+
+.harta--cu-linie .harta__linie[data-plina] {
+  opacity: 1;
+}
+
+.harta--noapte .harta__statie {
+  fill: #0e1116;
+  stroke: #e8ecf2;
+}
+
+.harta--noapte .harta__eticheta {
+  fill: #e8ecf2;
+  stroke: #0e1116;
+}
+
+.harta--noapte .tren__halou {
+  opacity: 0.7;
 }

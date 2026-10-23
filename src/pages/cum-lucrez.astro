@@ -44,6 +44,7 @@ const PASI = [
     { nume: 'Cum lucrez', cale: CALE },
   ]}
   harta={{}}
+  suprafata={true}
 >
   <div class="contener cum">
     <h1>Cum lucrez</h1>
@@ -61,7 +62,7 @@ const PASI = [
   </section>
 
   <div class="contener cum cum--sectiuni">
-    <section aria-labelledby="pasii">
+    <section class="carte" aria-labelledby="pasii">
       <h2 id="pasii">Cei patru pași</h2>
       <ol class="pasi-explicati">
         {
@@ -75,7 +76,7 @@ const PASI = [
       </ol>
     </section>
 
-    <section aria-labelledby="formate">
+    <section class="carte" aria-labelledby="formate">
       <h2 id="formate">Remediere unică sau abonament lunar</h2>
       <p>Remedierea unică repară ce am găsit la evaluare și se încheie cu raportul.</p>
       <p>Cu abonamentul lunar, remedierea costă mai puțin, iar lucrul continuă lună de lună după ea.</p>
@@ -106,18 +107,20 @@ const PASI = [
     line-height: 1.45;
   }
 
-  /* Traseele stau pe albastru deschis, pe toată lățimea (RouteMap lasă fundalul paginii). */
+  /* Traseele stau pe albastru deschis, pe toată lățimea (RouteMap lasă fundalul paginii): #D9E4F7, ca banda de pe Acasă
+     (decizia 26), care se vede pe suprafața paginii; --tint-blue ar dispărea pe ea. */
   .cum-trasee {
     padding-block: 3rem;
-    background: var(--tint-blue);
+    background: #d9e4f7;
   }
 
   .cum-trasee h2 {
     margin-bottom: 1.5rem;
   }
 
-  section + section {
-    margin-top: 3rem;
+  /* Cardurile stau la 1,5rem unul de altul, ca pe celelalte pagini cu carduri. */
+  .carte + .carte {
+    margin-top: 1.5rem;
   }
 
   /* Pașii sunt o secvență (§5.1), deci au numere: le dă `<ol>`, cu numărul în fața numelui pasului. */

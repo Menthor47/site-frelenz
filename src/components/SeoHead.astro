@@ -13,9 +13,11 @@ interface Props {
   /** Calea paginii, cu slash la început și la sfârșit (ex. `/servicii/`). Din ea se face canonical-ul absolut. */
   cale: string;
   noindex?: boolean;
+  /** Ghidurile și studiile de caz, care în JSON-LD sunt `Article`: `og:type` e „article”, nu „website”. */
+  articol?: boolean;
 }
 
-const { titlu, descriere, cale, noindex = false } = Astro.props;
+const { titlu, descriere, cale, noindex = false, articol = false } = Astro.props;
 const titluComplet = titluPagina(titlu);
 const canonical = new URL(cale, site.url).href;
 // Paginile interne de test (/_test/…, doar în DRAFT=1) nu sunt în src/lib/routes.ts, deci n-au imagine OG.
@@ -29,7 +31,7 @@ const imagine = cale.startsWith('/_test/') ? undefined : new URL(ogPentru(cale),
 <meta property="og:title" content={titluComplet} />
 <meta property="og:description" content={descriere} />
 <meta property="og:url" content={canonical} />
-<meta property="og:type" content="website" />
+<meta property="og:type" content={articol ? 'article' : 'website'} />
 <meta property="og:locale" content="ro_RO" />
 <meta property="og:site_name" content={site.nume} />
 {

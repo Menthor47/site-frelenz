@@ -4,6 +4,7 @@
 // Banda are linia serviciului legat, cu „Ești aici” (§5.6). JSON-LD: Article (headline, datePublished, dateModified,
 // autor și editor #alex); BreadcrumbList vine din Base (ruling R10). Fără JavaScript.
 // Răspunsul trece prin `TextSauMarcaj` (§3.4): un marcaj se vede doar în previzualizare.
+// Titlul, răspunsul și autorul stau pe suprafață; corpul și serviciul legat, într-un singur card alb (decizia din 2026-10-23).
 import type { CollectionEntry } from 'astro:content';
 import Indemn from '../components/Indemn.astro';
 import TextSauMarcaj from '../components/TextSauMarcaj.astro';
@@ -35,6 +36,8 @@ const serviciu = cereServiciu(g.serviciuLegat, `ghiduri/${g.slug}`);
     { nume: g.titlu, cale },
   ]}
   harta={{ line: serviciu.grup }}
+  suprafata={true}
+  articol={true}
 >
   <article class="contener ghid">
     <h1>{g.titlu}</h1>
@@ -45,13 +48,13 @@ const serviciu = cereServiciu(g.serviciuLegat, `ghiduri/${g.slug}`);
       pe <time datetime={dataIso(g.actualizat)}>{ziLunaAn(g.actualizat)}</time>.
     </p>
 
-    <div class="ghid__corp">
+    <div class="ghid__corp carte">
       <slot />
-    </div>
 
-    <p class="ghid__serviciu">
-      Serviciul legat de acest ghid: <a href={`/servicii/${serviciu.slug}/`}>{serviciu.nume}</a>
-    </p>
+      <p class="ghid__serviciu">
+        Serviciul legat de acest ghid: <a href={`/servicii/${serviciu.slug}/`}>{serviciu.nume}</a>
+      </p>
+    </div>
   </article>
 
   <Indemn text="Spune-mi ce site ai și ce te încurcă." />
@@ -83,8 +86,19 @@ const serviciu = cereServiciu(g.serviciuLegat, `ghiduri/${g.slug}`);
     font-size: var(--text-sm);
   }
 
+  /* Corpul ghidului și serviciul legat stau într-un singur card alb (decizia din 2026-10-23), pe toată lățimea containerului,
+     ca celelalte carduri; rândurile de text rămân la ~70 de caractere (base.css). */
+  .ghid__corp {
+    max-width: none;
+  }
+
   .ghid__corp :global(h2) {
     margin-top: 2.5rem;
+  }
+
+  /* Primul titlu din card stă sub paddingul cardului, fără spațiul de deasupra celorlalte titluri. */
+  .ghid__corp > :global(:first-child) {
+    margin-top: 0;
   }
 
   .ghid__corp :global(ul),

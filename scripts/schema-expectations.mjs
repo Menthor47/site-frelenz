@@ -108,11 +108,15 @@ export function asteptariPentru(cale) {
 }
 
 /**
- * Câte `<script>` fără JSON-LD are voie pagina: 1 pe Acasă (trenurile) și pe `/proiecte/acest-site/` (fișa), 0 în rest (§9.1).
- * `/_test/harta/`, pagina internă care arată harta animată ca pe Acasă, are tot scriptul trenurilor.
+ * Câte `<script>` fără JSON-LD are voie pagina, citit din HTML-ul ei, ca în §9.1 (după decizia 28), fără o listă de rute:
+ * - 1 pe orice pagină cu hartă animată (trenurile și butonul de oprire; MetroMap o marchează cu clasa `harta--animata`);
+ * - +1 pe pagina cu fișa de măsurători (PageFacts; clasa `fisa`), adică `/proiecte/acest-site/`;
+ * - 0 pe paginile fără hartă (legale, 404, răspunsurile formularului) și pe cele cu harta statică.
+ * Contează clasa din atributul `class`, nu o aceeași denumire din CSS-ul inline.
  */
-export function scripturiPermise(cale) {
-  return cale === '/' || cale === '/proiecte/acest-site/' || cale === '/_test/harta/' ? 1 : 0;
+export function scripturiPermise(html) {
+  const arClasa = (clasa) => new RegExp(`class="([^"]*\\s)?${clasa}(\\s[^"]*)?"`).test(html);
+  return (arClasa('harta--animata') ? 1 : 0) + (arClasa('fisa') ? 1 : 0);
 }
 
 /**

@@ -15,6 +15,6 @@
   "observability": { "enabled": false },
   // Un singur destinatar permis: DESTINATAR din src/form-rules.ts.
   "send_email": [{ "name": "EMAIL", "allowed_destination_addresses": ["idealserv51@gmail.com"] }],
-  // 3 cereri la 60 de secunde pe IP, doar ca protecție la rafale (§3.5 punctul 3).
+  // 3 trimiteri la 60 de secunde pe IP, doar ca protecție la rafale; se numără doar cererile care pleacă (§3.5 punctul 5).
   "ratelimits": [{ "name": "RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 3, "period": 60 } }]
 }
