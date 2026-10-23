@@ -30,7 +30,7 @@ describe('/cum-lucrez/ (§4.5)', () => {
     expect(sectiune).toContain('Remediere unică');
     expect(sectiune).toContain('Remediere + abonament lunar');
     const sursa = readFileSync(new URL('../../src/pages/cum-lucrez.astro', import.meta.url), 'utf8');
-    expect(/\.cum-trasee\s*\{([^}]*)\}/.exec(sursa)?.[1]).toContain('background: var(--tint-blue);');
+    expect(/\.cum-trasee\s*\{([^}]*)\}/.exec(sursa)?.[1]).toContain('background: #d9e4f7;');
   });
 
   test('cei patru pași, numerotați și explicați, cu numele stațiilor din trasee, în aceeași ordine', async () => {
@@ -57,11 +57,11 @@ describe('/cum-lucrez/ (§4.5)', () => {
     expect(adresareFormala(textOf(main(await render(PaginaCumLucrez))))).toEqual([]);
   });
 
-  test('banda de sus are harta statică, fără „Ești aici”, apoi firimiturile', async () => {
+  test('banda de sus are harta cu trenuri (decizia din 2026-10-23), fără „Ești aici”, apoi firimiturile', async () => {
     const h = main(await render(PaginaCumLucrez));
-    expect(h).toMatch(/class="[^"]*harta--statica/);
+    expect(h).toMatch(/class="[^"]*harta--banda/);
     expect(h).not.toContain('Ești aici');
-    expect(h.indexOf('harta--statica')).toBeLessThan(h.indexOf('Firimituri'));
+    expect(h.indexOf('harta--banda')).toBeLessThan(h.indexOf('Firimituri'));
   });
 
   test('JSON-LD: WebPage și un singur BreadcrumbList', async () => {
@@ -72,10 +72,22 @@ describe('/cum-lucrez/ (§4.5)', () => {
     expect(tipuri.filter((t) => t === 'BreadcrumbList')).toHaveLength(1);
   });
 
-  test('un singur îndemn „Cere o ofertă” în conținut, fără atribute style și fără scripturi', async () => {
+  test('un singur îndemn „Cere o ofertă” în conținut, fără atribute style, cu un singur script (al trenurilor de pe bandă)', async () => {
     const h = await render(PaginaCumLucrez);
     expect(main(h).match(/Cere o ofertă/g)).toHaveLength(1);
     expect(h).not.toMatch(/\sstyle=/);
-    expect(h.match(/<script\b(?![^>]*application\/ld\+json)/g)).toBeNull();
+    expect(h.match(/<script\b(?![^>]*application\/ld\+json)/g)).toHaveLength(1);
+  });
+
+  test('pașii și formatele sunt carduri; banda cu trasee nu e', async () => {
+    const h = await render(PaginaCumLucrez);
+    expect(h).toContain('class="main--suprafata"');
+    expect(h).toMatch(/<section[^>]*class="carte"[^>]*aria-labelledby="pasii"/);
+    expect(h).toMatch(/<section[^>]*class="carte"[^>]*aria-labelledby="formate"/);
+    // Banda cu trasee nu are `carte` printre clasele ei, în orice ordine (`class="carte cum-trasee"` pică la fel).
+    const eticheta = [...h.matchAll(/<section\b[^>]*>/g)].map((m) => m[0]).find((e) => /\sclass="[^"]*\bcum-trasee\b/.test(e)) ?? '';
+    const clase = (/\sclass="([^"]*)"/.exec(eticheta)?.[1] ?? '').split(/\s+/);
+    expect(clase).toContain('cum-trasee');
+    expect(clase).not.toContain('carte');
   });
 });

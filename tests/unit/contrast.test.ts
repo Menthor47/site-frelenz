@@ -34,6 +34,8 @@ test.each([
   ['--red-dark', '--paper', 4.5],
   ['--yellow-dark', '--tint-blue', 3],
   ['--field-border', '--paper', 3],
+  ['--ink', '--suprafata', 15],
+  ['--ink', '--card', 15],
 ] as const)('%s pe %s ≥ %s', (fg, bg, min) => {
   expect(ratio(tok(fg), tok(bg))).toBeGreaterThanOrEqual(min);
 });
@@ -41,6 +43,26 @@ test.each([
 test('negru pe albastru e sub 4,5 (interdicția din §5.2 e reală)', () => {
   expect(ratio(tok('--ink'), tok('--blue'))).toBeLessThan(4.5);
 });
+
+// Albastrul benzilor (decizia 26) nu e token: e un literal în pagina Acasă, în Cum lucrez, în Indemn și în fișă.
+const BANDA = '#D9E4F7';
+
+test.each([
+  ['--ink', 4.5],
+  ['--yellow-dark', 4.5],
+  ['--blue', 3],
+] as const)('%s pe albastrul benzilor (#D9E4F7) ≥ %s', (fg, min) => {
+  expect(ratio(tok(fg), BANDA)).toBeGreaterThanOrEqual(min);
+});
+
+test.each(['components/Indemn.astro', 'components/PageFacts.astro', 'pages/cum-lucrez.astro', 'pages/index.astro'])(
+  '%s are fundalul benzii #D9E4F7, nu --tint-blue (1,02:1 pe suprafață)',
+  (fisier) => {
+    const sursa = readFileSync(new URL(`../../src/${fisier}`, import.meta.url), 'utf8');
+    expect(sursa).toContain('background: #d9e4f7;');
+    expect(sursa).not.toContain('background: var(--tint-blue)');
+  },
+);
 
 test('tokenurile din §5.2 au exact valorile din spec', () => {
   const asteptat: Record<string, string> = {
@@ -62,6 +84,9 @@ test('tokenurile din §5.2 au exact valorile din spec', () => {
     '--tint-red': '#FCEDEA',
     '--rule': '#E6E8EC',
     '--field-border': '#8A8F98',
+    '--suprafata': '#E9EEF5',
+    '--card': '#FFFFFF',
+    '--card-contur': '#D5DCE6',
   };
   for (const [nume, valoare] of Object.entries(asteptat)) {
     expect(tok(nume).toUpperCase(), nume).toBe(valoare);

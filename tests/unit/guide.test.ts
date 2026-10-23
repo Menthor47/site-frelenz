@@ -34,6 +34,10 @@ const CORP = '<h2>Google nu știe încă de site</h2><p>Detaliile ghidului.</p>'
 const main = (h: string) => h.slice(h.indexOf('<main'), h.indexOf('</main>'));
 
 describe('Guide (§4.5)', () => {
+  test('stă pe suprafața deschisă (decizia 29)', async () => {
+    expect(main(await render(Guide, { ghid: ghid() }, { default: CORP }))).toContain('class="main--suprafata"');
+  });
+
   test('H1-ul e titlul, iar primul paragraf de după el e răspunsul', async () => {
     const h = main(await render(Guide, { ghid: ghid() }, { default: CORP }));
     expect(textOf(/<h1\b[^>]*>([\s\S]*?)<\/h1>/.exec(h)?.[1] ?? '')).toBe('De ce nu apare site-ul meu în Google');
@@ -81,10 +85,10 @@ describe('Guide (§4.5)', () => {
     expect(main(await render(Guide, { ghid: ghid({ raspuns: '[DE COMPLETAT:#16]' }) }, { default: CORP }))).toContain('[DE COMPLETAT:#16]');
   });
 
-  test('un singur îndemn „Cere o ofertă” în conținut, fără atribute style și fără scripturi', async () => {
+  test('un singur îndemn „Cere o ofertă” în conținut, fără atribute style, cu un singur script (al trenurilor de pe bandă)', async () => {
     const h = await render(Guide, { ghid: ghid() }, { default: CORP });
     expect(main(h).match(/Cere o ofertă/g)).toHaveLength(1);
     expect(h).not.toMatch(/\sstyle=/);
-    expect(h.match(/<script\b(?![^>]*application\/ld\+json)/g)).toBeNull();
+    expect(h.match(/<script\b(?![^>]*application\/ld\+json)/g)).toHaveLength(1);
   });
 });

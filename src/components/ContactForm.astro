@@ -27,7 +27,7 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
       <div class="formular__camp">
         <label for={id(c.nume)}>
           {c.eticheta}
-          {CAMPURI[c.nume].required && <span class="formular__obligatoriu">(obligatoriu)</span>}
+          <span class="formular__obligatoriu">{CAMPURI[c.nume].required ? '(obligatoriu)' : '(opțional)'}</span>
         </label>
         <input
           id={id(c.nume)}
@@ -45,7 +45,7 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
   <div class="formular__camp">
     <label for={id('serviciu')}>
       Serviciul de care ai nevoie
-      {CAMPURI.serviciu.required && <span class="formular__obligatoriu">(obligatoriu)</span>}
+      <span class="formular__obligatoriu">{CAMPURI.serviciu.required ? '(obligatoriu)' : '(opțional)'}</span>
     </label>
     <select id={id('serviciu')} name="serviciu" required={CAMPURI.serviciu.required}>
       <option value="">Alege un serviciu</option>
@@ -54,10 +54,10 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
     </select>
   </div>
 
-  <div class="formular__camp">
+  <div class="formular__camp formular__camp--mesaj">
     <label for={id('mesaj')}>
       Mesaj
-      {CAMPURI.mesaj.required && <span class="formular__obligatoriu">(obligatoriu)</span>}
+      <span class="formular__obligatoriu">{CAMPURI.mesaj.required ? '(obligatoriu)' : '(opțional)'}</span>
     </label>
     <textarea id={id('mesaj')} name="mesaj" required={CAMPURI.mesaj.required} maxlength={CAMPURI.mesaj.maxLength} rows="8" aria-describedby={ID_NOTA_MESAJ}
     ></textarea>
@@ -70,7 +70,7 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
   </div>
 
   <div class="formular__trimite">
-    <button type="submit" class="buton-cta">Trimite cererea</button>
+    <button type="submit" class="buton-cta">Cere o ofertă</button>
     <p class="formular__nota">
       Folosesc datele trimise ca să-ți răspund la cerere și pentru discuțiile care urmează. Detalii în <a
         href="/politica-de-confidentialitate/">Politica de confidențialitate</a
@@ -82,8 +82,24 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
 <style>
   .formular {
     display: grid;
+    /* Fără asta, coloana implicită (auto) crește până la cel mai lat câmp și iese din card la text mărit. */
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.25rem;
-    max-width: 40rem;
+    max-width: none;
+  }
+
+  /* Containerul e cardul din pagina Contact (`container-type` stă pe el: o interogare nu se aplică elementului care o declară).
+     Cu 36rem de lățime sau mai mult, câmpurile stau pe două coloane; Mesajul și butonul iau tot rândul. Capcana e absolută, deci nu intră în grilă. */
+  @container (min-width: 36rem) {
+    .formular {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: 1.25rem;
+    }
+
+    .formular__camp--mesaj,
+    .formular__trimite {
+      grid-column: 1 / -1;
+    }
   }
 
   label {
@@ -118,6 +134,7 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
 
   .formular__nota {
     max-width: 60ch;
+    overflow-wrap: anywhere;
     margin: 0.35rem 0 0;
     color: var(--ink-2);
     font-size: var(--text-sm);
@@ -134,11 +151,13 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
 
   .formular__trimite {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: start;
     gap: 0.5rem;
   }
 
   .formular__trimite .buton-cta {
+    max-width: 100%;
     border: 0;
     cursor: pointer;
   }

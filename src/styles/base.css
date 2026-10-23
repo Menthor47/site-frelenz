@@ -78,8 +78,8 @@ h4 {
 
 p,
 li {
-  /* Cel mult ~70 de caractere pe rând. */
-  max-width: 70ch;
+  /* Cel mult ~70 de caractere pe rând. `ch` e lat în Atkinson (~0,65em), deci 70ch dădea ~90; 34em dă ~70. */
+  max-width: 34em;
 }
 
 p {
@@ -158,6 +158,28 @@ main:focus-visible {
 .contener {
   width: min(100% - 2 * var(--gutter), var(--container));
   margin-inline: auto;
+}
+
+.main--suprafata {
+  background: var(--suprafata);
+}
+
+/* Cardul din §5.2 al designului 2026-10-23: alb, cu contur de 1px, fără umbră și fără colțuri rotunjite. */
+.carte {
+  background: var(--card);
+  border: 1px solid var(--card-contur);
+  padding: 1.5rem;
+}
+
+@media (min-width: 48rem) {
+  .carte {
+    padding: 2rem;
+  }
+}
+
+/* Ultimul element din card nu lasă margine de jos (cea a paragrafelor, de pildă): sub text rămâne doar paddingul cardului. */
+.carte > :last-child {
+  margin-bottom: 0;
 }
 
 /* Marcajul [DE COMPLETAT:#nr], vizibil doar în previzualizarea DRAFT=1 (componenta Placeholder). */

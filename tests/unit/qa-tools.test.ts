@@ -11,11 +11,25 @@ import { esteNoindex, scripturiPermise } from '../../scripts/schema-expectations
 const SCRIPTURI = fileURLToPath(new URL('../../scripts/', import.meta.url));
 
 describe('schema-expectations', () => {
-  test('scripturiPermise: 1 pe Acasă și pe fișa paginii, 0 în rest (§9.1)', () => {
-    expect(scripturiPermise('/')).toBe(1);
-    expect(scripturiPermise('/proiecte/acest-site/')).toBe(1);
-    expect(scripturiPermise('/_test/harta/')).toBe(1);
-    for (const cale of ['/contact/', '/servicii/', '/servicii/seo/', '/proiecte/', '/404/', '/_test/diacritice/']) expect(scripturiPermise(cale)).toBe(0);
+  // Atributele `class` sunt cele pe care le scrie MetroMap.astro (harta) și PageFacts.astro (fișa); rândul „fără hartă” e o pagină legală.
+  const ACASA = '<div class="harta harta--noapte harta--animata harta--pe-acasa" data-astro-cid-x>';
+  const BANDA = '<div class="harta harta--noapte harta--animata harta--banda harta--cu-linie" data-astro-cid-x>';
+  const STATICA = '<div class="harta harta--noapte harta--statica" data-astro-cid-x>';
+  const FISA = '<dl class="fisa" data-astro-cid-y><div class="fisa__rand"></div></dl>';
+
+  test('scripturiPermise: 1 pe orice pagină cu hartă animată, +1 cu fișa, 0 fără hartă (§9.1, decizia 28)', () => {
+    expect(scripturiPermise(`<main>${ACASA}</main>`)).toBe(1);
+    expect(scripturiPermise(`<main>${BANDA}</main>`)).toBe(1);
+    expect(scripturiPermise(`<main>${BANDA}${FISA}</main>`)).toBe(2);
+    expect(scripturiPermise('<main><h1>Politica de cookie-uri</h1></main>')).toBe(0);
+    expect(scripturiPermise(`<main>${STATICA}</main>`)).toBe(0);
+  });
+
+  test('scripturiPermise: contează atributul `class`, nu aceleași nume din CSS-ul inline sau din clase asemănătoare', () => {
+    const doarCss = '<style>.harta--animata[data-astro-cid-x]{display:block}.fisa[data-astro-cid-y]{margin:0}</style><main></main>';
+    expect(scripturiPermise(doarCss)).toBe(0);
+    expect(scripturiPermise('<div class="fisa__rand fisa__valoare"></div>')).toBe(0);
+    expect(scripturiPermise('<div class="x harta--animata-veche"></div>')).toBe(0);
   });
 
   test('esteNoindex: paginile noindex din §6.1 și cele interne, nimic altceva', () => {

@@ -1,3 +1,4 @@
+import PaginaContact from '../../src/pages/contact/index.astro';
 import PaginaDespre from '../../src/pages/despre.astro';
 import { render, textOf } from './helpers';
 
@@ -48,10 +49,54 @@ describe('/despre/ (§4.5)', () => {
     for (const draft of [false, true]) {
       stare.draft = draft;
       const h = main(await render(PaginaDespre));
-      expect(titluri(h, 2)).toEqual(['Cine sunt', 'Experiență', 'Instrumente']);
+      // „Unelte” e titlul cardului de profil, care stă după povestea cu cele trei secțiuni.
+      expect(titluri(h, 2)).toEqual(['Cine sunt', 'Experiență', 'Instrumente', 'Unelte']);
       expect(h).not.toContain('DE COMPLETAT');
-      expect(h).not.toMatch(/<p\b[^>]*>\s*<\/p>/);
+      expect(h).not.toMatch(/<p\b(?![^>]*harta__anunt)[^>]*>\s*<\/p>/);
     }
+  });
+
+  // Stratul de suprafețe (§4.5): povestea stă în carduri pe coloana din stânga, profilul într-un card pe cea din dreapta.
+  // Astro adaugă `data-astro-cid-…` după `class`, deci etichetele se potrivesc cu `[^>]*`, nu cu un `class="…"` exact.
+  test('secțiunile sunt carduri în coloana poveștii, iar povestea și profilul stau în aceeași grilă', async () => {
+    stare.profiluri.push('https://www.linkedin.com/in/exemplu');
+    const h = main(await render(PaginaDespre));
+    const grila = /<div\b[^>]*class="[^"]*despre__grila[^"]*"[^>]*>([\s\S]*)<\/aside>/.exec(h)?.[1] ?? '';
+    expect(grila).toMatch(/^\s*<div\b[^>]*class="[^"]*despre__poveste[^"]*"/);
+    const poveste = /<div\b[^>]*class="[^"]*despre__poveste[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<aside\b/.exec(grila)?.[1] ?? '';
+    const sectiuni = [...poveste.matchAll(/<section\b[^>]*>/g)].map((m) => m[0]);
+    // Cine sunt, Experiență, Instrumente și Profiluri (lista are o valoare).
+    expect(sectiuni).toHaveLength(4);
+    for (const s of sectiuni) expect(s).toMatch(/class="carte"/);
+    expect(grila).toMatch(/<aside\b[^>]*class="carte despre__profil"/);
+  });
+
+  test('profilul e un card, fără imagine, cu numele și rolul lui Alex și cu linkul spre #date-firma, iar ținta există', async () => {
+    const h = main(await render(PaginaDespre));
+    const profil = h.match(/<aside[^>]*class="[^"]*despre__profil[^"]*"[^>]*>([\s\S]*?)<\/aside>/)?.[1] ?? '';
+    expect(h).toMatch(/<aside[^>]*class="[^"]*\bcarte\b[^"]*despre__profil/);
+    expect(profil).not.toBe('');
+    expect(profil).not.toMatch(/<img\b|<picture\b|<figure\b/);
+    expect(profil).toContain('href="/contact/#date-firma"');
+    expect(profil).toMatch(/<a\b[^>]*href="\/contact\/#date-firma"/);
+    // Numele și rolul cu orașul, ca text literal: verificăm ce citește vizitatorul, nu valoarea din JSON-LD.
+    expect(textOf(profil)).toContain('Alex Ionescu');
+    expect(textOf(profil)).toContain('Consultant SEO și web designer, din București.');
+    // Ținta: pagina Contact, randată ca la build, are elementul cu id-ul din fragment.
+    expect(await render(PaginaContact)).toMatch(/<[a-z]+\b[^>]*\sid="date-firma"[^>]*>/);
+  });
+
+  test('Despre și Contact stau pe suprafața deschisă (decizia 29)', async () => {
+    for (const Pagina of [PaginaDespre, PaginaContact]) expect(main(await render(Pagina))).toContain('class="main--suprafata"');
+  });
+
+  test('lista de unelte din profil e cea din „Instrumente”', async () => {
+    const h = main(await render(PaginaDespre));
+    const unelte = [...h.matchAll(/<li class="despre__unealta"[^>]*>([^<]*)<\/li>/g)].map((m) => m[1] ?? '');
+    expect(unelte).toEqual(['Astro', 'React', 'TypeScript', 'Cloudflare', 'WordPress', 'WooCommerce', 'PHP', 'Lighthouse', 'axe', 'Playwright', 'Git']);
+    // Fiecare unealtă apare și în textul secțiunii „Instrumente”: nu inventăm unelte.
+    const instrumente = textOf(/<h2\b[^>]*>Instrumente<\/h2>([\s\S]*?)<\/section>/.exec(h)?.[1] ?? '');
+    for (const u of unelte) expect(instrumente, u).toContain(u);
   });
 
   test('szitrans.eu apare cu numele (acord, #7), magazinul online rămâne anonim', async () => {
@@ -102,10 +147,10 @@ describe('/despre/ (§4.5)', () => {
     expect(noduri.filter((n) => n['@type'] === 'BreadcrumbList')).toHaveLength(1);
   });
 
-  test('un singur îndemn „Cere o ofertă” în conținut, fără atribute style și fără scripturi', async () => {
+  test('un singur îndemn „Cere o ofertă” în conținut, fără atribute style, cu un singur script (al trenurilor de pe bandă)', async () => {
     const h = await render(PaginaDespre);
     expect(main(h).match(/Cere o ofertă/g)).toHaveLength(1);
     expect(h).not.toMatch(/\sstyle=/);
-    expect(h.match(/<script\b(?![^>]*application\/ld\+json)/g)).toBeNull();
+    expect(h.match(/<script\b(?![^>]*application\/ld\+json)/g)).toHaveLength(1);
   });
 });

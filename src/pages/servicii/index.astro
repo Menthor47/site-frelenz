@@ -43,6 +43,7 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
     { nume: 'Servicii', cale: CALE },
   ]}
   harta={{}}
+  suprafata={true}
 >
   <div class="contener servicii">
     <h1>Servicii</h1>
@@ -56,20 +57,22 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
       linii.map((linie) => (
         <section class="linie-grup" data-grup={linie.grup}>
           <h2 class="linie-grup__titlu">{NUME_LINIE[linie.grup]}</h2>
-          {linie.servicii.map((s) => (
-            <article class="serviciu">
-              <h3>
-                <a href={s.cale}>{s.nume}</a>
-              </h3>
-              <p>{s.raspunsDirect}</p>
-              <p class="serviciu__eticheta">Ce primești, pe scurt:</p>
-              <ul>
-                {s.livrabile.slice(0, LIVRABILE_PE_SCURT).map((t) => (
-                  <li>{t}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
+          <div class="linie-grup__servicii">
+            {linie.servicii.map((s) => (
+              <article class="serviciu serviciu-card">
+                <h3>
+                  <a href={s.cale}>{s.nume}</a>
+                </h3>
+                <p>{s.raspunsDirect}</p>
+                <p class="serviciu__eticheta">Ce primești, pe scurt:</p>
+                <ul>
+                  {s.livrabile.slice(0, LIVRABILE_PE_SCURT).map((t) => (
+                    <li>{t}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
         </section>
       ))
     }
@@ -118,26 +121,37 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
     background: var(--culoare);
   }
 
-  .serviciu {
-    padding-block: 1.25rem;
-    border-top: 1px solid var(--rule);
+  .linie-grup__servicii {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
   }
 
-  /* Pe desktop, numele serviciului stă în stânga, iar textul în dreapta, pe aceeași grilă. */
   @media (min-width: 48rem) {
-    .serviciu {
-      display: grid;
-      grid-template-columns: 16rem minmax(0, 1fr);
-      column-gap: 2rem;
+    .linie-grup__servicii {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+  }
 
-    .serviciu > :not(h3) {
-      grid-column: 2;
-    }
+  /* Cardul e alb, cu contur, și are o bară de 4px în culoarea liniei (--culoare, moștenit din data-grup). */
+  .serviciu-card {
+    background: var(--card);
+    border: 1px solid var(--card-contur);
+    border-left: 4px solid var(--culoare);
+    padding: 1.5rem;
+  }
 
-    .serviciu h3 {
-      grid-row: 1 / span 3;
+  @media (min-width: 48rem) {
+    .serviciu-card {
+      padding: 2rem;
     }
+  }
+
+  /* Cuvintele lungi și numele de servicii se rup în card, la orice lățime (Review Focus 2): „Mentenanță” sau „Optimizare”,
+     mărite la 200%, nu încap altfel într-un ecran de 320px. Linkul din titlu moștenește regula. */
+  .serviciu-card h3 {
+    overflow-wrap: anywhere;
   }
 
   h3 {
@@ -149,8 +163,6 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    /* La fel: „Mentenanță” sau „Optimizare”, mărite la 200%, nu încap altfel într-un ecran de 320px. */
-    overflow-wrap: anywhere;
   }
 
   .serviciu__eticheta {

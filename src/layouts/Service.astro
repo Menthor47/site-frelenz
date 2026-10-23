@@ -45,12 +45,13 @@ const firimituri = [
   jsonld={[nodService(s), ...nodFaq(s.faq, DRAFT)]}
   firimituri={firimituri}
   harta={{ line: s.grup, tranzitie: s.slug }}
+  suprafata={true}
 >
   <div class="contener serviciu" data-grup={s.grup}>
     <h1>{s.h1}</h1>
     <p class="serviciu__raspuns">{s.raspunsDirect}</p>
 
-    <div class="serviciu__doua">
+    <div class="serviciu__doua carte">
       <section>
         <h2>Pentru cine e</h2>
         <ul>{s.pentruCine.map((t) => <li>{t}</li>)}</ul>
@@ -61,19 +62,19 @@ const firimituri = [
       </section>
     </div>
 
-    <section>
+    <section class="carte">
       <h2>Ce primești</h2>
       <ul>{s.livrabile.map((t) => <li>{t}</li>)}</ul>
     </section>
 
-    <section>
+    <section class="carte">
       <h2>Cum se desfășoară</h2>
       <ol class="serviciu__pasi">{s.pasi.map((t) => <li>{t}</li>)}</ol>
     </section>
 
     {
       proiect && (
-        <section>
+        <section class="carte">
           <h2>Un proiect</h2>
           <p class="serviciu__proiect">
             <a href={`/proiecte/${proiect.slug}/`}>{proiect.titlu}</a>
@@ -83,14 +84,14 @@ const firimituri = [
       )
     }
 
-    <section>
+    <section class="carte">
       <h2>Întrebări frecvente</h2>
       <Faq intrebari={s.faq} />
     </section>
 
     {s.notaGarantii && <p class="serviciu__nota">{NOTA_GARANTII}</p>}
 
-    <section>
+    <section class="carte">
       <h2>Servicii înrudite</h2>
       <ul class="inrudite">
         {
@@ -133,14 +134,18 @@ const firimituri = [
     line-height: 1.45;
   }
 
-  section {
-    margin-top: 2.5rem;
+  /* Cardurile stau la 1,5rem unul de altul. „Pentru cine e” și „Semne că ai nevoie” sunt un singur card, deci spațiul
+     dintre ele e în card. */
+  .serviciu > .carte {
+    margin-top: 1.5rem;
   }
 
-  /* „Pentru cine e” și „Semne că ai nevoie” stau una lângă alta pe desktop, una sub alta pe mobil. */
+  /* „Pentru cine e” și „Semne că ai nevoie” stau într-un singur card: una lângă alta pe desktop, cu 3rem între coloane,
+     și una sub alta pe mobil, cu 2,5rem între rânduri. */
   .serviciu__doua {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
+    row-gap: 2.5rem;
     column-gap: 3rem;
   }
 

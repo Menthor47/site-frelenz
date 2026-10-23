@@ -5,6 +5,11 @@ import Header from '../../src/components/Header.astro';
 import LegalId from '../../src/components/LegalId.astro';
 import { SERVICII } from '../../src/form-rules';
 import Base from '../../src/layouts/Base.astro';
+import Pagina404 from '../../src/pages/404.astro';
+import PaginaEroare from '../../src/pages/contact/eroare.astro';
+import PaginaMultumim from '../../src/pages/contact/multumim.astro';
+import PaginaPreaMulteLinkuri from '../../src/pages/contact/prea-multe-linkuri.astro';
+import PaginaCookies from '../../src/pages/politica-cookies.astro';
 import { site } from '../../src/site.config';
 import { render, textOf } from './helpers';
 
@@ -280,7 +285,7 @@ describe('Base', () => {
       { nume: 'SEO', cale: '/servicii/seo/' },
     ];
     const main = parte(await pagina({ cale: '/servicii/seo/', firimituri, harta: { line: 'vizibilitate', tranzitie: 'seo' } }), 'main');
-    const pozitii = ['class="banda vt-seo"', 'class="harta harta--statica"', 'aria-label="Firimituri"'].map((e) => main.indexOf(e));
+    const pozitii = ['class="banda vt-seo"', 'class="harta harta--noapte harta--animata harta--banda harta--cu-linie"', 'aria-label="Firimituri"'].map((e) => main.indexOf(e));
     expect(pozitii.every((p) => p >= 0)).toBe(true);
     expect(pozitii).toEqual([...pozitii].sort((a, b) => a - b));
     expect(main.match(/vt-/g)).toHaveLength(1);
@@ -295,5 +300,20 @@ describe('Base', () => {
   test('ghidurile nu au link în subsol', async () => {
     colectii.ghiduri = [ghid(true), ghid(true)];
     expect(hrefuri(parte(await pagina(), 'footer'))).not.toContain('/ghiduri/');
+  });
+
+  test('suprafata=true pune main--suprafata pe main; implicit, main nu o are', async () => {
+    expect(parte(await pagina({ suprafata: true }), 'main')).toContain('class="main--suprafata"');
+    expect(parte(await pagina(), 'main')).not.toContain('main--suprafata');
+  });
+
+  test('o pagină legală (layout Legal) nu primește main--suprafata', async () => {
+    expect(parte(await render(PaginaCookies), 'main')).not.toContain('main--suprafata');
+  });
+
+  test('404 și paginile de răspuns ale formularului nu primesc main--suprafata', async () => {
+    for (const Pagina of [Pagina404, PaginaEroare, PaginaMultumim, PaginaPreaMulteLinkuri]) {
+      expect(parte(await render(Pagina), 'main')).not.toContain('main--suprafata');
+    }
   });
 });

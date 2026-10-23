@@ -5,6 +5,8 @@
 // să nu ducă niciodată spre o pagină lipsă; magazinul rămâne anonim. Pagina așteaptă aprobarea lui Alex
 // (src/approvals.ts). Profilurile apar doar dacă `site.profiluri` nu e gol
 // (#5), cu `rel="me"`. Fără fotografie și fără cadru gol până există una reală (#6).
+// Stratul de suprafețe (§4.5): pe desktop două coloane, povestea în carduri la stânga, un card de profil la dreapta (numele,
+// rolul, uneltele din „Instrumente” și linkul spre datele firmei din Contact); pe mobil, una sub alta. Fără imagine în profil.
 // În producție, o secțiune care e încă marcaj lipsește cu tot cu titlul ei (§3.4).
 // JSON-LD: ProfilePage (mainEntity #alex) și Person complet, care îl înlocuiește pe cel minimal; BreadcrumbList din Base.
 import { getCollection } from 'astro:content';
@@ -30,7 +32,7 @@ const SECTIUNI: readonly { titlu: string; text: string; legatura?: { text: strin
   {
     titlu: 'Experiență',
     legatura: { text: 'szitrans.eu', proiect: 'szitrans' },
-    text: 'Am construit szitrans.eu, site-ul bilingv, în engleză și spaniolă, al unei firme de transport și logistică din Spania, și m-am ocupat de SEO-ul lui: am pus datele reale ale firmei în datele structurate și în etichetele meta, ca Google și motoarele AI să găsească peste tot aceleași informații, și am adăugat toate paginile, în ambele limbi, în harta site-ului. Un magazin online pe WordPress și WooCommerce primește comenzi și în timp ce îl modific, așa că am pornit de la o copie locală, iar pe site-ul live a ajuns doar cod testat. I-am adus la zi subsolul și paginile legale, cu datele comerciantului și linkurile ANPC, am tradus bannerul de cookie-uri în română și i-am adăugat butonul de refuz. Iar site-ul pe care îl citești acum l-am construit tot eu, pagină cu pagină.',
+    text: 'Am construit szitrans.eu, site-ul bilingv, în engleză și spaniolă, al unei firme de transport și logistică din Spania, și m-am ocupat de SEO-ul lui: am pus datele reale ale firmei în datele structurate și în etichetele meta, ca Google și motoarele AI să găsească peste tot aceleași informații, și am adăugat toate paginile, în ambele limbi, în harta site-ului.\n\nUn magazin online pe WordPress și WooCommerce primește comenzi și în timp ce îl modific, așa că am pornit de la o copie locală, iar pe site-ul live a ajuns doar cod testat. I-am adus la zi subsolul și paginile legale, cu datele comerciantului și linkurile ANPC, am tradus bannerul de cookie-uri în română și i-am adăugat butonul de refuz.\n\nIar site-ul pe care îl citești acum l-am construit tot eu, pagină cu pagină.',
   },
   {
     titlu: 'Instrumente',
@@ -38,15 +40,19 @@ const SECTIUNI: readonly { titlu: string; text: string; legatura?: { text: strin
   },
 ];
 
+/** Uneltele din profil: exact cele pe care le numește secțiunea „Instrumente” de mai sus, în ordinea din text. */
+const UNELTE = ['Astro', 'React', 'TypeScript', 'Cloudflare', 'WordPress', 'WooCommerce', 'PHP', 'Lighthouse', 'axe', 'Playwright', 'Git'] as const;
+
 const publicate = new Set(proiectePublicabile((await getCollection('proiecte')).map((intrare) => intrare.data), DRAFT).map((p) => p.slug));
 const sectiuni = faraMarcaje(SECTIUNI, (s) => hasMarker(s.text), DRAFT).map((s) => {
   const l = s.legatura;
-  const poz = l !== undefined && publicate.has(l.proiect) ? s.text.indexOf(l.text) : -1;
-  const link =
-    l === undefined || poz < 0
-      ? undefined
-      : { inainte: s.text.slice(0, poz), text: l.text, href: `/proiecte/${l.proiect}/`, dupa: s.text.slice(poz + l.text.length) };
-  return { titlu: s.titlu, text: s.text, link };
+  const legatura = l !== undefined && publicate.has(l.proiect) ? { text: l.text, href: `/proiecte/${l.proiect}/` } : undefined;
+  // Un paragraf pe linia goală. Linkul stă doar în paragraful în care apare, nu în toată secțiunea.
+  const paragrafe = s.text.split('\n\n').map((par) => {
+    const poz = legatura === undefined ? -1 : par.indexOf(legatura.text);
+    return poz < 0 || legatura === undefined ? { text: par } : { inainte: par.slice(0, poz), ...legatura, dupa: par.slice(poz + legatura.text.length) };
+  });
+  return { titlu: s.titlu, paragrafe };
 });
 // Aceeași regulă ca `sameAs` din JSON-LD: fără valori goale sau marcaje.
 const profiluri = site.profiluri.filter(areValoare);
@@ -63,6 +69,7 @@ const profiluri = site.profiluri.filter(areValoare);
     { nume: 'Despre', cale: CALE },
   ]}
   harta={{}}
+  suprafata={true}
 >
   <div class="contener despre">
     <h1>{site.nume}</h1>
@@ -74,38 +81,54 @@ const profiluri = site.profiluri.filter(areValoare);
       Pe pagina <a href="/cum-lucrez/">Cum lucrez</a> vezi pașii și cele două feluri în care putem lucra împreună.
     </p>
 
-    {
-      sectiuni.map((s) => (
-        <section>
-          <h2>{s.titlu}</h2>
-          <p>
-            {s.link === undefined ? (
-              <TextSauMarcaj valoare={s.text} />
-            ) : (
-              // Pe un singur rând: un rând nou între link și text ar pune un spațiu înaintea virgulei de după link.
-              <>{s.link.inainte}<a href={s.link.href}>{s.link.text}</a>{s.link.dupa}</>
-            )}
-          </p>
-        </section>
-      ))
-    }
+    <div class="despre__grila">
+      <div class="despre__poveste">
+        {
+          sectiuni.map((s) => (
+            <section class="carte">
+              <h2>{s.titlu}</h2>
+              {s.paragrafe.map((par) => (
+                <p>
+                  {'href' in par ? (
+                    // Pe un singur rând: un rând nou între link și text ar pune un spațiu înaintea virgulei de după link.
+                    <>{par.inainte}<a href={par.href}>{par.text}</a>{par.dupa}</>
+                  ) : (
+                    <TextSauMarcaj valoare={par.text} />
+                  )}
+                </p>
+              ))}
+            </section>
+          ))
+        }
 
-    {
-      profiluri.length > 0 && (
-        <section>
-          <h2>Profiluri</h2>
-          <ul class="despre__profiluri">
-            {profiluri.map((p) => (
-              <li>
-                <a href={p} rel="me">
-                  {new URL(p).hostname.replace(/^www\./, '')}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )
-    }
+        {
+          profiluri.length > 0 && (
+            <section class="carte">
+              <h2>Profiluri</h2>
+              <ul class="despre__profiluri">
+                {profiluri.map((p) => (
+                  <li>
+                    <a href={p} rel="me">
+                      {new URL(p).hostname.replace(/^www\./, '')}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+      </div>
+
+      <aside class="carte despre__profil" aria-label="Profil">
+        <p class="despre__nume">{site.nume}</p>
+        <p>Consultant SEO și web designer, din București.</p>
+        <h2 class="despre__unelte-titlu">Unelte</h2>
+        <ul class="despre__unelte">
+          {UNELTE.map((u) => <li class="despre__unealta">{u}</li>)}
+        </ul>
+        <p><a href="/contact/#date-firma">Date de identificare</a></p>
+      </aside>
+    </div>
   </div>
 
   <Indemn text="Spune-mi ce site ai și ce te încurcă." />
@@ -117,7 +140,36 @@ const profiluri = site.profiluri.filter(areValoare);
   }
 
   .despre > :global(*) {
-    max-width: 70ch;
+    max-width: 34em;
+  }
+
+  /* Grila are nevoie de toată lățimea containerului; regula de mai sus ar limita-o la 34em. */
+  .despre__grila {
+    max-width: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  @media (min-width: 64rem) {
+    .despre__grila {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  .despre__profil {
+    display: grid;
+    /* Fără asta, coloana implicită (auto) crește până la cel mai lung cuvânt („WooCommerce”) și iese din card la text mărit. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .despre__nume {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: 800;
   }
 
   h1 {
@@ -130,14 +182,32 @@ const profiluri = site.profiluri.filter(areValoare);
     line-height: 1.45;
   }
 
-  section {
-    margin-top: 2.5rem;
+  /* Cardurile poveștii stau la 1,5rem unul de altul, ca pe celelalte pagini cu carduri; primul stă la linia profilului. */
+  section + section {
+    margin-top: 1.5rem;
   }
 
   .despre__profiluri {
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  /* Uneltele din profil curg pe rânduri, fără buline, fără chenare și fără marginea implicită a listei, ca să stea la
+     marginea titlului „Unelte”. */
+  .despre__unelte {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Un element flex nu se strânge sub cel mai lung cuvânt al lui, deci „WooCommerce” ieșea din card la text mărit pe 320px;
+     cu `min-width: 0`, cuvântul se rupe la marginea cardului (`overflow-wrap` din base.css). */
+  .despre__unealta {
+    min-width: 0;
   }
 
   /* Zona de atingere de 44px (§5.8): linkurile spre profiluri sunt singure pe rând. */

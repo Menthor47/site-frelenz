@@ -38,6 +38,10 @@ const titluri = (h: string, nivel: number) =>
   [...h.matchAll(new RegExp(`<h${nivel}\\b[^>]*>([\\s\\S]*?)</h${nivel}>`, 'g'))].map((m) => textOf(m[1] ?? ''));
 
 describe('CaseStudy (§4.5)', () => {
+  test('stă pe suprafața deschisă (decizia 29)', async () => {
+    expect(main(await render(CaseStudy, { proiect: proiect() }))).toContain('class="main--suprafata"');
+  });
+
   test('H1-ul, apoi secțiunile în ordinea din spec', async () => {
     const h = main(await render(CaseStudy, { proiect: proiect() }));
     expect(titluri(h, 1)).toEqual(['Un magazin online din București']);
@@ -115,7 +119,7 @@ describe('CaseStudy (§4.5)', () => {
     const cu = proiect({ serviciiDeConfirmat: '[DE COMPLETAT:#8]' });
     const productie = main(await render(CaseStudy, { proiect: cu }));
     expect(productie).not.toContain('DE COMPLETAT');
-    expect(productie).not.toMatch(/<p\b[^>]*>\s*<\/p>/);
+    expect(productie).not.toMatch(/<p\b(?![^>]*harta__anunt)[^>]*>\s*<\/p>/);
     stare.draft = true;
     const h = main(await render(CaseStudy, { proiect: cu }));
     const servicii = h.slice(h.indexOf('Serviciile folosite'));

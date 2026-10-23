@@ -69,6 +69,20 @@ describe('/servicii/ (§4.5)', () => {
   test('un singur îndemn „Cere o ofertă” în conținut', async () =>
     expect(main(await render(PaginaServicii)).match(/class="buton-cta"/g)).toHaveLength(1));
 
+  test('fiecare serviciu e un card cu o singură legătură, spre pagina lui', async () => {
+    const h = main(await render(PaginaServicii));
+    // Astro pune pe fiecare element atributul `data-astro-cid-…` (stiluri cu scop), deci eticheta nu se încheie după `class`.
+    const carduri = [...h.matchAll(/<article class="serviciu serviciu-card"[^>]*>([\s\S]*?)<\/article>/g)].map((m) => m[1] ?? '');
+    expect(carduri).toHaveLength(SERVICII.length);
+    carduri.forEach((c) => expect(c.match(/<a\b/g)).toHaveLength(1));
+  });
+
+  test('pagina e pe suprafață, cu o grilă de carduri pentru fiecare linie', async () => {
+    const h = await render(PaginaServicii);
+    expect(h).toContain('class="main--suprafata"');
+    expect(h.match(/<div class="linie-grup__servicii"/g)).toHaveLength(4);
+  });
+
   test('JSON-LD: CollectionPage, ItemList cu cele 6 servicii în ordine și BreadcrumbList', async () => {
     const json = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(await render(PaginaServicii))?.[1] ?? '{}';
     const noduri = (JSON.parse(json) as { '@graph': Record<string, any>[] })['@graph'];

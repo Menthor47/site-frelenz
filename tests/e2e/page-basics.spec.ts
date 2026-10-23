@@ -25,6 +25,8 @@ test('elementele de bază', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   const raspuns = await page.goto(cale);
   expect(stariOk, `${cale} a răspuns cu ${raspuns?.status()}`).toContain(raspuns?.status());
+  // HTML-ul servit, înainte de JavaScript: din el se știe dacă pagina are harta animată (și deci scriptul trenurilor).
+  const html = (await raspuns?.text()) ?? '';
   await page.waitForLoadState('networkidle');
   await page.evaluate(() => document.fonts.ready);
 
@@ -33,7 +35,7 @@ test('elementele de bază', async ({ page }) => {
   expect.soft(await axe(page), 'încălcări axe').toEqual([]);
   expect.soft(await page.locator('h1').count(), 'un singur H1').toBe(1);
 
-  const permise = scripturiPermise(cale);
+  const permise = scripturiPermise(html);
   const scripturi = await page.locator('script:not([type="application/ld+json"])').evaluateAll((els) => els.map((s) => (s as HTMLScriptElement).src || s.textContent?.slice(0, 60) || '(gol)'));
   expect.soft(scripturi.length, `scripturi în afară de JSON-LD (permise ${permise}): ${scripturi.join(' | ')}`).toBeLessThanOrEqual(permise);
 
