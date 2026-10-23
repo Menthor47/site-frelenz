@@ -1,6 +1,6 @@
 // Stratul de suprafețe (decizia 29), verificat în browser: ce se vede, nu doar clasele din HTML.
 // Paginile sunt cele din build-ul de producție, servit pe portul din playwright.config.ts.
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { expect, test } from './helpers';
 
 /** Mărimea fontului unui element, în pixeli. */
@@ -47,6 +47,33 @@ test('Servicii la 390px: Construcție stă sub Diagnostic', async ({ page }) => 
   const diagnostic = await page.locator('section[data-grup="diagnostic"]').boundingBox();
   const constructie = await page.locator('section[data-grup="constructie"]').boundingBox();
   expect(constructie?.y ?? 0).toBeGreaterThanOrEqual((diagnostic?.y ?? 0) + (diagnostic?.height ?? 0));
+});
+
+// Tot cardul duce la serviciu, ca rândurile din „De unde pornești?” de pe Acasă (auditul din 2026-10-24, UI-02). Clicul și
+// mișcarea sunt ale mouse-ului, la coordonate: linkul acoperă cardul, deci `locator.click()` pe paragraf n-ar ajunge la el.
+// Cardul stă sub prima ecranare, iar mouse-ul ajunge doar în fereastră: întâi derularea, apoi coordonatele.
+async function mijlocVizibil(element: Locator): Promise<[number, number]> {
+  await element.scrollIntoViewIfNeeded();
+  const cutie = await element.boundingBox();
+  if (cutie === null) throw new Error('elementul nu se vede');
+  return [cutie.x + cutie.width / 2, cutie.y + cutie.height / 2];
+}
+
+test('Servicii: un clic pe textul unui card deschide pagina serviciului', async ({ page }) => {
+  await page.goto('/servicii/');
+  const card = page.locator('.serviciu-card').first();
+  const href = await card.locator('h3 a').getAttribute('href');
+  await page.mouse.click(...(await mijlocVizibil(card.locator('p').first())));
+  await expect(page).toHaveURL(new RegExp(`${href ?? 'fără href'}$`));
+});
+
+test('Servicii: mouse-ul pe textul cardului îngroașă sublinierea numelui serviciului, ca pe Acasă', async ({ page }) => {
+  await page.goto('/servicii/');
+  const card = page.locator('.serviciu-card').first();
+  const grosime = () => card.locator('h3 a').evaluate((a) => Number.parseFloat(getComputedStyle(a).textDecorationThickness));
+  const inainte = await grosime();
+  await page.mouse.move(...(await mijlocVizibil(card.locator('p').first())));
+  expect(await grosime()).toBeGreaterThan(inainte);
 });
 
 test('Servicii: linia de deasupra îndemnului final se vede pe suprafață (cel puțin 1,1:1)', async ({ page }) => {

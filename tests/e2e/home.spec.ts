@@ -161,9 +161,24 @@ test('segmentul din „De unde pornești?” și banda serviciului au același n
 
 test('favicon-ul e stația plină albastră (§5.4)', async ({ page }) => {
   await page.goto('/');
-  const href = await page.locator('link[rel="icon"]').getAttribute('href');
+  const href = await page.locator('link[rel="icon"][type="image/svg+xml"]').getAttribute('href');
   expect(href).toBe('/favicon.svg');
   const raspuns = await page.request.get(href!);
   expect(raspuns.ok()).toBe(true);
   expect(await raspuns.text()).toContain('#2D6CDF');
+});
+
+// Iconițele PNG se generează la build (auditul din 2026-10-24, SEO-02): fiecare iconiță din <head> trebuie să existe, cu
+// tipul declarat (iconița Apple n-are `type`; e PNG).
+test('fiecare iconiță din <head> se servește, cu tipul declarat', async ({ page }) => {
+  await page.goto('/');
+  const iconite = await page
+    .locator('link[rel="icon"], link[rel="apple-touch-icon"]')
+    .evaluateAll((linkuri) => linkuri.map((l) => ({ href: l.getAttribute('href') ?? '', tip: l.getAttribute('type') ?? 'image/png' })));
+  expect(iconite.map((i) => i.href).sort()).toEqual(['/apple-touch-icon.png', '/favicon-96.png', '/favicon.svg']);
+  for (const { href, tip } of iconite) {
+    const raspuns = await page.request.get(href);
+    expect(raspuns.status(), href).toBe(200);
+    expect(raspuns.headers()['content-type'], href).toContain(tip);
+  }
 });

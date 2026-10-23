@@ -113,9 +113,16 @@ describe('CaseStudy (§4.5)', () => {
     expect(h.match(/<mark class="marcaj">\[DE COMPLETAT:#(?:21|10)\]/g)).toHaveLength(2);
   });
 
-  test('capturile au text alternativ', async () => {
-    const h = main(await render(CaseStudy, { proiect: proiect({ capturi: [{ src: '/proiecte/magazin.png', alt: 'Pagina de produs, după' }] }) }));
-    expect(h).toMatch(/<img\b[^>]*src="\/proiecte\/magazin\.png"[^>]*alt="Pagina de produs, după"/);
+  // Capturile vin din `image()` (content.config.ts), ca o imagine importată: astro:assets le dă lățimea și înălțimea, ca
+  // pagina să nu sară când se încarcă (§9.1), plus încărcarea leneșă și textul alternativ.
+  test('capturile trec prin astro:assets: cu lățime, înălțime, încărcare leneșă și text alternativ', async () => {
+    const imagine = { src: '/_astro/magazin.a1b2c3d4.png', width: 1200, height: 750, format: 'png' };
+    const h = main(await render(CaseStudy, { proiect: proiect({ capturi: [{ src: imagine, alt: 'Pagina de produs, după' }] }) }));
+    const img = /<figure class="caz__captura"[^>]*>\s*(<img\b[^>]*>)/.exec(h)?.[1] ?? '';
+    expect(img).toMatch(/\swidth="1200"/);
+    expect(img).toMatch(/\sheight="750"/);
+    expect(img).toMatch(/\sloading="lazy"/);
+    expect(img).toMatch(/\salt="Pagina de produs, după"/);
   });
 
   // Pe acest-site, rezultatul sunt scorurile (§4.5), deci stau la „Rezultatul”, înaintea serviciilor; fișa vine la final,

@@ -23,6 +23,13 @@
   --suprafata: #E9EEF5;
   --card: #FFFFFF;
   --card-contur: #D5DCE6;
+  /* Albastrul benzilor deschise (decizia 26): traseele de pe Acasă și din Cum lucrez, benzile de îndemn și fișa paginii */
+  --albastru-benzi: #D9E4F7;
+  /* Antetul și banda de sus, întunecate pe toate paginile (decizia 28): fundalul, textul, textul secundar și linia de sub antet */
+  --noapte: #0E1116;
+  --noapte-text: #E8ECF2;
+  --noapte-text-2: #A7B0BE;
+  --noapte-contur: #2A313C;
 
   /* Scara tipografică (raport ~1,25; rădăcina rămâne 16px, textul de bază e 18px) */
   --text-sm: 0.9rem;

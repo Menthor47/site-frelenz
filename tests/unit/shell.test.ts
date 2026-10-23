@@ -206,6 +206,19 @@ describe('Base', () => {
     expect(await pagina({ articol: true })).toMatch(/<meta property="og:type" content="article"/);
   });
 
+  test('iconițele (§5.4): favicon.svg, un PNG de 96×96 pentru programele care nu citesc SVG și iconița Apple', async () => {
+    const linkuri = [...(await pagina()).matchAll(/<link\b([^>]*)>/g)].map((m) => m[1] ?? '').filter((a) => /\brel="(?:icon|apple-touch-icon)"/.test(a));
+    const atribute = (a: string) => Object.fromEntries([...a.matchAll(/\b(rel|href|type|sizes)="([^"]*)"/g)].map((m) => [m[1], m[2]]));
+    expect(linkuri.map(atribute)).toEqual(
+      expect.arrayContaining([
+        { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+        { rel: 'icon', href: '/favicon-96.png', type: 'image/png', sizes: '96x96' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+      ]),
+    );
+    expect(linkuri).toHaveLength(3);
+  });
+
   test('ordinea în pagină: linkul de salt, antetul, conținutul, subsolul', async () => {
     const h = await pagina();
     const pozitii = ['class="sari"', '<header', '<main', '<footer'].map((e) => h.indexOf(e));

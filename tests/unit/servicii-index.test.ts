@@ -69,12 +69,16 @@ describe('/servicii/ (§4.5)', () => {
   test('un singur îndemn „Cere o ofertă” în conținut', async () =>
     expect(main(await render(PaginaServicii)).match(/class="buton-cta"/g)).toHaveLength(1));
 
-  test('fiecare serviciu e un card cu o singură legătură, spre pagina lui', async () => {
+  // Cardul e cardul comun al site-ului (`carte`, decizia 29), cu bara liniei deasupra: același fundal, contur și padding.
+  test('fiecare serviciu e un card `carte`, cu o singură legătură, spre pagina lui', async () => {
     const h = main(await render(PaginaServicii));
     // Astro pune pe fiecare element atributul `data-astro-cid-…` (stiluri cu scop), deci eticheta nu se încheie după `class`.
-    const carduri = [...h.matchAll(/<article class="serviciu serviciu-card"[^>]*>([\s\S]*?)<\/article>/g)].map((m) => m[1] ?? '');
+    const carduri = [...h.matchAll(/<article class="([^"]*)"[^>]*>([\s\S]*?)<\/article>/g)].filter((m) => /\bserviciu-card\b/.test(m[1] ?? ''));
     expect(carduri).toHaveLength(SERVICII.length);
-    carduri.forEach((c) => expect(c.match(/<a\b/g)).toHaveLength(1));
+    for (const [, clase, continut] of carduri) {
+      expect(clase).toMatch(/\bcarte\b/);
+      expect(continut?.match(/<a\b/g)).toHaveLength(1);
+    }
   });
 
   // Decizia lui Alex din 2026-10-23: liniile cu două servicii iau tot rândul, iar cele cu unul singur (Diagnostic și

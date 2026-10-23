@@ -99,7 +99,7 @@ siteulet/
       ghiduri/*.md          ghiduri (cu aprobat)
     layouts/                Base, Service, CaseStudy, Guide, Legal
     components/             vezi 3.3
-    pages/                  rute, inclusiv llms.txt, robots.txt și imaginile OG
+    pages/                  rute, inclusiv llms.txt, robots.txt, imaginile OG și iconițele PNG
     styles/                 tokens.css, base.css, componente
     client/                 trei scripturi mici, puse inline: trains (Acasă), page-facts (acest-site), contact-form (formularul, decizia 30)
   worker/
@@ -154,7 +154,7 @@ Schema colecției verifică că fiecare `slug` de serviciu există și în lista
 - `slug`, `titlu`, `descriere` (140–160 de caractere, §4.2), `client` (nume sau „anonim”), `acord` (boolean), `aprobat` (boolean);
 - `context`, `problema`, `ceAmFacut[]`;
 - `rezultate[]`, fiecare cu `text`, `sursa`, `data`;
-- `servicii[]`, `serviciiDeConfirmat?` (marcajul `[DE COMPLETAT:#n]` cât timp serviciile sunt provizorii), `capturi[]` (cu text alternativ);
+- `servicii[]`, `serviciiDeConfirmat?` (marcajul `[DE COMPLETAT:#n]` cât timp serviciile sunt provizorii), `capturi[]` (imagini prin `image()` și astro:assets, cu text alternativ);
 - `scoruri[]`, doar pentru `acest-site`: valoare, dată, versiune Lighthouse, sursă.
 
 **Când e publicabil un proiect:**
@@ -456,8 +456,11 @@ Secțiunile paginii de serviciu sunt carduri pe `--suprafata` (decizia 29): fiec
 | `--yellow` / `--yellow-dark` | #F5B21B / #8A5A00 | grupul construcție, linia M1 / text și grafică cu sens pe alb |
 | `--red` / `--red-dark` | #E0533D / #B8382A | grupul reparație, linia M3 / text pe alb, erori |
 | `--tint-blue` | #EAF0FB | butonul „Oprește trenurile” și celelalte locuri care nu sunt benzile de mai jos |
-| — (fără token) | #D9E4F7 | fundalul benzii traseului „Cum lucrăm” de pe Acasă (pe toată lățimea), al benzilor de îndemn de pe paginile pe suprafață (componenta `Indemn`), al benzii de trasee de pe `/cum-lucrez/` și al fișei de pe `/proiecte/acest-site/`. Decizia din 2026-10-23 (varianta 2a): 1,28:1 față de alb, unde `--tint-blue` are 1,14:1; pe suprafața `#E9EEF5` are 1,10:1, iar `--tint-blue` are 1,02:1 și dispare. |
-| — (fără token) | #0E1116 / #E8ECF2 | banda de sus și antetul, pe toate paginile, întunecate (decizia 28). Text `#E8ECF2` pe `#0E1116`: 15,95:1. |
+| `--albastru-benzi` | #D9E4F7 | fundalul benzii traseului „Cum lucrăm” de pe Acasă (pe toată lățimea), al benzilor de îndemn de pe paginile pe suprafață (componenta `Indemn`), al benzii de trasee de pe `/cum-lucrez/` și al fișei de pe `/proiecte/acest-site/`. Decizia din 2026-10-23 (varianta 2a): 1,28:1 față de alb, unde `--tint-blue` are 1,14:1; pe suprafața `#E9EEF5` are 1,10:1, iar `--tint-blue` are 1,02:1 și dispare. |
+| `--noapte` | #0E1116 | fundalul antetului și al benzii de sus, pe toate paginile (decizia 28), și miezul stațiilor de pe hartă |
+| `--noapte-text` | #E8ECF2 | meniul din antet, textul zonei de sus de pe Acasă, conturul stațiilor și „Ești aici”. Pe `--noapte`: 15,95:1. |
+| `--noapte-text-2` | #A7B0BE | „consultant SEO” din logo, pe antet. Pe `--noapte`: 8,64:1. |
+| `--noapte-contur` | #2A313C | linia de 1px de sub antet |
 | `--tint-yellow` | #FEF3D7 | blocuri din grupul construcție |
 | `--tint-green` | #E8F5EE | blocuri din grupul diagnostic |
 | `--tint-red` | #FCEDEA | blocuri din grupul reparație |
@@ -468,8 +471,8 @@ Secțiunile paginii de serviciu sunt carduri pe `--suprafata` (decizia 29): fiec
 - Pe albastru apare doar text alb (4,86:1). Textul negru pe albastru are 3,73:1 și e interzis.
 - Negru pe verde: 5,22:1; pe galben: 9,72:1; pe roșu: 4,72:1. Textul alb pe verde, galben sau roșu e interzis.
 - Variantele închise pe alb: între 5,77:1 și 7,36:1.
-- Pe tinturi (8–12%), textul închis trece de 4,96:1. Pe `#D9E4F7` textul negru are 14,14:1, albastrul închis `#1A4FB8` are 5,74:1 și galbenul închis `#8A5A00` are 4,63:1.
-- Pe benzile întunecate de sus, pe toate paginile (`#0E1116`), liniile au culorile lor tari, nu cele de pe alb: M1 galben `#F5B21B` 10,15:1, M2 albastru `#2D6CDF` 3,89:1, M3 roșu `#E0533D` 4,93:1, M4 verde `#1F9D61` 5,45:1. Galbenul închis `#8A5A00` nu se folosește acolo: are 3,19:1 pe întuneric. Plăcuța H1-ului e albă, cu text `#14161A` (18,11:1). Butonul rămâne `#2D6CDF` cu text alb (4,86:1). Butonul „Oprește trenurile” are fundal `#EAF0FB` și text `#14161A` (14,97:1).
+- Pe tinturi (8–12%), textul închis trece de 4,96:1. Pe `--albastru-benzi` (#D9E4F7) textul negru are 14,14:1, albastrul închis `#1A4FB8` are 5,74:1 și galbenul închis `#8A5A00` are 4,63:1.
+- Pe benzile întunecate de sus, pe toate paginile (`--noapte`, #0E1116), liniile au culorile lor tari, nu cele de pe alb: M1 galben `#F5B21B` 10,15:1, M2 albastru `#2D6CDF` 3,89:1, M3 roșu `#E0533D` 4,93:1, M4 verde `#1F9D61` 5,45:1. Galbenul închis `#8A5A00` nu se folosește acolo: are 3,19:1 pe întuneric. Plăcuța H1-ului e albă, cu text `#14161A` (18,11:1). Butonul rămâne `#2D6CDF` cu text alb (4,86:1). Butonul „Oprește trenurile” are fundal `#EAF0FB` și text `#14161A` (14,97:1).
 - Galbenul tare pe alb are 1,86:1, așa că nu se folosește pentru contururi, iconițe sau focus. Grafica galbenă cu sens (segmentul galben din „De unde pornești?”, traseul remedierii unice) folosește #8A5A00. Verdele (3,47:1) și roșul (3,84:1) trec pragul de 3:1 pentru grafică.
 - **Hover:** butonul nu se închide la culoare cu text negru pe el. Fie trece pe varianta închisă, cu text alb, fie primește doar subliniere sau contur.
 - **Linkurile din text** sunt mereu subliniate.
@@ -503,13 +506,13 @@ Secțiunile paginii de serviciu sunt carduri pe `--suprafata` (decizia 29): fiec
 ### 5.4 Logo și iconițe
 
 - **Logo:** „Alex Ionescu, consultant SEO”, ca text, fără imagine:
-  - „Alex Ionescu” în 800, `--ink`;
+  - „Alex Ionescu” în 800, `--ink` (pe antetul întunecat, alb: `--paper`);
   - virgula intenționată, în `--blue`;
-  - „consultant SEO” în 400, `--ink-2`.
+  - „consultant SEO” în 400, `--ink-2` (pe antetul întunecat, `--noapte-text-2`).
 
   Sub 380px, „consultant SEO” trece pe rândul următor.
 - **„Ești aici”:** o stație plină albastră, cu inel alb, pusă pe linia grupului, pe banda de sus.
-- **Favicon:** aceeași stație plină albastră.
+- **Favicon:** aceeași stație plină albastră. `public/favicon.svg` e iconița principală. Din el se desenează la build (`src/lib/iconite.ts`) două PNG-uri: `/favicon-96.png` (96×96), pentru programele care nu citesc SVG, și `/apple-touch-icon.png` (180×180), pentru ecranul de start al iPhone-ului, cu stația pe fundalul antetului (`--noapte`), pentru că iOS umple transparența cu negru.
 - **Iconițe:** puține, SVG inline, doar unde au sens: eroare, telefon, WhatsApp, e-mail.
 
 ### 5.5 Fișa paginii (doar pe `/proiecte/acest-site/`)

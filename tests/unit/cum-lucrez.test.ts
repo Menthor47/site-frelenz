@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import PaginaCumLucrez from '../../src/pages/cum-lucrez.astro';
 import { adresareFormala } from '../shared/adresare';
 import { render, textOf } from './helpers';
@@ -23,14 +22,13 @@ describe('/cum-lucrez/ (§4.5)', () => {
     expect(primul).toContain(FRAZA_B2B);
   });
 
-  test('traseele mari, într-o secțiune pe albastru deschis', async () => {
+  // Fundalul secțiunii, albastrul benzilor, se verifică în browser (tests/e2e/culori.spec.ts).
+  test('traseele mari, într-o secțiune proprie', async () => {
     const h = main(await render(PaginaCumLucrez));
     const sectiune = /<section class="cum-trasee"[^>]*>([\s\S]*?)<\/section>/.exec(h)?.[1] ?? '';
     expect(sectiune).toMatch(/class="[^"]*trasee--mare/);
     expect(sectiune).toContain('Remediere unică');
     expect(sectiune).toContain('Remediere + abonament lunar');
-    const sursa = readFileSync(new URL('../../src/pages/cum-lucrez.astro', import.meta.url), 'utf8');
-    expect(/\.cum-trasee\s*\{([^}]*)\}/.exec(sursa)?.[1]).toContain('background: #d9e4f7;');
   });
 
   test('cei patru pași, numerotați și explicați, cu numele stațiilor din trasee, în aceeași ordine', async () => {

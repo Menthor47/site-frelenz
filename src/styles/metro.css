@@ -206,7 +206,7 @@
    Opacitatea e pe grupul liniei, deci estompează și stațiile, care își acoperă linia înainte de compunere: linia nu se vede
    prin ele. */
 .banda {
-  background: #0e1116;
+  background: var(--noapte);
 }
 
 .harta--noapte .harta__linie {
@@ -224,13 +224,13 @@
 }
 
 .harta--noapte .harta__statie {
-  fill: #0e1116;
-  stroke: #e8ecf2;
+  fill: var(--noapte);
+  stroke: var(--noapte-text);
 }
 
 .harta--noapte .harta__eticheta {
-  fill: #e8ecf2;
-  stroke: #0e1116;
+  fill: var(--noapte-text);
+  stroke: var(--noapte);
 }
 
 .harta--noapte .tren__halou {

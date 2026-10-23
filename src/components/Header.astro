@@ -52,8 +52,8 @@ const faraButon = cale === '/' || cale === '/contact/';
 <style>
   /* Antetul e întunecat pe toate paginile (decizia din 2026-10-23), ca banda de sub el: aceleași culori ca harta. */
   .antet {
-    background: #0e1116;
-    border-bottom: 1px solid #2a313c;
+    background: var(--noapte);
+    border-bottom: 1px solid var(--noapte-contur);
   }
 
   /* Ordinea din DOM (logo, meniu, buton) e și ordinea vizuală; pe ecrane înguste rândurile doar trec mai jos. */
@@ -66,12 +66,12 @@ const faraButon = cale === '/' || cale === '/contact/';
     padding-block: 0.5rem;
   }
 
-  /* Logo (§5.4): „Alex Ionescu” 800 în --ink, virgula în --blue, „consultant SEO” 400 în --ink-2. */
+  /* Logo (§5.4), pe antetul întunecat: „Alex Ionescu” 800 în alb, virgula în --blue, „consultant SEO” 400 în --noapte-text-2. */
   .logo {
     margin-inline-end: auto;
     /* Zona de atingere de 44px (§5.8), fără flex: spațiul dintre cele trei texte trebuie să rămână. */
     padding-block: 0.6875rem;
-    color: #ffffff;
+    color: var(--paper);
     font-size: var(--text-base);
     line-height: 1.3;
     text-decoration: none;
@@ -88,7 +88,7 @@ const faraButon = cale === '/' || cale === '/contact/';
 
   .logo__rol {
     display: inline-block;
-    color: #a7b0be;
+    color: var(--noapte-text-2);
     font-weight: 400;
   }
 
@@ -120,7 +120,7 @@ const faraButon = cale === '/' || cale === '/contact/';
     /* Zona de atingere de 44px (§5.8). */
     min-height: 44px;
     padding-inline: 0.5rem;
-    color: #e8ecf2;
+    color: var(--noapte-text);
     font-size: 1rem;
     text-decoration: none;
   }

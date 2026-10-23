@@ -1,6 +1,7 @@
 ---
 // Studiul de caz (§4.5): contextul → problema → ce am făcut → rezultatul → serviciile folosite, apoi un singur îndemn.
-// La rezultat intră doar ce se poate dovedi, ca text, cu sursa și data, plus capturi cu text alternativ (§6.4).
+// La rezultat intră doar ce se poate dovedi, ca text, cu sursa și data, plus capturi cu text alternativ (§6.4), prin
+// astro:assets (§9.1): `<Image>` le dă lățime și înălțime, format WebP și încărcare leneșă.
 // Banda are linia primului serviciu din `servicii[]`, cu „Ești aici” (§5.6). JSON-LD: Article (about = serviciile
 // folosite, autor #alex); BreadcrumbList vine din Base (ruling R10).
 // Niciun marcaj nu apare ca text brut (§3.4): în previzualizare trece prin `Placeholder`, iar în producție câmpul lipsește,
@@ -8,6 +9,7 @@
 // `serviciiDeConfirmat` e marcajul serviciilor încă provizorii: se vede doar în previzualizare, lângă listă.
 // Doar pe /proiecte/acest-site/ (§4.5, §5.5): rezultatul sunt scorurile măsurate în producție, iar la final vine fișa paginii.
 // Titlul stă pe suprafață; secțiunile, într-un singur card alb (decizia din 2026-10-23).
+import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import Indemn from '../components/Indemn.astro';
 import PageFacts from '../components/PageFacts.astro';
@@ -129,7 +131,7 @@ const grup = servicii[0]?.grup;
             )}
             {p.capturi.map((c) => (
               <figure class="caz__captura">
-                <img src={c.src} alt={c.alt} loading="lazy" decoding="async" />
+                <Image src={c.src} alt={c.alt} />
               </figure>
             ))}
           </section>
@@ -227,7 +229,8 @@ const grup = servicii[0]?.grup;
     margin: 1.5rem 0 0;
   }
 
-  .caz__captura img {
+  /* `<img>`-ul îl scrie componenta `<Image>`, deci regula ajunge la el prin :global, din interiorul figurii. */
+  .caz__captura :global(img) {
     display: block;
     max-width: 100%;
     height: auto;

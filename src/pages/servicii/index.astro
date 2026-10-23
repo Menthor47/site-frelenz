@@ -60,7 +60,7 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
             <h2 class="linie-grup__titlu">{NUME_LINIE[linie.grup]}</h2>
             <div class="linie-grup__servicii">
               {linie.servicii.map((s) => (
-                <article class="serviciu serviciu-card">
+                <article class="serviciu carte serviciu-card">
                   <h3>
                     <a href={s.cale}>{s.nume}</a>
                   </h3>
@@ -161,18 +161,12 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
     }
   }
 
-  /* Cardul e alb, cu contur, și are o bară de 4px în culoarea liniei (--culoare, moștenit din data-grup). */
+  /* Cardul e cardul comun al site-ului (`.carte`: alb, cu contur și padding), cu o bară de 4px în culoarea liniei
+     (--culoare, moștenit din data-grup). Tot cardul e un singur link, ca rândurile din „De unde pornești?” de pe Acasă:
+     linkul din titlu își întinde zona de click peste card (`h3 a::after`), iar cardul îi dă poziția. */
   .serviciu-card {
-    background: var(--card);
-    border: 1px solid var(--card-contur);
+    position: relative;
     border-left: 4px solid var(--culoare);
-    padding: 1.5rem;
-  }
-
-  @media (min-width: 48rem) {
-    .serviciu-card {
-      padding: 2rem;
-    }
   }
 
   /* Cuvintele lungi și numele de servicii se rup în card, la orice lățime (Review Focus 2): „Mentenanță” sau „Optimizare”,
@@ -185,11 +179,18 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
     margin-bottom: 0.5rem;
   }
 
-  /* Numele serviciului e linkul spre pagina lui, cu zona de atingere de 44px (§5.8). */
+  /* Numele serviciului e linkul spre pagina lui, cu zona de atingere de 44px (§5.8). Linkul are tot un singur nume, cel
+     al serviciului, deci cititoarele de ecran nu aud cardul de două ori. */
   h3 a {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+  }
+
+  h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
   }
 
   .serviciu__eticheta {
