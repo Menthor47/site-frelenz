@@ -1,15 +1,15 @@
 // Contact și paginile de răspuns (§3.5, §4.5, Task 14), pe build-ul servit de `wrangler dev`: formularul ajunge la Worker.
 // Limitatorul din `wrangler dev` numără real (3 trimiteri la 60 s pe aceeași cheie), dar doar cererile care pleacă: fișierul
-// trimite un singur mesaj (fără JS); cererea cu prea multe linkuri și capcana nu ajung la limitator. Modul serial oprește
-// restul dacă un test pică.
+// trimite un singur mesaj real; cererea cu prea multe linkuri, capcana și erorile mocate (route) nu ajung la limitator.
+// Modul serial oprește restul dacă un test pică.
 import AxeBuilder from '@axe-core/playwright';
 import { completeaza, expect, faraDerulareOrizontala, seSuprapun, test, textMarit } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
 
-test('contactul are un singur script executabil: al trenurilor de pe bandă, iar formularul nu depinde de el', async ({ page }) => {
+test('contactul are două scripturi executabile: al trenurilor de pe bandă (decizia 28) și al formularului (decizia 30)', async ({ page }) => {
   await page.goto('/contact/');
-  await expect(page.locator('script:not([type="application/ld+json"])')).toHaveCount(1);
+  await expect(page.locator('script:not([type="application/ld+json"])')).toHaveCount(2);
   await expect(page.locator('.banda script')).toHaveCount(1);
 });
 
@@ -97,13 +97,64 @@ test('trimiterea fără JS ajunge la „Am primit cererea ta”', async ({ brows
   await context.close();
 });
 
-test('Înapoi după prea multe linkuri readuce mesajul', async ({ page }) => {
-  await completeaza(page, { mesaj: 'www.a.ro www.b.ro www.c.ro www.d.ro' });
+const CU_PATRU_LINKURI = 'www.a.ro www.b.ro www.c.ro www.d.ro';
+
+// Fără JavaScript, eroarea e o pagină: Înapoi readuce mesajul din istoric (decizia 30 păstrează asta).
+test('fără JS, Înapoi după prea multe linkuri readuce mesajul', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const p = await context.newPage();
+  await completeaza(p, { mesaj: CU_PATRU_LINKURI });
+  await p.getByRole('button', { name: 'Cere o ofertă' }).click();
+  await expect(p).toHaveURL(/prea-multe-linkuri/);
+  await expect(p.locator('main')).toContainText('Mesajul are mai mult de 3 linkuri.');
+  await p.goBack();
+  await expect(p.locator('textarea[name="mesaj"]')).toHaveValue(CU_PATRU_LINKURI);
+  await context.close();
+});
+
+// Cu JavaScript, formularul nu pleacă de pe pagină: explicația apare sub buton, iar mesajul rămâne în câmpuri.
+test('cu JS, prea multe linkuri: explicația apare pe pagină, cu focusul pe ea, iar mesajul rămâne', async ({ page }) => {
+  await completeaza(page, { mesaj: CU_PATRU_LINKURI });
   await page.getByRole('button', { name: 'Cere o ofertă' }).click();
-  await expect(page).toHaveURL(/prea-multe-linkuri/);
-  await expect(page.locator('main')).toContainText('Mesajul are mai mult de 3 linkuri.');
-  await page.goBack();
-  await expect(page.locator('textarea[name="mesaj"]')).toHaveValue('www.a.ro www.b.ro www.c.ro www.d.ro');
+  await expect(page.locator('[data-eroare]')).toBeVisible();
+  await expect(page.locator('[data-eroare]')).toBeFocused();
+  await expect(page.locator('[data-mesaj="linkuri"]')).toContainText('Mesajul are mai mult de 3 linkuri');
+  await expect(page.locator('[data-mesaj="eroare"]')).toBeHidden();
+  await expect(page).toHaveURL(/\/contact\/$/);
+  await expect(page.locator('textarea[name="mesaj"]')).toHaveValue(CU_PATRU_LINKURI);
+});
+
+// Răspunsurile Worker-ului de eroare sunt mocate: așa nu se consumă din limita de trimiteri a `wrangler dev`.
+test('cu JS, o eroare a Worker-ului lasă toate câmpurile completate pe pagină', async ({ page }) => {
+  await page.route('**/api/contact', (ruta) => ruta.fulfill({ status: 303, headers: { Location: '/contact/eroare/' } }));
+  await completeaza(page);
+  await page.getByRole('button', { name: 'Cere o ofertă' }).click();
+  await expect(page.locator('[data-mesaj="eroare"]')).toBeVisible();
+  await expect(page.locator('[data-eroare]')).toBeFocused();
+  await expect(page.locator('[name="nume"]')).toHaveValue('Ana Pop');
+  await expect(page.locator('[name="email"]')).toHaveValue('ana@exemplu.ro');
+  await expect(page.getByRole('button', { name: 'Cere o ofertă' })).toBeEnabled();
+});
+
+test('cu JS, un dublu clic în timpul trimiterii nu trimite a doua oară', async ({ page }) => {
+  let cereri = 0;
+  await page.route('**/api/contact', async (ruta) => {
+    cereri += 1;
+    await new Promise((rezolva) => setTimeout(rezolva, 300));
+    await ruta.fulfill({ status: 303, headers: { Location: '/contact/eroare/' } });
+  });
+  await completeaza(page);
+  await page.getByRole('button', { name: 'Cere o ofertă' }).dblclick();
+  await expect(page.locator('[data-mesaj="eroare"]')).toBeVisible();
+  expect(cereri).toBe(1);
+});
+
+test('cu JS, o cădere de rețea lasă mesajul pe pagină, nu un ecran de eroare al browserului', async ({ page }) => {
+  await page.route('**/api/contact', (ruta) => ruta.abort());
+  await completeaza(page);
+  await page.getByRole('button', { name: 'Cere o ofertă' }).click();
+  await expect(page.locator('[data-mesaj="eroare"]')).toBeVisible();
+  await expect(page.locator('[name="mesaj"]')).toHaveValue('Salut, am un site de prezentare.');
 });
 
 test('capcana completată duce la mulțumire', async ({ page }) => {

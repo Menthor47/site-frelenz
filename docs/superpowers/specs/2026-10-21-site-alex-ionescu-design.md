@@ -51,7 +51,7 @@ Pornește de la `plan-site-alex-ionescu.md` (planul lui Alex) și de la deciziil
 | 17 | Marcaje în producție | [DE COMPLETAT] nu apare niciodată pe site-ul public. Un câmp opțional gol nu afișează nimic. Marcajele se văd doar în previzualizarea locală (`DRAFT=1`, construită separat, în `dist-draft/`), iar `check:launch` cade dacă textul apare în `dist/`. |
 | 18 | Datele firmei în subsol | Subsolul are varianta scurtă (denumire, CUI, număr la Registrul Comerțului, „București”) și linkul „Date de identificare”. Adresa completă stă pe `/contact/#date-firma`, în Termeni și în Politica de confidențialitate. |
 | 19 | Logo | „Alex Ionescu, consultant SEO”: virgula e intenționată și albastră. |
-| 20 | Formular | Fără JavaScript. Browserul validează, iar serverul aplică aceleași reguli, dintr-un singur fișier. Singura regulă pe care browserul n-o poate verifica e limita de linkuri: mesajele cu peste 3 linkuri nu pleacă, iar regula e scrisă sub câmp. |
+| 20 | Formular | Funcționează fără JavaScript: browserul validează, iar serverul aplică aceleași reguli, dintr-un singur fișier. Cu JavaScript pornit (decizia 30), trimiterea se face din pagină, iar o eroare lasă mesajul în câmpuri. Singura regulă pe care browserul n-o poate verifica e limita de linkuri: mesajele cu peste 3 linkuri nu pleacă, iar regula e scrisă sub câmp. |
 | 21 | Aprobare | Alex aprobă pagină cu pagină. Fiecare serviciu are 4 întrebări frecvente. |
 | 22 | Despre fără studii | Decizia lui Alex din 2026-10-22: pagina Despre nu are secțiunea „Studii”, iar experiența îi ține locul. |
 | 23 | szitrans | Firma e a vărului lui Alex, care i-a lăsat proiectul: acordul (#7) e dat. Alex a făcut site-ul și SEO-ul (2026-10-22). |
@@ -61,6 +61,7 @@ Pornește de la `plan-site-alex-ionescu.md` (planul lui Alex) și de la deciziil
 | 27 | Trenurile (3a) | Rămân doar pe Acasă, aleși de Alex pe 2026-10-23. Paginile de serviciu, de studiu, de ghid, `/servicii/`, `/cum-lucrez/`, `/despre/` și `/contact/` au harta statică, fără trenuri și fără buton de oprire. Un tren care trece o singură dată ar fi o extindere separată, nu e în spec. Înlocuită de decizia 28 (2026-10-23). |
 | 28 | Antet, bandă și trenuri pe toate paginile (înlocuiește 27, extinde 25) | Antetul e întunecat pe toate paginile, ca banda de sus (fundal `#0E1116`). Pe fiecare pagină cu hartă, banda are trenuri, linia grupului plină cu „Ești aici” și butonul „Oprește trenurile”. Butonul e mai mic (text 12,8px), cu fundal `#EAF0FB` și text `#14161A` (14,97:1), contur 1px `--ink`, zona de atingere 44px. Aleasă de Alex pe 2026-10-23. Reface §5.1, §5.6, §5.7 și §9.1. |
 | 29 | Suprafețe stratificate (2026-10-23) | Fundal `--suprafata` sub bandă, carduri albe cu contur `--card-contur` pentru secțiunile de conținut; Servicii cu șase carduri în grilă; Despre cu profil; Contact pe două coloane. Detalii în `docs/superpowers/specs/2026-10-23-layered-surfaces-design.md`. Benzile de îndemn și fișa folosesc și ele `#D9E4F7`. După revizuirea din aceeași zi, alese de Alex: ghidurile, studiile de caz și listele `/proiecte/` și `/ghiduri/` au conținutul într-un singur card alb (titlul rămâne pe suprafață); pe `/servicii/`, liniile cu un singur serviciu (Diagnostic, Construcție) stau alături, pe același rând. |
+| 30 | Formular cu JavaScript (2026-10-24) | Cu JavaScript pornit, formularul se trimite din pagină: `fetch` la `/api/contact`, cu aceleași câmpuri ca POST-ul obișnuit, iar fetch urmează redirecționarea 303 a Worker-ului, deci pagina de ajungere spune rezultatul. Worker-ul nu se schimbă. La o eroare, mesajul rămâne în câmpuri, explicația apare sub buton și focusul trece pe ea. Trimiterea reușită merge la „Am primit cererea ta”. Nu se scrie nimic în browser (fără cookie-uri, fără stocare locală), deci Politica de cookie-uri rămâne adevărată și nu e nevoie de banner. Fără JavaScript, rămâne POST-ul obișnuit, cu paginile de răspuns. Schimbare cerută pe 2026-10-24, cu două condiții: niciun mesaj pierdut și o experiență mai bună. Reface rândul 20, „Formularul” din 3.5, §3 (arhitectura), §9.1 și §10 (verificările). |
 
 ---
 
@@ -100,7 +101,7 @@ siteulet/
     components/             vezi 3.3
     pages/                  rute, inclusiv llms.txt, robots.txt și imaginile OG
     styles/                 tokens.css, base.css, componente
-    client/                 două scripturi mici, puse inline: trains (Acasă), page-facts (acest-site)
+    client/                 trei scripturi mici, puse inline: trains (Acasă), page-facts (acest-site), contact-form (formularul, decizia 30)
   worker/
     index.ts                handler pentru POST /api/contact
     index.test.ts           teste (vitest în Node, cu legăturile simulate; ruling R18)
@@ -208,9 +209,10 @@ Așa o persoană reală nu primește pe server altă eroare decât cea anunțat�
 **Textele formularului** (ciorne, le aprobă Alex):
 - sub câmpul Mesaj: „Cel mult 3000 de caractere și cel mult 3 linkuri.”;
 - sub buton: „Folosesc datele trimise ca să-ți răspund la cerere și pentru discuțiile care urmează. Detalii în Politica de confidențialitate.”;
-- butonul: „Cere o ofertă”.
+- butonul: „Cere o ofertă”;
+- cu JavaScript, la o eroare (decizia 30; ciorne): „Mesajul are mai mult de 3 linkuri, dar e încă aici. Scoate câteva linkuri și trimite din nou, sau scrie-mi direct, la contactele de pe pagină.” și „Mesajul n-a plecat, dar e încă aici. Încearcă din nou peste un minut, sau scrie-mi direct, la contactele de pe pagină.”; în timpul trimiterii, butonul spune „Se trimite…”.
 
-Fără CNP și fără bifă de acord. Formularul nu are JavaScript. Pagina de contact are doar scriptul trenurilor de pe bandă (decizia 28), iar formularul se trimite și fără el.
+Fără CNP și fără bifă de acord. Formularul funcționează și fără JavaScript. Cu JavaScript pornit (decizia 30), se trimite din pagină, iar o eroare nu pierde mesajul: rămâne în câmpuri, cu explicația sub buton și focusul pe ea. Pagina de contact are două scripturi: trenurile de pe bandă (decizia 28) și formularul. Fără JavaScript, formularul se trimite prin POST obișnuit, ca până acum, cu paginile de răspuns.
 
 **Ce face Worker-ul:**
 1. Primește `POST /api/contact`. Orice altă metodă primește 405, iar orice altă cale de sub `/api/` primește 404.
@@ -267,7 +269,7 @@ Fără CNP și fără bifă de acord. Formularul nu are JavaScript. Pagina de co
 - **În antetul HTTP din `_headers`:** doar directivele de mai sus. Browserul ignoră `frame-ancestors` dacă e pus în `<meta>`. Antetul nu conține `default-src`, `script-src` sau `style-src`: politicile se cumulează, iar un antet cu ele ar bloca scripturile inline care au hash.
 
 **Reguli pentru scripturi și stiluri, ca să funcționeze CSP-ul:**
-- Există doar două scripturi: `trains` (Acasă) și `page-facts` (`acest-site`). Se includ doar ca `<script>` procesate de Astro, fără importuri comune, ca să fie puse inline (sub `build.assetsInlineLimit`) și să primească automat hash.
+- Există doar trei scripturi: `trains` (Acasă), `page-facts` (`acest-site`) și `contact-form` (formularul de contact, decizia 30). Se includ doar ca `<script>` procesate de Astro, fără importuri comune, ca să fie puse inline (sub `build.assetsInlineLimit`) și să primească automat hash.
 - **Interzise:**
   - `<script is:inline>`, cu excepția JSON-LD, pe care browserul nu îl execută;
   - `define:vars`;
@@ -796,7 +798,8 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
 - **JavaScript:**
   - ~1 KB pe fiecare pagină cu hartă (trenurile și butonul de oprire);
   - sub 1 KB pe `/proiecte/acest-site/` (fișa);
-  - 0 KB pe paginile fără hartă (legale, 404, paginile de răspuns ale formularului). Formularul nu are JavaScript.
+  - 0 KB pe paginile fără hartă (legale, 404, paginile de răspuns ale formularului);
+  - pe `/contact/`, scriptul formularului (decizia 30) se adaugă la cel al trenurilor. Bugetul lui se măsoară după primul build și se trece aici; nu e încă măsurat.
 - **CSS:** cel mult 25 KB pe pagină, necomprimat.
 - **Fonturi:** o singură familie, Atkinson Hyperlegible Next variabilă, cu latin și latin-ext, ~53–60 KB, ambele subseturi preîncărcate.
 - **Greutatea paginii Acasă:** sub 150 KB transferați. Se măsoară în producție, cu Brotli și cache gol (auditul `total-byte-weight` din Lighthouse, rulat pe domeniu). Pe `wrangler dev` nu există compresia Cloudflare, deci măsurătoarea de acolo nu contează.
@@ -832,7 +835,8 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
    - „reduced motion”: harta statică, fără buton;
    - butonul „Oprește trenurile”: oprește, iar IntersectionObserver nu repornește trenurile după ce vizitatorul le-a oprit;
    - harta de pe Acasă fără JavaScript: statică, fără buton;
-   - pagina de contact are un singur `<script>` executabil, al trenurilor de pe bandă (decizia 28), iar formularul se trimite fără JavaScript;
+   - pagina de contact are două `<script>` executabile: al trenurilor de pe bandă (decizia 28) și al formularului (decizia 30); formularul se trimite și fără JavaScript (POST obișnuit);
+   - cu JavaScript (decizia 30): o eroare, fie pagina de linkuri, fie o eroare a Worker-ului sau a rețelei, lasă mesajul în câmpuri și mută focusul pe explicație; trimiterea reușită ajunge la „Am primit cererea ta”; un al doilea clic în timpul trimiterii nu trimite a doua oară;
    - nu apare nicio încălcare CSP în consolă, pe build.
 5. Lighthouse 13 pe mobil, rulat local cu `wrangler dev`, mediana din 3 rulări, cu pragurile din capitolul 1. Paginile noindex au excepțiile de acolo. Chrome e instalat pe mașină. Greutatea paginii se judecă doar în producție (9.1).
 6. **JSON-LD:**
