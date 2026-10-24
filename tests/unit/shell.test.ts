@@ -25,8 +25,10 @@ const hrefuri = (html: string): string[] => [...html.matchAll(/<a\b[^>]*\bhref="
 const FRAZA_SUBSOL = 'Fără cookie-uri de urmărire și fără scripturi terțe. Vezi cum e făcut site-ul.';
 
 describe('Header', () => {
-  test('Acasă și Contact nu au buton în antet', async () => {
-    for (const cale of ['/', '/contact/']) expect(await render(Header, { cale })).not.toContain('class="buton-cta"');
+  test('Acasă, Contact și paginile de răspuns ale formularului nu au buton în antet', async () => {
+    for (const cale of ['/', '/contact/', '/contact/multumim/', '/contact/eroare/', '/contact/prea-multe-linkuri/']) {
+      expect(await render(Header, { cale }), cale).not.toContain('class="buton-cta"');
+    }
     expect(await render(Header, { cale: '/servicii/seo/' })).toContain('Cere o ofertă');
   });
 

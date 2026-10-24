@@ -122,11 +122,11 @@ Fiecare componentă are un singur rol și își primește datele prin props, din
 |---|---|---|
 | `SeoHead` | title, description, canonical, Open Graph, robots, `lang="ro"` | site.config, props de pagină |
 | `JsonLd` | un singur `@graph` per pagină (vezi 6.3) | site.config, conținutul paginii |
-| `Header` | logo, meniu și butonul „Cere o ofertă”. Butonul lipsește pe Acasă (acolo butonul plin e sub titlu) și pe `/contact/` (ar trimite la aceeași pagină). „Contact” rămâne în meniu. Antetul e întunecat pe toate paginile (decizia 28). | site.config |
+| `Header` | logo, meniu și butonul „Cere o ofertă”. Butonul lipsește pe Acasă (acolo butonul plin e sub titlu), pe `/contact/` (ar trimite la aceeași pagină) și pe paginile de răspuns ale formularului (pe cele de eroare, fără JavaScript, ar deschide un formular gol în locul butonului Înapoi, care readuce mesajul). „Contact” rămâne în meniu. Antetul e întunecat pe toate paginile (decizia 28). | site.config |
 | `Footer` | servicii, pagini, contact, `LegalId` în varianta scurtă, linkuri legale. Fraza despre cum e făcut site-ul apare doar după ce `/proiecte/acest-site/` există. | site.config, colecția servicii |
 | `LegalId` | datele firmei cerute de Legea 365/2002: `variant="scurt"` în subsol, `variant="complet"` pe Contact, în Termeni și în Confidențialitate | site.config |
 | `MetroMap` | harta SVG: `variant="animated"` pe Acasă și `variant="banda"` pe banda de sus a celorlalte pagini, cu trenuri (decizia 28); `variant="static"` fără trenuri. `line` e opțional: cu `line`, linia aceea e plină și are „Ești aici”; fără `line`, toate liniile sunt estompate. Unde apare și cum, vezi tabelul din 5.6. | tokenuri de culoare |
-| `LineDiagram` | „De unde pornești?”: fiecare rând e un tronson scurt de linie, cu stația-problemă, segmentul în culoarea grupului și capătul de linie cu serviciul, ca link | colecția servicii (câmpurile `problema`, `ordine`) |
+| `LineDiagram` | „De unde pornești?”: fiecare rând e un tronson scurt de linie, cu stația-problemă, segmentul în culoarea grupului și capătul de linie cu serviciul, ca link; linkul are problema ca descriere (`aria-describedby`) | colecția servicii (câmpurile `problema`, `ordine`) |
 | `RouteMap` | cele două trasee (remediere unică, abonament), desenate static | text din conținut |
 | `PageFacts` | fișa paginii, doar pe `/proiecte/acest-site/` (vezi 5.5) | script inline mic |
 | `Faq` | întrebări vizibile, cu FAQPage în graf | props |
@@ -210,7 +210,7 @@ Așa o persoană reală nu primește pe server altă eroare decât cea anunțat�
 - sub câmpul Mesaj: „Cel mult 3000 de caractere și cel mult 3 linkuri.”;
 - sub buton: „Folosesc datele trimise ca să-ți răspund la cerere și pentru discuțiile care urmează. Detalii în Politica de confidențialitate.”;
 - butonul: „Cere o ofertă”;
-- cu JavaScript, la o eroare (decizia 30; ciorne): „Mesajul are mai mult de 3 linkuri, dar e încă aici. Scoate câteva linkuri și trimite din nou, sau scrie-mi direct, la contactele de pe pagină.” și „Mesajul n-a plecat, dar e încă aici. Încearcă din nou peste un minut, sau scrie-mi direct, la contactele de pe pagină.”; în timpul trimiterii, butonul spune „Se trimite…”.
+- cu JavaScript, la o eroare (decizia 30; ciorne): „Mesajul are mai mult de 3 linkuri, dar e încă aici. Scoate câteva linkuri și trimite din nou, sau scrie-mi direct, la contactele de pe pagină.” și „Mesajul n-a plecat, dar e încă aici. Încearcă din nou peste un minut, sau scrie-mi direct, la contactele de pe pagină.”; în timpul trimiterii, butonul spune „Se trimite…”. Explicația stă sub buton, înaintea notei despre date, cu iconița de eroare și textul în #B8382A (§5.2), iar „contactele de pe pagină” sunt un link spre cardul „Sau scrie-mi direct”.
 
 Fără CNP și fără bifă de acord. Formularul funcționează și fără JavaScript. Cu JavaScript pornit (decizia 30), se trimite din pagină, iar o eroare nu pierde mesajul: rămâne în câmpuri, cu explicația sub buton și focusul pe ea. Pagina de contact are două scripturi: trenurile de pe bandă (decizia 28) și formularul. Fără JavaScript, formularul se trimite prin POST obișnuit, ca până acum, cu paginile de răspuns.
 
@@ -475,6 +475,7 @@ Secțiunile paginii de serviciu sunt carduri pe `--suprafata` (decizia 29): fiec
 - Pe benzile întunecate de sus, pe toate paginile (`--noapte`, #0E1116), liniile au culorile lor tari, nu cele de pe alb: M1 galben `#F5B21B` 10,15:1, M2 albastru `#2D6CDF` 3,89:1, M3 roșu `#E0533D` 4,93:1, M4 verde `#1F9D61` 5,45:1. Galbenul închis `#8A5A00` nu se folosește acolo: are 3,19:1 pe întuneric. Plăcuța H1-ului e albă, cu text `#14161A` (18,11:1). Butonul rămâne `#2D6CDF` cu text alb (4,86:1). Butonul „Oprește trenurile” are fundal `#EAF0FB` și text `#14161A` (14,97:1).
 - Galbenul tare pe alb are 1,86:1, așa că nu se folosește pentru contururi, iconițe sau focus. Grafica galbenă cu sens (segmentul galben din „De unde pornești?”, traseul remedierii unice) folosește #8A5A00. Verdele (3,47:1) și roșul (3,84:1) trec pragul de 3:1 pentru grafică.
 - **Hover:** butonul nu se închide la culoare cu text negru pe el. Fie trece pe varianta închisă, cu text alb, fie primește doar subliniere sau contur.
+- **Contrast ridicat:** butonul „Cere o ofertă” are un contur transparent de 2px (scăzut din padding, deci aceeași mărime), pe care modul de contrast ridicat îl face vizibil când scoate fundalul.
 - **Linkurile din text** sunt mereu subliniate.
 - **Focus:** `outline: 2px solid #14161A; outline-offset: 0;` plus `box-shadow: 0 0 0 4px #FFFFFF`, ca haloul alb să se vadă 2px în afara conturului (tehnica WCAG C40). Pe orice fundal, unul dintre cele două tonuri trece de 3:1. Focusul se verifică în subsol (#14161A), pe banda albastră și pe butonul în starea hover (#1A4FB8).
 - **Erorile:** text #B8382A, mereu cu iconiță și cu text, niciodată doar prin culoare.

@@ -62,6 +62,16 @@ describe('LineDiagram', () => {
     expect(hrefuri(h)).toEqual(inversat.map((x) => `/servicii/${x.slug}/`));
   });
 
+  test('linkul fiecărui rând are ca descriere problema rândului (aria-describedby), cu id-uri unice', async () => {
+    const h = await render(LineDiagram, { randuri: randuriExemplu });
+    const legaturi = [...h.matchAll(/<a\b[^>]*\baria-describedby="([^"]+)"[^>]*>/g)].map((m) => m[1] ?? '');
+    expect(legaturi).toHaveLength(randuriExemplu.length);
+    expect(new Set(legaturi).size).toBe(legaturi.length);
+    legaturi.forEach((id, i) => {
+      expect(textOf(new RegExp(`<p\\b[^>]*\\bid="${id}"[^>]*>([\\s\\S]*?)</p>`).exec(h)?.[1] ?? '')).toBe(randuriExemplu[i]!.problema);
+    });
+  });
+
   test('fiecare rând e un <li class="linie-rand"> cu grupul lui și cu un singur link, capătul de linie (R11)', async () => {
     const h = await render(LineDiagram, { randuri: randuriExemplu });
     const randuri = [...h.matchAll(/<li\b[^>]*class="linie-rand"[^>]*>([\s\S]*?)<\/li>/g)];

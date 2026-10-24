@@ -5,7 +5,10 @@
   justify-content: center;
   /* Zona de atingere de 44px (§5.8). */
   min-height: 44px;
-  padding: 0.5rem 1.25rem;
+  /* Contur transparent de 2px, scăzut din padding (aceeași mărime): în modul de contrast ridicat fundalul dispare, iar
+     conturul capătă culoarea sistemului, deci butonul rămâne buton și nu text simplu. */
+  padding: calc(0.5rem - 2px) calc(1.25rem - 2px);
+  border: 2px solid transparent;
   /* Pe albastru apare doar text alb (4,86:1). */
   background: var(--blue);
   color: var(--paper);

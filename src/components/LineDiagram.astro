@@ -3,6 +3,8 @@
 // stația cu problema, segmentul în culoarea grupului și capătul de linie, cu serviciul ca link text, fără chenar.
 // Semantic e o listă `<ul>` de linkuri, în ordinea primită (pagina o sortează după `ordine`); nu e o secvență, deci nu are numere (§9.2).
 // Desenul (stațiile și segmentul) e doar forma listei, ascuns din arborele de accesibilitate.
+// Linkul are ca nume serviciul și ca descriere problema (`aria-describedby`), ca în lista de linkuri a unui cititor de ecran
+// rândul să nu rămână doar „SEO” sau „Optimizare AEO și GEO”.
 // - Rândul e `<li class="linie-rand" data-grup="…">`; culoarea vine din `data-grup`, în CSS (CSP: fără `style`).
 // - Segmentul poartă clasa `vt-<slug>` (ruling R5): `transitions.css` îi dă `view-transition-name: segment-<slug>`,
 //   același nume ca banda paginii de serviciu. Declarația nu e aici.
@@ -21,11 +23,12 @@ const { randuri } = Astro.props;
   {
     randuri.map((rand) => {
       const marcaj = parseMarker(rand.problema);
+      const idProblema = `problema-${rand.slug}`;
       return (
         <li class="linie-rand" data-grup={rand.grup}>
-          <p class="linie-rand__problema">{marcaj === null ? rand.problema : <Placeholder nr={marcaj} />}</p>
+          <p class="linie-rand__problema" id={idProblema}>{marcaj === null ? rand.problema : <Placeholder nr={marcaj} />}</p>
           <span class={`linie-rand__segment vt-${rand.slug}`} aria-hidden="true" />
-          <a class="linie-rand__capat" href={`/servicii/${rand.slug}/`}>{rand.nume}</a>
+          <a class="linie-rand__capat" href={`/servicii/${rand.slug}/`} aria-describedby={idProblema}>{rand.nume}</a>
         </li>
       );
     })

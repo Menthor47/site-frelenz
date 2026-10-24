@@ -20,6 +20,13 @@ const CAMPURI_TEXT: readonly { nume: Exclude<NumeCamp, 'serviciu' | 'mesaj'>; et
 const servicii = [...SERVICII].sort((a, b) => a.ordine - b.ordine);
 const id = (nume: string) => `formular-${nume}`;
 const ID_NOTA_MESAJ = 'formular-mesaj-nota';
+
+interface Props {
+  /** Id-ul titlului cu contactele directe din pagină: „contactele de pe pagină” din explicația de eroare duc acolo. */
+  idContacte: string;
+}
+
+const { idContacte } = Astro.props;
 ---
 
 <form class="formular" method="post" action="/api/contact">
@@ -70,15 +77,25 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
     <input id={id(CAPCANA)} name={CAPCANA} type="text" tabindex="-1" autocomplete="off" />
   </div>
 
-  <div class="formular__eroare" role="alert" tabindex="-1" hidden data-eroare>
-    <p data-mesaj="linkuri" hidden>
-      Mesajul are mai mult de {CAMPURI.mesaj.maxLinkuri} linkuri, dar e încă aici. Scoate câteva linkuri și trimite din nou, sau scrie-mi direct, la contactele de pe pagină.
-    </p>
-    <p data-mesaj="eroare" hidden>Mesajul n-a plecat, dar e încă aici. Încearcă din nou peste un minut, sau scrie-mi direct, la contactele de pe pagină.</p>
-  </div>
-
   <div class="formular__trimite">
     <button type="submit" class="buton-cta">Cere o ofertă</button>
+    <div class="formular__eroare" role="alert" tabindex="-1" hidden data-eroare>
+      <svg class="formular__iconita" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <path d="M12 6.5v7" fill="none" stroke="currentColor" stroke-width="2.5"></path>
+        <rect x="10.75" y="15.75" width="2.5" height="2.5" fill="currentColor"></rect>
+      </svg>
+      <p data-mesaj="linkuri" hidden>
+        Mesajul are mai mult de {CAMPURI.mesaj.maxLinkuri} linkuri, dar e încă aici. Scoate câteva linkuri și trimite din nou, sau scrie-mi direct, la <a
+          href={`#${idContacte}`}>contactele de pe pagină</a
+        >.
+      </p>
+      <p data-mesaj="eroare" hidden>
+        Mesajul n-a plecat, dar e încă aici. Încearcă din nou peste un minut, sau scrie-mi direct, la <a href={`#${idContacte}`}
+          >contactele de pe pagină</a
+        >.
+      </p>
+    </div>
     <p class="formular__nota">
       Folosesc datele trimise ca să-ți răspund la cerere și pentru discuțiile care urmează. Detalii în <a
         href="/politica-de-confidentialitate/">Politica de confidențialitate</a
@@ -170,17 +187,29 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
     gap: 0.5rem;
   }
 
-  /* Explicația de după o eroare (doar cu JavaScript): pe toată lățimea formularului, cu bară roșie ca să se vadă. */
+  /* Explicația de după o eroare (doar cu JavaScript, decizia 30): sub buton, pe toată lățimea, cu iconiță și text #B8382A
+     (§5.2: erorile au mereu iconiță și text, niciodată doar culoare; 5,07:1 pe --tint-red). Contur de 1px, ca la carduri. */
   .formular__eroare {
-    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    column-gap: 0.75rem;
+    justify-self: stretch;
     margin: 0;
     padding: 0.75rem 1rem;
-    border-left: 4px solid var(--red-dark);
+    border: 1px solid var(--red-dark);
     background: var(--tint-red);
-    color: var(--ink);
+    color: var(--red-dark);
+  }
+
+  /* Iconița ține rândul întâi al textului: 24px pe un rând de 18px × 1,6. */
+  .formular__iconita {
+    flex: none;
+    margin-top: 0.2rem;
   }
 
   .formular__eroare p {
+    grid-column: 2;
     margin: 0;
   }
 
@@ -190,9 +219,9 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
     display: none;
   }
 
+  /* Conturul transparent vine din butoane.css (vizibil în modul de contrast ridicat), deci aici nu se pune `border: 0`. */
   .formular__trimite .buton-cta {
     max-width: 100%;
-    border: 0;
     cursor: pointer;
   }
 </style>

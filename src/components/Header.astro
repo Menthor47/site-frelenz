@@ -1,6 +1,8 @@
 ---
 // Antetul (§3.3, §4.3 punctul 1, §5.4): logo, meniu și butonul „Cere o ofertă”.
-// Butonul lipsește pe Acasă (acolo butonul plin e sub titlu) și pe /contact/ (ar trimite la aceeași pagină).
+// Butonul lipsește pe Acasă (acolo butonul plin e sub titlu), pe /contact/ (ar trimite la aceeași pagină) și pe paginile de
+// răspuns ale formularului, /contact/…/: pe cele de eroare, fără JavaScript, ar deschide un formular gol în locul butonului
+// Înapoi, care readuce mesajul; pe „Am primit cererea ta” ar sugera că cererea nu s-a încheiat.
 // „Contact” rămâne în meniu. Componenta nu citește colecțiile: Base îi spune dacă Proiecte și Ghiduri există (§3.4).
 import { site } from '../site.config';
 import Cta from './Cta.astro';
@@ -28,7 +30,7 @@ const meniu = [
 /** „page” pe pagina curentă, „true” pe secțiunea din care face parte (ex. Servicii pe /servicii/seo/). */
 const curent = (href: string) => (cale === href ? 'page' : cale.startsWith(href) ? 'true' : undefined);
 
-const faraButon = cale === '/' || cale === '/contact/';
+const faraButon = cale === '/' || cale.startsWith('/contact/');
 ---
 
 <header class="antet">
