@@ -24,7 +24,7 @@ Cerințe: Node 24 (`.node-version`). Instalare: `npm ci`, apoi, o singură dată
 | `npm run report:placeholders` | `reports/placeholders.json`: marcajele rămase în sursă, cu rândul din registru. |
 | `npm run check:launch` | Refuză lansarea cât timp lipsește ceva (vezi mai jos). |
 | `npm run report` | `reports/raport-final.md`: scorurile pe pagină, schema, linkurile rupte și marcajele deschise. |
-| `npm run deploy` | Testele, build, `check`, `check:launch`, apoi `wrangler deploy`. **Doar cu acordul lui Alex.** |
+| `npm run deploy` | `verify` (`astro check`, testele, build, `check`, `check:links`), `check:launch`, apoi `wrangler deploy`. **Doar cu acordul lui Alex.** |
 
 ## Cum aprobi o pagină
 
