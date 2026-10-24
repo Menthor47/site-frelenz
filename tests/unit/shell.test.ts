@@ -32,6 +32,21 @@ describe('Header', () => {
     expect(await render(Header, { cale: '/servicii/seo/' })).toContain('Cere o ofertă');
   });
 
+  // Pe telefon, butonul stă lângă logo (doar vizual) și, sub 360px, „Contact” lipsește: Header le marchează prin clase.
+  test('cu buton, rândul antetului e marcat pentru telefon, iar „Contact” e marcat ca dublat de buton', async () => {
+    const cuButon = await render(Header, { cale: '/servicii/seo/' });
+    expect(cuButon).toMatch(/class="[^"]*\bantet__rand--cu-buton\b/);
+    expect(cuButon).toMatch(/<li\b[^>]*class="meniu__dublat"[^>]*>\s*<a\b[^>]*href="\/contact\/"/);
+    // Ordinea din DOM rămâne logo, meniu, buton (ordinea focusului).
+    expect(cuButon.indexOf('class="logo"')).toBeLessThan(cuButon.indexOf('<nav'));
+    expect(cuButon.indexOf('<nav')).toBeLessThan(cuButon.indexOf('class="buton-cta"'));
+    for (const cale of ['/', '/contact/', '/contact/eroare/']) {
+      const faraButon = await render(Header, { cale });
+      expect(faraButon, cale).not.toContain('antet__rand--cu-buton');
+      expect(faraButon, cale).not.toContain('meniu__dublat');
+    }
+  });
+
   test('pe celelalte pagini butonul are clasa buton-cta și duce la /contact/', async () => {
     const h = await render(Header, { cale: '/servicii/seo/' });
     expect(h).toContain('class="buton-cta"');

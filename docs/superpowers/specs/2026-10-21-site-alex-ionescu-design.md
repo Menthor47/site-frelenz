@@ -122,7 +122,7 @@ Fiecare componentă are un singur rol și își primește datele prin props, din
 |---|---|---|
 | `SeoHead` | title, description, canonical, Open Graph, robots, `lang="ro"` | site.config, props de pagină |
 | `JsonLd` | un singur `@graph` per pagină (vezi 6.3) | site.config, conținutul paginii |
-| `Header` | logo, meniu și butonul „Cere o ofertă”. Butonul lipsește pe Acasă (acolo butonul plin e sub titlu), pe `/contact/` (ar trimite la aceeași pagină) și pe paginile de răspuns ale formularului (pe cele de eroare, fără JavaScript, ar deschide un formular gol în locul butonului Înapoi, care readuce mesajul). „Contact” rămâne în meniu. Antetul e întunecat pe toate paginile (decizia 28). | site.config |
+| `Header` | logo, meniu și butonul „Cere o ofertă”. Butonul lipsește pe Acasă (acolo butonul plin e sub titlu), pe `/contact/` (ar trimite la aceeași pagină) și pe paginile de răspuns ale formularului (pe cele de eroare, fără JavaScript, ar deschide un formular gol în locul butonului Înapoi, care readuce mesajul). „Contact” rămâne în meniu, în afară de ecranele sub 360px pe paginile cu buton (butonul duce la aceeași pagină, iar patru linkuri nu mai încap pe un rând). Pe telefon (sub 600px), pe paginile cu buton, antetul are două rânduri: logo-ul, cu „consultant SEO” sub nume, și butonul lângă el, apoi meniul; ordinea din DOM și a focusului rămâne logo, meniu, buton (decizia din 2026-10-24, după auditul Impeccable: 125px în loc de 158–226px). Antetul e întunecat pe toate paginile (decizia 28). | site.config |
 | `Footer` | servicii, pagini, contact, `LegalId` în varianta scurtă, linkuri legale. Fraza despre cum e făcut site-ul apare doar după ce `/proiecte/acest-site/` există. | site.config, colecția servicii |
 | `LegalId` | datele firmei cerute de Legea 365/2002: `variant="scurt"` în subsol, `variant="complet"` pe Contact, în Termeni și în Confidențialitate | site.config |
 | `MetroMap` | harta SVG: `variant="animated"` pe Acasă și `variant="banda"` pe banda de sus a celorlalte pagini, cu trenuri (decizia 28); `variant="static"` fără trenuri. `line` e opțional: cu `line`, linia aceea e plină și are „Ești aici”; fără `line`, toate liniile sunt estompate. Unde apare și cum, vezi tabelul din 5.6. | tokenuri de culoare |
@@ -837,7 +837,7 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
   - erorile de completare le arată browserul, cu mesajele lui native;
   - respingerile de pe server duc la pagini care explică ce s-a întâmplat și ce poți face.
 - **Linkurile** au un text care spune unde duc. Rândurile din „De unde pornești?” sunt linkuri reale, într-o listă `<ul>`. Fără carduri complet clicabile care ascund textul.
-- **Firimiturile** stau în `nav aria-label="Firimituri"` cu `ol`, iar ultima are `aria-current="page"`.
+- **Firimiturile** stau în `nav aria-label="Firimituri"` cu `ol`, iar ultima are `aria-current="page"`. Fiecare link are zona de atingere de 44×44px (§5.8).
 - **Mișcarea:** vezi 5.6 și 5.7 (butonul de oprire, „reduced motion”).
 - **Limba:** `lang="ro"` pe `<html>`.
 

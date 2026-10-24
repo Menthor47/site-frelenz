@@ -93,3 +93,28 @@ test('Servicii: linia de deasupra îndemnului final se vede pe suprafață (cel 
   });
   expect(raport).toBeGreaterThanOrEqual(1.1);
 });
+
+// Antetul paginilor interioare pe telefon (auditul Impeccable din 2026-10-24, A-5): două rânduri, logo-ul cu butonul „Cere
+// o ofertă” lângă el și meniul dedesubt, nu trei sau patru. Ordinea focusului rămâne logo, meniu, buton.
+for (const latime of [320, 360, 390, 430]) {
+  test(`la ${latime}px, antetul unei pagini de serviciu are două rânduri, cu butonul lângă logo`, async ({ page }) => {
+    await page.setViewportSize({ width: latime, height: 800 });
+    await page.goto('/servicii/seo/');
+    const logo = (await page.locator('.antet .logo').boundingBox())!;
+    const buton = (await page.locator('.antet .buton-cta').boundingBox())!;
+    const meniu = (await page.locator('.antet nav').boundingBox())!;
+    // Butonul e pe rândul logo-ului (se suprapun pe verticală), iar meniul e sub amândouă, pe un singur rând.
+    expect(buton.y).toBeLessThan(logo.y + logo.height);
+    expect(meniu.y).toBeGreaterThanOrEqual(Math.max(logo.y + logo.height, buton.y + buton.height) - 1);
+    expect(meniu.height).toBeLessThanOrEqual(45);
+    expect((await page.locator('.antet').boundingBox())!.height).toBeLessThanOrEqual(125);
+  });
+}
+
+test('la 320px, „Contact” lipsește din meniu doar unde butonul din antet duce deja la Contact', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto('/servicii/seo/');
+  await expect(page.locator('.meniu a[href="/contact/"]')).toBeHidden();
+  await page.goto('/contact/eroare/');
+  await expect(page.locator('.meniu a[href="/contact/"]')).toBeVisible();
+});

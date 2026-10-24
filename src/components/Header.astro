@@ -34,13 +34,13 @@ const faraButon = cale === '/' || cale.startsWith('/contact/');
 ---
 
 <header class="antet">
-  <div class="contener antet__rand">
+  <div class:list={['contener', 'antet__rand', !faraButon && 'antet__rand--cu-buton']}>
     <a class="logo" href="/" aria-current={cale === '/' ? 'page' : undefined}><span class="logo__nume">{site.nume}</span><span class="logo__virgula">,</span> <span class="logo__rol">{site.logoScurt}</span></a>
     <nav aria-label="Meniu principal">
       <ul class="meniu">
         {
           meniu.map((element) => (
-            <li>
+            <li class:list={[element.href === '/contact/' && !faraButon && 'meniu__dublat']}>
               <a href={element.href} aria-current={curent(element.href)}>{element.text}</a>
             </li>
           ))
@@ -58,7 +58,8 @@ const faraButon = cale === '/' || cale.startsWith('/contact/');
     border-bottom: 1px solid var(--noapte-contur);
   }
 
-  /* Ordinea din DOM (logo, meniu, buton) e și ordinea vizuală; pe ecrane înguste rândurile doar trec mai jos. */
+  /* Ordinea din DOM (logo, meniu, buton) e și ordinea vizuală, cu o excepție pe telefon (regula de la sfârșit): acolo
+     butonul stă lângă logo, iar ordinea focusului rămâne logo, meniu, buton. */
   .antet__rand {
     display: flex;
     flex-wrap: wrap;
@@ -140,5 +141,42 @@ const faraButon = cale === '/' || cale.startsWith('/contact/');
     text-decoration-color: var(--blue-light);
     text-decoration-thickness: 0.14em;
     text-underline-offset: 0.3em;
+  }
+
+  /* Pe telefon (sub 600px), pe paginile cu buton: două rânduri în loc de trei sau patru. „consultant SEO” trece sub nume,
+     deci logo-ul se îngustează, iar butonul încape lângă el; meniul are rândul lui, dedesubt. E doar ordinea vizuală
+     (`order`): în DOM și la Tab rămâne logo, meniu, buton. Dacă butonul nu încape lângă logo (text mărit la 200%), trece
+     pe rândul următor, nu iese din ecran. Logo-ul pe două rânduri are deja 44px, deci padding-ul lui scade. */
+  @media (max-width: 37.49rem) {
+    .antet__rand--cu-buton {
+      column-gap: 1rem;
+    }
+
+    .antet__rand--cu-buton .logo {
+      padding-block: 0.25rem;
+    }
+
+    .antet__rand--cu-buton .logo__rol {
+      display: block;
+    }
+
+    /* Padding lateral mai mic (tot 44px înălțime): la 320px, cu o bară de derulare clasică, logo-ul și butonul încap alături. */
+    .antet__rand--cu-buton > :global(.buton-cta) {
+      order: 1;
+      padding-inline: calc(0.75rem - 2px);
+    }
+
+    .antet__rand--cu-buton > nav {
+      order: 2;
+      flex-basis: 100%;
+    }
+  }
+
+  /* Sub 360px, cele patru linkuri nu mai încap pe un rând: „Contact” lipsește doar unde butonul „Cere o ofertă” din antet
+     duce deja la aceeași pagină (pe /contact/… butonul nu e, deci linkul rămâne). */
+  @media (max-width: 22.49rem) {
+    .meniu__dublat {
+      display: none;
+    }
   }
 </style>

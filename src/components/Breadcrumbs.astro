@@ -42,6 +42,15 @@ const ultimul = pasi.length - 1;
     min-height: 44px;
   }
 
+  /* Linkul însuși are zona de atingere de 44×44px (§5.8), nu doar rândul: textul rămâne centrat, deci nu se mută. */
+  a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
   /* Separatorul stă la capătul pasului dinainte, ca la rândurile înguste să nu rămână singur la început de rând.
      E decor: textul alternativ gol îl scoate din citirea cu cititorul de ecran. */
   li:not(:last-child)::after {
