@@ -300,7 +300,7 @@ Fără CNP și fără bifă de acord. Formularul funcționează și fără JavaS
 - **`robots.txt`:** permite tot, cu linia `Sitemap:`.
 - **`llms.txt`:** generat din colecții (vezi 6.5).
 - **Pagina de test pentru diacritice** (5.3) se construiește doar cu `DRAFT=1`, deci nu ajunge în `dist/` și nici în sitemap.
-- **Imaginea OG** de 1200×630 pentru fiecare pagină, generată la build cu un fișier static Atkinson Hyperlegible Next 800 (latin + latin-ext), inclusiv pentru ș și ț. Fișierul variabil nu merge, pentru că generatoarele îl desenează la greutatea implicită. Generatorul se alege la implementare și trebuie să meargă pe Windows și pe Linux.
+- **Imaginea OG** de 1200×630 pentru fiecare pagină, generată la build cu fișierele statice Atkinson Hyperlegible Next 800 și 400 (latin + latin-ext), inclusiv pentru ș și ț. Fișierul variabil nu merge, pentru că generatoarele îl desenează la greutatea implicită. Generatorul (satori și resvg) merge pe Windows și pe Linux. Cum arată: 5.9.
 - **Raportul marcajelor** (`reports/placeholders.json`): toate marcajele rămase în conținut și în config, cu pagina și rândul din registru (format în 3.4). Raportul nu se publică.
 
 ---
@@ -613,6 +613,19 @@ Pe tot site-ul sunt două mișcări automate, ambele pe paginile cu hartă (Acas
 - Contururi de 1px. Fără umbre.
 - **Zona de atingere** de minimum 44×44px pentru butoane, câmpuri, linkurile din meniu și din subsol și rândurile din „De unde pornești?”. Linkurile din interiorul textului sunt exceptate. E o țintă proprie: în WCAG 2.1, criteriul 2.5.5 (44px) e de nivel AAA.
 
+### 5.9 Imaginea de previzualizare (Open Graph)
+
+Propunere din 2026-10-24 (SEO-01 din auditul UI/UX din aceeași zi), de aprobat de Alex. E imaginea pe care o arată WhatsApp, LinkedIn și celelalte aplicații când cineva trimite un link: 1200×630, PNG, câte una pentru fiecare pagină construită, la `/og/<cale>.png` (paginile interne `/_test/` n-au). Repetă banda de sus a site-ului, ca previzualizarea să se recunoască. Nu adaugă nimic față de pagină: doar logo-ul, harta și titlul.
+
+- **Fundalul** e `--noapte` pe toată imaginea.
+- **Antetul:** logo-ul ca pe antetul întunecat (5.4): „Alex Ionescu” în 800, alb; virgula în `--blue`; „consultant SEO” în 400, `--noapte-text-2`. Are 44px, stă la 64px de marginea din stânga, iar dedesubt e linia antetului, în `--noapte-contur` (2px, ca să nu se piardă la micșorare).
+- **Harta:** aceleași trasee ca banda (`src/lib/harta.ts`, din care desenează și `MetroMap`), mărite de 1,25 ori. Din cele 1200 de unități ale desenului încap 960, din mijloc, deci liniile ies din imagine, ca pe banda de pe telefon. Stațiile sunt ca pe bandă; fără trenuri și fără „Ești aici”. Pe paginile cu linie proprie (servicii, studii de caz, ghiduri, aceeași linie ca pe bandă, 5.6), linia grupului e plină, iar celelalte sunt la opacitate 0,35. Pe celelalte pagini, toate patru sunt pline, ca pe Acasă.
+- **Plăcuța de stație:** titlul paginii stă pe plăcuța albă și opacă a H1-ului de pe Acasă: text `--ink` (18,11:1), colțuri drepte, padding 0,35em 0,5em 0,4em. Stă la 64px de marginea din stânga, cu marginea de sus la y = 139 din desen, ca pe Acasă: M2 trece deasupra ei, iar M1, M3 și M4 intră pe sub ea.
+- **Titlul:** 800, spațiere −0,02em, rândul 1,1. Mărimea depinde de lungime: 104px până la 12 caractere, 88px până la 30, 76px până la 44 și 68px peste. Rândurile sunt egale (`text-wrap: balance`), cel mult trei. Plăcuța se strânge pe text, dar nu sub cel mai lung cuvânt.
+- **Așezarea:** harta și plăcuța stau împreună, centrate pe verticală sub antet.
+- **Lizibilitatea:** în miniatura de 320px lățime din WhatsApp, titlul are 18–28px, iar logo-ul ~12px.
+- **Teste** (`tests/unit/og.test.ts`): culorile din `tokens.css` și `metro.css`, linia plină a fiecărui grup și liniile pline fără grup (pe pixelii imaginii), titlul întreg pe plăcuță, virgula lui ș și ț și ruta, care dă fiecărei pagini titlul și grupul ei.
+
 ---
 
 ## 6. SEO tehnic, date structurate și citirea de către AI
@@ -631,7 +644,7 @@ Pe tot site-ul sunt două mișcări automate, ambele pe paginile cu hartă (Acas
 ### 6.2 Open Graph
 
 - `og:title`, `og:description`, `og:url`, `og:type`, `og:locale=ro_RO`, `og:site_name=Alex Ionescu`.
-- `og:image` de 1200×630 pe fiecare pagină, plus `twitter:card=summary_large_image`.
+- `og:image` de 1200×630 pe fiecare pagină (cum arată: 5.9), plus `twitter:card=summary_large_image`.
 
 ### 6.3 Datele structurate (un `@graph` pe pagină, cu noduri legate prin `@id`)
 
