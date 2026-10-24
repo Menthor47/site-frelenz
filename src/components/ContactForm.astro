@@ -4,7 +4,8 @@
 // explicația din `[data-eroare]`, sub buton. `required`, `maxlength` și `type` vin din src/form-rules.ts, ca browserul și serverul să judece la fel.
 // Fiecare câmp are etichetă vizibilă; cele obligatorii spun asta în text. Nota de sub Mesaj e legată prin `aria-describedby`.
 // Capcana e un câmp pe care un om nu-l vede și nu-l atinge: scos din ecran, `tabindex=-1`, `autocomplete=off`,
-// într-un bloc `aria-hidden`. Fără CNP și fără bifă de acord.
+// într-un bloc `aria-hidden`, cu semnalele prin care 1Password, LastPass, Bitwarden și Dashlane îl lasă gol (A-07).
+// Fără CNP și fără bifă de acord.
 import { CAMPURI, CAPCANA, FARA_SERVICIU, SERVICII, type NumeCamp } from '../form-rules';
 import Iconita from './Iconita.astro';
 
@@ -75,7 +76,17 @@ const { idContacte } = Astro.props;
 
   <div class="formular__capcana" aria-hidden="true">
     <label for={id(CAPCANA)}>Nu completa acest câmp</label>
-    <input id={id(CAPCANA)} name={CAPCANA} type="text" tabindex="-1" autocomplete="off" />
+    <input
+      id={id(CAPCANA)}
+      name={CAPCANA}
+      type="text"
+      tabindex="-1"
+      autocomplete="off"
+      data-1p-ignore="true"
+      data-lpignore="true"
+      data-bwignore="true"
+      data-form-type="other"
+    />
   </div>
 
   <div class="formular__trimite">

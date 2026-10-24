@@ -53,6 +53,10 @@ const arataGhiduri = ghiduriDeConstruit(ghiduri, DRAFT).length > 0;
 const arataAcestSite = proiectePublicabile(proiecte, DRAFT).some((proiect) => proiect.slug === 'acest-site');
 
 const noduri = noduriPagina(jsonld, firimituri);
+
+// „Sari la conținut” trece peste banda decorativă și butonul ei de oprire: cu bandă și firimituri, ținta e firimiturile
+// (A-05 din auditul din 2026-10-24). Altfel, ținta rămâne <main>.
+const tintaSubBanda = harta !== undefined && firimituri.length > 0;
 ---
 
 <!doctype html>
@@ -62,8 +66,9 @@ const noduri = noduriPagina(jsonld, firimituri);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
     <SeoHead titlu={titlu} descriere={descriere} cale={cale} noindex={noindex} articol={articol} />
-    <!-- Favicon: stația plină albastră, ca „Ești aici” (§5.4, ruling R14). favicon.svg e iconița principală; PNG-ul de 96×96
-         e pentru programele care nu citesc SVG, iar iconița Apple, pentru ecranul de start al iPhone-ului (src/lib/iconite.ts). -->
+    {/* Favicon: stația plină albastră, ca „Ești aici” (§5.4, ruling R14). favicon.svg e iconița principală; PNG-ul de 96×96
+        e pentru programele care nu citesc SVG, iar iconița Apple, pentru ecranul de start al iPhone-ului (src/lib/iconite.ts).
+        Comentariu JSX, nu HTML: nu ajunge în paginile construite (A-18 din auditul din 2026-10-24). */}
     <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -73,7 +78,7 @@ const noduri = noduriPagina(jsonld, firimituri);
   <body>
     <a class="sari" href="#continut">Sari la conținut</a>
     <Header cale={cale} arataProiecte={arataProiecte} arataGhiduri={arataGhiduri} />
-    <main id="continut" tabindex="-1" class:list={[suprafata && 'main--suprafata']}>
+    <main id={tintaSubBanda ? undefined : 'continut'} tabindex={tintaSubBanda ? undefined : '-1'} class:list={[suprafata && 'main--suprafata']}>
       {
         harta && (
           <div class:list={['banda', harta.tranzitie !== undefined && `vt-${harta.tranzitie}`]}>
@@ -83,7 +88,7 @@ const noduri = noduriPagina(jsonld, firimituri);
       }
       {
         firimituri.length > 0 && (
-          <div class="contener">
+          <div class="contener" id={tintaSubBanda ? 'continut' : undefined} tabindex={tintaSubBanda ? '-1' : undefined}>
             <Breadcrumbs pasi={firimituri} />
           </div>
         )

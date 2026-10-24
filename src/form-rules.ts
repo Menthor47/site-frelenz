@@ -41,8 +41,11 @@ export const FARA_SERVICIU = { slug: 'nu-stiu', nume: 'Nu știu încă' } as con
 /** Adresa la care ajunge cererea trimisă din formular. */
 export const DESTINATAR = 'idealserv51@gmail.com';
 
-/** Câmpul ascuns: dacă vine completat, cererea e de la un robot. */
-export const CAPCANA = 'confirmare_url';
+/**
+ * Câmpul ascuns: dacă vine completat, cererea e de la un robot. Numele nu seamănă cu nimic din ce completează singuri
+ * browserul sau managerii de parole (adresă, URL, nume, e-mail): un câmp completat așa ar pierde cererea unui om (A-07).
+ */
+export const CAPCANA = 'camp_rezerva';
 
 export type NumeCamp = 'nume' | 'email' | 'telefon' | 'firma' | 'site' | 'mesaj' | 'serviciu';
 

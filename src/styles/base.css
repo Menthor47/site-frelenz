@@ -162,8 +162,9 @@ textarea {
   transform: none;
 }
 
-/* <main> primește focus doar din linkul de salt; nu are rost să-l încadrăm. */
-main:focus-visible {
+/* Ținta linkului de salt (<main>, sau firimiturile de sub bandă, Base.astro) primește focus doar din el; nu are rost s-o
+   încadrăm. */
+#continut:focus-visible {
   outline: none;
   box-shadow: none;
 }

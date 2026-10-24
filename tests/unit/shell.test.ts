@@ -326,6 +326,38 @@ describe('Base', () => {
     expect(main.match(/vt-/g)).toHaveLength(1);
   });
 
+  // A-05 din auditul din 2026-10-24: pe paginile cu bandă, primul lucru focusabil din <main> era butonul trenurilor.
+  test('cu bandă și firimituri, „Sari la conținut” duce sub bandă, la firimituri, nu la butonul trenurilor', async () => {
+    const firimituri = [
+      { nume: 'Acasă', cale: '/' },
+      { nume: 'Despre', cale: '/despre/' },
+    ];
+    const h = await pagina({ firimituri, harta: {} });
+    expect(h).toContain('<a class="sari" href="#continut">');
+    expect(h.match(/\sid="continut"/g)).toHaveLength(1);
+    const tinta = h.indexOf(' id="continut"');
+    expect(tinta).toBeGreaterThan(h.indexOf('class="harta__buton"'));
+    expect(tinta).toBeLessThan(h.indexOf('aria-label="Firimituri"'));
+    expect(h.slice(h.lastIndexOf('<', tinta), h.indexOf('>', tinta))).toMatch(/\stabindex="-1"/);
+    expect(/<main\b[^>]*>/.exec(h)?.[0]).not.toMatch(/\s(?:id|tabindex)=/);
+  });
+
+  test('fără bandă, sau cu bandă dar fără firimituri, ținta saltului rămâne <main>', async () => {
+    const firimituri = [{ nume: 'Acasă', cale: '/' }];
+    for (const props of [{}, { firimituri }, { harta: {} }]) {
+      const h = await pagina(props);
+      const main = /<main\b[^>]*>/.exec(h)?.[0] ?? '';
+      expect(main, JSON.stringify(props)).toMatch(/\sid="continut"/);
+      expect(main, JSON.stringify(props)).toMatch(/\stabindex="-1"/);
+      expect(h.match(/\sid="continut"/g), JSON.stringify(props)).toHaveLength(1);
+    }
+  });
+
+  // A-18: comentariile pentru dezvoltator nu ajung în pagini.
+  test('HTML-ul paginii nu are comentarii', async () => {
+    expect(await pagina({ harta: {}, firimituri: [{ nume: 'Acasă', cale: '/' }] })).not.toContain('<!--');
+  });
+
   test('fără `tranzitie`, banda nu are nicio clasă vt-, iar fără `harta` nu există nici banda', async () => {
     expect(await pagina({ harta: {} })).toContain('class="banda"');
     expect(await pagina({ harta: {} })).not.toContain('vt-');

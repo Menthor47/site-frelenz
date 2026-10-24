@@ -340,6 +340,10 @@ describe('cererile care nu vin de la formularul site-ului', () => {
     ['Sec-Fetch-Site: cross-site', { 'sec-fetch-site': 'cross-site' }],
     ['Origin de pe alt site', { origin: 'https://alt-site.example' }],
     ['Origin pe http în loc de https', { origin: 'http://site-provizoriu.example' }],
+    // A-11 din auditul din 2026-10-24: un iframe cu sandbox de pe alt site trimite `Origin: null`, iar un browser fără
+    // Fetch Metadata (Safari sub 16.4) nu spune nimic altceva.
+    ['Origin: null fără Sec-Fetch-Site', { origin: 'null' }],
+    ['Origin: null cu Sec-Fetch-Site: same-site (un subdomeniu)', { origin: 'null', 'sec-fetch-site': 'same-site' }],
   ])('%s: eroare, fără limitator și fără e-mail', async (_, antete) => {
     const r = await trimite(antete);
     expect(r.status).toBe(303);
@@ -350,7 +354,7 @@ describe('cererile care nu vin de la formularul site-ului', () => {
 
   test.each([
     ['Sec-Fetch-Site: same-origin și Origin-ul site-ului', { 'sec-fetch-site': 'same-origin', origin: ORIGINE }],
-    ['Origin: null (navigare privată, extensii)', { origin: 'null' }],
+    ['Origin: null cu Sec-Fetch-Site: same-origin (politică no-referrer, extensii)', { origin: 'null', 'sec-fetch-site': 'same-origin' }],
     ['fără Origin și fără Sec-Fetch-Site (clienți vechi)', {}],
   ])('%s: cererea pleacă', async (_, antete) => {
     expect((await trimite(antete)).headers.get('location')).toBe('/contact/multumim/');

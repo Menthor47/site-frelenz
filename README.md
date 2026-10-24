@@ -50,6 +50,8 @@ Refuză și un `dist/` construit pentru QA (cu `localhost` sau cu domeniul provi
 
 Afișează și avertismente care nu blochează: datele scrise de mână în ghiduri și în paginile legale (pune data aprobării) și `npm audit` pentru dependențele de dezvoltare.
 
+`overrides` din `package.json` ridică `undici` din `miniflare` (adus de wrangler, doar pentru `wrangler dev`) la 7.30.1, versiunea cu reparațiile de securitate (A-16 din auditul din 2026-10-24). Când o versiune nouă de wrangler aduce singură undici 7.30.1 sau mai nou, scoate `overrides` și rulează `npm install`.
+
 ## Pașii lui Alex pentru publicare, în ordine
 
 1. Cumperi domeniul.

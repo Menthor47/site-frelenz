@@ -3,6 +3,7 @@
 // trimite un singur mesaj real; cererea cu prea multe linkuri, capcana și erorile mocate (route) nu ajung la limitator.
 // Modul serial oprește restul dacă un test pică.
 import AxeBuilder from '@axe-core/playwright';
+import { CAPCANA } from '../../src/form-rules';
 import { completeaza, expect, faraDerulareOrizontala, seSuprapun, test, textMarit } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
@@ -28,7 +29,7 @@ test('pagina are formularul, contactele directe și datele firmei', async ({ pag
 
 test('capcana nu se vede, nu primește focus și nu apare în arborele de accesibilitate', async ({ page }) => {
   await page.goto('/contact/');
-  const capcana = page.locator('[name="confirmare_url"]');
+  const capcana = page.locator(`[name="${CAPCANA}"]`);
   await expect(capcana).not.toBeInViewport();
   // Câmpul există și are eticheta lui (control), dar nu apare ca textbox în arborele de accesibilitate.
   await expect(page.getByLabel('Nu completa acest câmp')).toHaveCount(1);
@@ -191,7 +192,7 @@ test('cu JS, o cădere de rețea lasă mesajul pe pagină, nu un ecran de eroare
 
 test('capcana completată duce la mulțumire', async ({ page }) => {
   await completeaza(page);
-  await page.locator('[name="confirmare_url"]').evaluate((el) => {
+  await page.locator(`[name="${CAPCANA}"]`).evaluate((el) => {
     (el as HTMLInputElement).value = 'https://spam.example';
   });
   await page.getByRole('button', { name: 'Cere o ofertă' }).click();

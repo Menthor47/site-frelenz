@@ -41,7 +41,11 @@ describe('SERVICII', () => {
 
 describe('constante', () => {
   test('destinatarul', () => expect(DESTINATAR).toBe('idealserv51@gmail.com'));
-  test('capcana', () => expect(CAPCANA).toBe('confirmare_url'));
+  test('capcana', () => expect(CAPCANA).toBe('camp_rezerva'));
+  // A-07 din auditul din 2026-10-24: un nume ca „confirmare_url” poate fi completat de un manager de parole sau de
+  // completarea automată, iar cererea unui om s-ar pierde ca spam. Numele nu conține niciun cuvânt pe care îl caută ele.
+  test('numele capcanei nu seamănă cu un câmp pe care l-ar completa automat browserul sau un manager de parole', () =>
+    expect(CAPCANA).not.toMatch(/url|site|web|mail|name|nume|phone|tel|adres|address|firm|company|org|oras|city|zip|postal|user|pass|login|card/i));
 });
 
 describe('CAMPURI', () => {

@@ -36,12 +36,16 @@ const spre = (cale: Destinatie) => raspuns(303, { Location: cale });
 
 /**
  * Cererea vine de pe alt site: browserul o spune prin `Sec-Fetch-Site: cross-site` sau, în browserele mai vechi, prin
- * `Origin`. `Origin: null` (navigare privată, extensii care ascund originea) nu înseamnă alt site, deci trece.
+ * `Origin`. `Origin: null` vine și de pe site (o politică no-referrer, extensii care ascund originea), dar și dintr-un
+ * iframe cu sandbox de pe alt site: trece doar cu `Sec-Fetch-Site: same-origin`, pe care îl trimit toate browserele
+ * actuale (A-11 din auditul din 2026-10-24).
  */
 function dePeAltSite(cerere: Request, url: URL): boolean {
-  if (cerere.headers.get('sec-fetch-site') === 'cross-site') return true;
+  const fetchSite = cerere.headers.get('sec-fetch-site');
+  if (fetchSite === 'cross-site') return true;
   const origine = cerere.headers.get('origin');
-  return origine !== null && origine !== 'null' && origine !== url.origin;
+  if (origine === 'null') return fetchSite !== 'same-origin';
+  return origine !== null && origine !== url.origin;
 }
 
 /** Mărimea declarată a corpului; o cerere fără `Content-Length` (trimisă pe bucăți) e oprită de `citesteCorp`. */

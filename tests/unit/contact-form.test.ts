@@ -103,6 +103,11 @@ describe('ContactForm (§3.5)', () => {
     expect(atribut(e, 'tabindex')?.[1]).toBe('-1');
     expect(atribut(e, 'autocomplete')?.[1]).toBe('off');
     expect(atribut(e, 'required')).toBeNull();
+    // A-07: semnalele prin care 1Password, LastPass, Bitwarden și Dashlane lasă câmpul necompletat.
+    expect(atribut(e, 'data-1p-ignore')?.[1]).toBe('true');
+    expect(atribut(e, 'data-lpignore')?.[1]).toBe('true');
+    expect(atribut(e, 'data-bwignore')?.[1]).toBe('true');
+    expect(atribut(e, 'data-form-type')?.[1]).toBe('other');
     // Blocul aria-hidden conține doar eticheta și câmpul-capcană, nimic altceva.
     const bloc = new RegExp(`<div\\b[^>]*\\baria-hidden="true"[^>]*>\\s*<label\\b[^>]*>[^<]*</label>\\s*<input\\b[^>]*\\bname="${CAPCANA}"[^>]*>\\s*</div>`).exec(h);
     expect(bloc, 'capcana stă singură într-un bloc aria-hidden').not.toBeNull();
