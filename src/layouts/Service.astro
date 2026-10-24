@@ -6,6 +6,7 @@
 // Șablonul nu citește colecțiile: pagina (src/pages/servicii/[slug].astro) îi dă doar ce se poate publica (§3.4).
 // Fără JavaScript. Banda primește clasa `vt-<slug>` prin Base (ruling R5), pentru tranziția M3 din §5.7.
 import type { CollectionEntry } from 'astro:content';
+import FaraRupere from '../components/FaraRupere.astro';
 import Indemn from '../components/Indemn.astro';
 import Faq from '../components/Faq.astro';
 import TextSauMarcaj from '../components/TextSauMarcaj.astro';
@@ -55,28 +56,28 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
   suprafata={true}
 >
   <div class="contener serviciu" data-grup={s.grup}>
-    <h1>{s.h1}</h1>
-    <p class="serviciu__raspuns">{s.raspunsDirect}</p>
+    <h1><FaraRupere text={s.h1} /></h1>
+    <p class="serviciu__raspuns"><FaraRupere text={s.raspunsDirect} /></p>
 
     <div class="serviciu__doua carte">
       <section>
         <h2>Pentru cine e</h2>
-        <ul>{s.pentruCine.map((t) => <li>{t}</li>)}</ul>
+        <ul>{s.pentruCine.map((t) => <li><FaraRupere text={t} /></li>)}</ul>
       </section>
       <section>
         <h2>Semne că ai nevoie</h2>
-        <ul>{s.semne.map((t) => <li>{t}</li>)}</ul>
+        <ul>{s.semne.map((t) => <li><FaraRupere text={t} /></li>)}</ul>
       </section>
     </div>
 
     <section class="carte">
       <h2>Ce primești</h2>
-      <ul>{s.livrabile.map((t) => <li>{t}</li>)}</ul>
+      <ul>{s.livrabile.map((t) => <li><FaraRupere text={t} /></li>)}</ul>
     </section>
 
     <section class="carte">
       <h2>Cum se desfășoară</h2>
-      <ol class="serviciu__pasi">{s.pasi.map((t) => <li>{t}</li>)}</ol>
+      <ol class="serviciu__pasi">{s.pasi.map((t) => <li><FaraRupere text={t} /></li>)}</ol>
     </section>
 
     {
@@ -109,7 +110,7 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
           inrudite.map((i) => (
             <li>
               <a href={`/servicii/${i.slug}/`}>{i.nume}</a>
-              <span class="inrudite__problema">{i.problema}</span>
+              <span class="inrudite__problema"><FaraRupere text={i.problema} /></span>
             </li>
           ))
         }

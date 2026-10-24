@@ -1,0 +1,13 @@
+---
+// Textul primit, cu cuvintele cu cratimă ținute întregi pe un rând (src/lib/cratima.ts, clasa `fara-rupere` din base.css).
+// Pentru textele din colecții: titluri, răspunsul direct, listele și întrebările frecvente. Nu schimbă nicio literă.
+import { segmenteCratima } from '../lib/cratima';
+
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+{segmenteCratima(text).map((s) => (s.intreg ? <span class="fara-rupere">{s.text}</span> : s.text))}

@@ -66,9 +66,12 @@ describe('Service.astro (§4.4)', () => {
     expect(textOf(`<nav ${nav}</nav>`)).toBe('Acasă Servicii SEO');
   });
 
-  test('H1-ul, apoi răspunsul direct ca prim paragraf', async () => {
+  test('H1-ul, apoi răspunsul direct ca prim paragraf; „site-ul” nu se rupe la cratimă', async () => {
     const h = main(await pagina());
-    expect(h).toMatch(/<h1[^>]*>Servicii SEO pentru site-ul firmei tale<\/h1>\s*<p[^>]*>Ofer servicii SEO pentru firme\./);
+    const [, h1 = '', raspuns = ''] = /<h1[^>]*>([\s\S]*?)<\/h1>\s*<p[^>]*>([\s\S]*?)<\/p>/.exec(h) ?? [];
+    expect(textOf(h1)).toBe('Servicii SEO pentru site-ul firmei tale');
+    expect(textOf(raspuns)).toMatch(/^Ofer servicii SEO pentru firme\./);
+    expect(h1).toContain('<span class="fara-rupere">site-ul</span>');
   });
 
   test('secțiunile, în ordinea din §4.4', async () =>

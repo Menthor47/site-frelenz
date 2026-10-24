@@ -5,6 +5,7 @@
 import { getCollection } from 'astro:content';
 import { paginaAprobata } from '../../approvals';
 import Cta from '../../components/Cta.astro';
+import FaraRupere from '../../components/FaraRupere.astro';
 import { cereServiciu, type Grup } from '../../form-rules';
 import Base from '../../layouts/Base.astro';
 import { nodColectie } from '../../lib/jsonld';
@@ -64,11 +65,15 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
                   <h3>
                     <a href={s.cale}>{s.nume}</a>
                   </h3>
-                  <p>{s.raspunsDirect}</p>
+                  <p>
+                    <FaraRupere text={s.raspunsDirect} />
+                  </p>
                   <p class="serviciu__eticheta">Ce primești, pe scurt:</p>
                   <ul>
                     {s.livrabile.slice(0, LIVRABILE_PE_SCURT).map((t) => (
-                      <li>{t}</li>
+                      <li>
+                        <FaraRupere text={t} />
+                      </li>
                     ))}
                   </ul>
                 </article>

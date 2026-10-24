@@ -9,6 +9,7 @@
 import { DRAFT } from '../lib/env';
 import { intrebariVizibile, type IntrebareFrecventa } from '../lib/faq';
 import { parseMarker } from '../lib/marker';
+import FaraRupere from './FaraRupere.astro';
 import Placeholder from './Placeholder.astro';
 
 interface Props {
@@ -29,8 +30,8 @@ const afisate = intrebariVizibile(intrebari, DRAFT);
         const marcajRaspuns = parseMarker(i.raspuns);
         return (
           <div class="faq__pereche">
-            <dt>{marcajIntrebare === null ? i.intrebare : <Placeholder nr={marcajIntrebare} />}</dt>
-            <dd>{marcajRaspuns === null ? i.raspuns : <Placeholder nr={marcajRaspuns} />}</dd>
+            <dt>{marcajIntrebare === null ? <FaraRupere text={i.intrebare} /> : <Placeholder nr={marcajIntrebare} />}</dt>
+            <dd>{marcajRaspuns === null ? <FaraRupere text={i.raspuns} /> : <Placeholder nr={marcajRaspuns} />}</dd>
           </div>
         );
       })}

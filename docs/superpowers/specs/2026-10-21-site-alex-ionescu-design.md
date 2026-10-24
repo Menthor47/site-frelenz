@@ -126,6 +126,7 @@ Fiecare componentă are un singur rol și își primește datele prin props, din
 | `Footer` | servicii, pagini, contact, `LegalId` în varianta scurtă, linkuri legale. Fraza despre cum e făcut site-ul apare doar după ce `/proiecte/acest-site/` există. | site.config, colecția servicii |
 | `LegalId` | datele firmei cerute de Legea 365/2002: `variant="scurt"` în subsol, `variant="complet"` pe Contact, în Termeni și în Confidențialitate | site.config |
 | `MetroMap` | harta SVG: `variant="animated"` pe Acasă și `variant="banda"` pe banda de sus a celorlalte pagini, cu trenuri (decizia 28); `variant="static"` fără trenuri. `line` e opțional: cu `line`, linia aceea e plină și are „Ești aici”; fără `line`, toate liniile sunt estompate. Unde apare și cum, vezi tabelul din 5.6. | tokenuri de culoare |
+| `FaraRupere` | textul primit, cu cuvintele cu cratimă ținute întregi pe un rând (§5.3); pentru titlurile, răspunsul direct, listele și întrebările frecvente din colecții | props |
 | `LineDiagram` | „De unde pornești?”: fiecare rând e un tronson scurt de linie, cu stația-problemă, segmentul în culoarea grupului și capătul de linie cu serviciul, ca link; linkul are problema ca descriere (`aria-describedby`) | colecția servicii (câmpurile `problema`, `ordine`) |
 | `RouteMap` | cele două trasee (remediere unică, abonament), desenate static | text din conținut |
 | `PageFacts` | fișa paginii, doar pe `/proiecte/acest-site/` (vezi 5.5) | script inline mic |
@@ -491,7 +492,7 @@ Secțiunile paginii de serviciu sunt carduri pe `--suprafata` (decizia 29): fiec
 - **O singură familie: Atkinson Hyperlegible Next**, variabilă doar pe axa de greutate, cu subseturile latin și latin-ext (~53–60 KB în total):
   - **800** pentru titluri, cu `letter-spacing` între −0,01em și −0,02em la mărimile mari și înălțimea rândului 1,1–1,2;
   - **700** pentru subtitluri, etichete și `strong`;
-  - **400** pentru text: 18px, înălțimea rândului 1,6, cel mult ~70 de caractere pe rând: 34em pe paragrafe, pe liste și pe răspunsurile din „Întrebări frecvente”.
+  - **400** pentru text: 18px, înălțimea rândului 1,6, cel mult ~70 de caractere pe rând: 34em pe paragrafe, pe liste și pe răspunsurile din „Întrebări frecvente” (`p`, `li` și `dd`, în base.css), cu `text-wrap: pretty`, ca ultimul rând să nu rămână cu un singur cuvânt. Cuvintele cu cratimă din textele colecțiilor („site-ul”, „într-un”) nu se rup la capăt de rând (`FaraRupere`): fontul n-are cratima fără rupere.
 - **Fără italic:** `styles: ["normal"]`. `em` se marchează prin greutate.
 - **Scara** (raport ~1,25): 14,4 / 18 / 22,5 / 28 / 35 / H1 `clamp(2.25rem, 5vw, 3.5rem)`. Meniul din antet are 16px. Altă mărime nu există: eticheta traseelor ia `--text-md` pe traseul compact și `--text-lg` pe cel mare, iar butonul „Oprește trenurile”, `--text-sm` (verificat în `tests/e2e/tipografie.spec.ts`).
 - **Etichetele** sunt în sentence case, fără majuscule.

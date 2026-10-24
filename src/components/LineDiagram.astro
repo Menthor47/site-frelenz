@@ -10,6 +10,7 @@
 //   același nume ca banda paginii de serviciu. Declarația nu e aici.
 import type { Grup } from '../form-rules';
 import { parseMarker } from '../lib/marker';
+import FaraRupere from './FaraRupere.astro';
 import Placeholder from './Placeholder.astro';
 
 interface Props {
@@ -26,7 +27,7 @@ const { randuri } = Astro.props;
       const idProblema = `problema-${rand.slug}`;
       return (
         <li class="linie-rand" data-grup={rand.grup}>
-          <p class="linie-rand__problema" id={idProblema}>{marcaj === null ? rand.problema : <Placeholder nr={marcaj} />}</p>
+          <p class="linie-rand__problema" id={idProblema}>{marcaj === null ? <FaraRupere text={rand.problema} /> : <Placeholder nr={marcaj} />}</p>
           <span class={`linie-rand__segment vt-${rand.slug}`} aria-hidden="true" />
           <a class="linie-rand__capat" href={`/servicii/${rand.slug}/`} aria-describedby={idProblema}>{rand.nume}</a>
         </li>
