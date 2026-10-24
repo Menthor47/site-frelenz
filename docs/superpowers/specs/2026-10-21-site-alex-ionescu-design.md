@@ -615,7 +615,7 @@ Pe tot site-ul sunt două mișcări automate, ambele pe paginile cu hartă (Acas
 
 ### 5.9 Imaginea de previzualizare (Open Graph)
 
-Propunere din 2026-10-24 (SEO-01 din auditul UI/UX din aceeași zi), de aprobat de Alex. E imaginea pe care o arată WhatsApp, LinkedIn și celelalte aplicații când cineva trimite un link: 1200×630, PNG, câte una pentru fiecare pagină construită, la `/og/<cale>.png` (paginile interne `/_test/` n-au). Repetă banda de sus a site-ului, ca previzualizarea să se recunoască. Nu adaugă nimic față de pagină: doar logo-ul, harta și titlul.
+Aprobată de Alex pe 2026-10-24 (SEO-01 din auditul UI/UX din aceeași zi). E imaginea pe care o arată WhatsApp, LinkedIn și celelalte aplicații când cineva trimite un link: 1200×630, PNG, câte una pentru fiecare pagină construită, la `/og/<cale>.png` (paginile interne `/_test/` n-au). Repetă banda de sus a site-ului, ca previzualizarea să se recunoască. Nu adaugă nimic față de pagină: doar logo-ul, harta și titlul.
 
 - **Fundalul** e `--noapte` pe toată imaginea.
 - **Antetul:** logo-ul ca pe antetul întunecat (5.4): „Alex Ionescu” în 800, alb; virgula în `--blue`; „consultant SEO” în 400, `--noapte-text-2`. Are 44px, stă la 64px de marginea din stânga, iar dedesubt e linia antetului, în `--noapte-contur` (2px, ca să nu se piardă la micșorare).

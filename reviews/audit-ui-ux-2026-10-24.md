@@ -489,7 +489,7 @@ High- or medium-impact items with small effort:
 
 ## 7. Applied fixes (2026-10-24)
 
-The findings that need no data or decision from Alex are fixed in `f71fc5e` on `feat/site`. It was first committed as `9bc6ca8`, which `backup/feat-site-local-2026-10-24` keeps, and rebased onto PR #3 with the same changes. Two more items were settled by other commits of the day.
+The findings that need no data or decision from Alex are fixed in `f71fc5e` on `feat/site`. It was first committed as `9bc6ca8`, which `backup/feat-site-local-2026-10-24` keeps, and rebased onto PR #3 with the same changes. Three more items were settled by other commits of the day.
 
 | Finding | Status | What changed | Verified by |
 |---|---|---|---|
@@ -500,6 +500,7 @@ The findings that need no data or decision from Alex are fixed in `f71fc5e` on `
 | SEO-02 · Only an SVG favicon | Fixed (`f71fc5e`) | `/favicon-96.png` and `/apple-touch-icon.png` (180×180, on the header's background) are drawn at build time from `favicon.svg` (`src/lib/iconite.ts`) and linked in `src/layouts/Base.astro:67-69`. The SVG stays the main icon. | `tests/unit/iconite.test.ts`, `shell.test.ts`; `tests/e2e/home.spec.ts` |
 | FN-03 · A double click can send twice | Fixed with JavaScript (`b4d48e1`, PR #3, decision 30) | With JavaScript on, the form is sent from the page, and a second click while the request is under way sends nothing (`initFormular` in `src/client/contact-form.ts`). Without JavaScript the plain POST can still go twice, which is option (a). | `tests/e2e/contact.spec.ts:171` |
 | The trains button off the type scale (UI section) | Fixed (`0a1c06e`) | It now uses `--text-sm` (design audit, D-07). | `tests/e2e/tipografie.spec.ts` |
+| SEO-01 · Social previews are plain light cards | Fixed (`f02e59f`, PR #4), approved by Alex on 2026-10-24 | The preview images repeat the dark band: a `--noapte` background, the logo as on the dark header, the metro map, and the page title on the white station plaque of the Acasă H1. On pages with their own line, that line is drawn in full and the others at 0.35 opacity; elsewhere all four are in full. The map's geometry moved to `src/lib/harta.ts`, which both `MetroMap.astro` and `src/lib/og.ts` draw from. Spec §5.9 describes the image. | `tests/unit/og.test.ts`: colours from `tokens.css` and `metro.css`, each page's line read from the image's pixels, the title on the plaque, ș and ț |
 
 **Changed in part**
 - **UI-01:** since `b757633`, the header has no „Cere o ofertă” button on `/contact/` and the form-result pages. This was done for another reason: without JavaScript, the button on the error pages would open an empty form instead of Back. On every other inner page the header and band are as measured, and decision 28 stands.
@@ -523,7 +524,6 @@ The findings that need no data or decision from Alex are fixed in `f71fc5e` on `
 | FN-01 · No signal when the form stops delivering | D3. Option (a) needs only a calendar entry. |
 | FN-02 · Replies from Gmail | Question 4 |
 | FN-04 · WebKit CSP report on `/contact/` | A look in real Safari, after launch |
-| SEO-01 · Plain social previews | Not started. It needs no data from the owner, only design work in `src/pages/og/[...cale].png.ts`. |
 | SEO-03 · The `workers.dev` copy | Binding the custom domain |
 | CODE-03 · Node 26 on this machine | D11 (this machine still runs Node 26.5.0, and there's no `.npmrc`) |
 | CODE-05 · Layered-surfaces design marked "proposed" | Alex's confirmation of its §7 defaults, which the document says happens at its review |
