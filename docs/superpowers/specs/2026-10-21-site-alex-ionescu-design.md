@@ -388,7 +388,7 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
 2. **H1-ul** cu cuvântul-cheie, apoi `raspunsDirect`: 2–3 fraze despre ce e serviciul și cui îi folosește.
 3. **„Pentru cine e”** și **„Semne că ai nevoie”**.
 4. **„Ce primești”:** lista de livrabile.
-5. **„Cum se desfășoară”:** pașii, numerotați pentru că sunt o secvență, desenați ca linia grupului (`PasiTraseu`): fiecare pas e o stație cu numărul lui. De la 64rem, cardul stă alături de „Ce primești”, la aceeași înălțime. Duratele apar doar dacă le confirmă Alex.
+5. **„Cum se desfășoară”:** pașii, numerotați pentru că sunt o secvență, desenați ca linia grupului (`PasiTraseu`): fiecare pas e o stație cu numărul lui. De la 64rem, cardul stă alături de „Ce primești”, la aceeași înălțime. Cele două carduri stau pe o bandă `--albastru-benzi` pe toată lățimea (decizia 26), ca traseele de pe Acasă și din Cum lucrez: miezul ofertei iese din șirul de carduri. Duratele apar doar dacă le confirmă Alex.
 6. **Un proiect relevant**, dacă există unul publicabil.
 7. **4 întrebări frecvente**, vizibile. Fiecare răspuns începe cu răspunsul direct.
 8. **Doar pe SEO și AEO/GEO:** un rând care spune că nu garantez poziții în Google sau apariții în răspunsurile motoarelor AI.
@@ -458,7 +458,7 @@ Secțiunile paginii de serviciu sunt carduri pe `--suprafata` (decizia 29): fiec
 | `--yellow` / `--yellow-dark` | #F5B21B / #8A5A00 | grupul construcție, linia M1 / text și grafică cu sens pe alb |
 | `--red` / `--red-dark` | #E0533D / #B8382A | grupul reparație, linia M3 / text pe alb, erori |
 | `--tint-blue` | #EAF0FB | butonul „Oprește trenurile” și celelalte locuri care nu sunt benzile de mai jos |
-| `--albastru-benzi` | #D9E4F7 | fundalul benzii traseului „Cum lucrăm” de pe Acasă (pe toată lățimea), al benzilor de îndemn de pe paginile pe suprafață (componenta `Indemn`), al benzii de trasee de pe `/cum-lucrez/` și al fișei de pe `/proiecte/acest-site/`. Decizia din 2026-10-23 (varianta 2a): 1,28:1 față de alb, unde `--tint-blue` are 1,14:1; pe suprafața `#E9EEF5` are 1,10:1, iar `--tint-blue` are 1,02:1 și dispare. |
+| `--albastru-benzi` | #D9E4F7 | fundalul benzii traseului „Cum lucrăm” de pe Acasă (pe toată lățimea), al benzilor de îndemn de pe paginile pe suprafață (componenta `Indemn`), al benzii de trasee de pe `/cum-lucrez/`, al benzii cu „Ce primești” și „Cum se desfășoară” de pe paginile de serviciu și al fișei de pe `/proiecte/acest-site/`. Decizia din 2026-10-23 (varianta 2a): 1,28:1 față de alb, unde `--tint-blue` are 1,14:1; pe suprafața `#E9EEF5` are 1,10:1, iar `--tint-blue` are 1,02:1 și dispare. |
 | `--noapte` | #0E1116 | fundalul antetului și al benzii de sus, pe toate paginile (decizia 28), și miezul stațiilor de pe hartă |
 | `--noapte-text` | #E8ECF2 | meniul din antet, textul zonei de sus de pe Acasă, conturul stațiilor și „Ești aici”. Pe `--noapte`: 15,95:1. |
 | `--noapte-text-2` | #A7B0BE | „consultant SEO” din logo, pe antet. Pe `--noapte`: 8,64:1. |

@@ -1,9 +1,9 @@
 ---
 // Șablonul paginii de serviciu (§4.4), același pentru toate 6. Ordinea din pagină e cea din spec:
 // banda cu harta (linia grupului plină, „Ești aici”) și firimiturile, H1-ul cu cuvântul-cheie și răspunsul direct,
-// „Pentru cine e” și „Semne că ai nevoie”, „Ce primești” și „Cum se desfășoară” (alăturate pe desktop; pașii desenați ca
-// linia grupului, PasiTraseu), proiectul (dacă există), întrebările frecvente, nota despre garanții (doar pe SEO și
-// AEO/GEO), serviciile înrudite și ghidul, apoi un singur îndemn.
+// „Pentru cine e” și „Semne că ai nevoie”, „Ce primești” și „Cum se desfășoară” (pe banda albastră, alăturate pe desktop;
+// pașii desenați ca linia grupului, PasiTraseu), proiectul (dacă există), întrebările frecvente, nota despre garanții (doar
+// pe SEO și AEO/GEO), serviciile înrudite și ghidul, apoi un singur îndemn.
 // Șablonul nu citește colecțiile: pagina (src/pages/servicii/[slug].astro) îi dă doar ce se poate publica (§3.4).
 // Fără JavaScript. Banda primește clasa `vt-<slug>` prin Base (ruling R5), pentru tranziția M3 din §5.7.
 import type { CollectionEntry } from 'astro:content';
@@ -72,7 +72,10 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
       </section>
     </div>
 
-    <div class="serviciu__pereche">
+  </div>
+
+  <div class="serviciu__banda">
+    <div class="contener serviciu__pereche" data-grup={s.grup}>
       <section class="carte">
         <h2>Ce primești</h2>
         <ul>{s.livrabile.map((t) => <li><FaraRupere text={t} /></li>)}</ul>
@@ -83,7 +86,9 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
         <PasiTraseu pasi={s.pasi.map((text) => ({ text }))} />
       </section>
     </div>
+  </div>
 
+  <div class="contener serviciu serviciu--dupa-banda" data-grup={s.grup}>
     {
       proiectVizibil && (
         <section class="carte">
@@ -135,7 +140,19 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
 <style>
   /* Culoarea grupului vine din `data-grup` (tokens.css): `--culoare` dă bulinele listelor și linia pașilor (PasiTraseu). */
   .serviciu {
+    padding-block: 1rem 2.5rem;
+  }
+
+  /* După bandă: 1rem plus marginea primului card (1,5rem) = 2,5rem, ca deasupra benzii. */
+  .serviciu--dupa-banda {
     padding-block: 1rem 3rem;
+  }
+
+  /* Banda albastră (--albastru-benzi, decizia 26), pe toată lățimea, ca traseele de pe Acasă și din Cum lucrez: miezul
+     ofertei, „Ce primești” și „Cum se desfășoară”, iese din șirul de carduri de pe suprafață. Cardurile rămân albe pe ea. */
+  .serviciu__banda {
+    padding-block: 2.5rem;
+    background: var(--albastru-benzi);
   }
 
   h1 {
@@ -151,8 +168,7 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
 
   /* Cardurile stau la 1,5rem unul de altul. „Pentru cine e” și „Semne că ai nevoie” sunt un singur card, deci spațiul
      dintre ele e în card. */
-  .serviciu > .carte,
-  .serviciu__pereche {
+  .serviciu > .carte {
     margin-top: 1.5rem;
   }
 
@@ -185,8 +201,8 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
     }
   }
 
-  ul,
-  ol {
+  /* Listele cu buline; pașii (lista ordonată) îi desenează PasiTraseu, cu stilurile lui. */
+  ul {
     margin: 0;
     padding-left: 1.5rem;
   }

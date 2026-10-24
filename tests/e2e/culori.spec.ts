@@ -53,6 +53,7 @@ for (const [pagina, selector] of [
   ['/', '.acasa-trasee'],
   ['/cum-lucrez/', '.cum-trasee'],
   ['/servicii/seo/', '.indemn'],
+  ['/servicii/seo/', '.serviciu__banda'],
 ] as const) {
   test(`${pagina}: ${selector} are albastrul benzilor (decizia 26), nu --tint-blue, care dispare pe suprafață`, async ({ page }) => {
     await page.goto(pagina);

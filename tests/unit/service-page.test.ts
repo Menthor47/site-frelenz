@@ -248,10 +248,12 @@ describe('Service.astro, culorile grupului (§5.2)', () => {
 
   // Pașii sunt desenați ca linia grupului (PasiTraseu, `linie="grup"`): linia ia `--culoare` din `data-grup`, iar numărul stă
   // în stație, negru pe alb, deci nu mai e text colorat.
-  test('„Cum se desfășoară” e o linie în culoarea grupului, alături de „Ce primești”', async () => {
+  // Perechea stă pe banda albastră (`serviciu__banda`, pe toată lățimea) și poartă grupul, pentru culoarea liniei.
+  test('„Cum se desfășoară” e o linie în culoarea grupului, alături de „Ce primești”, pe banda albastră', async () => {
     const h = main(await pagina());
-    const pereche = /<div\b[^>]*class="serviciu__pereche"[^>]*>([\s\S]*?)<\/section>\s*<\/div>/.exec(h)?.[1] ?? '';
-    expect(titluriH2(pereche)).toEqual(['Ce primești', 'Cum se desfășoară']);
-    expect(pereche).toMatch(/<ol\b[^>]*class="[^"]*\bpasi-traseu--grup\b/);
+    const banda = /<div\b[^>]*class="serviciu__banda"[^>]*>([\s\S]*?)<\/section>\s*<\/div>\s*<\/div>/.exec(h)?.[1] ?? '';
+    expect(banda).toMatch(/<div\b[^>]*class="[^"]*\bserviciu__pereche\b[^"]*"[^>]*\bdata-grup="vizibilitate"/);
+    expect(titluriH2(banda)).toEqual(['Ce primești', 'Cum se desfășoară']);
+    expect(banda).toMatch(/<ol\b[^>]*class="[^"]*\bpasi-traseu--grup\b/);
   });
 });
