@@ -23,11 +23,12 @@ describe('ContactForm (§3.5)', () => {
     expect(h).not.toMatch(/\sstyle=/);
   });
 
+  // Atributele se caută în orice ordine (lookahead): Astro le scrie `hidden data-eroare`, nu în ordinea din sursă.
   test('explicația de eroare e ascunsă la încărcare, cu un mesaj pentru fiecare caz', async () => {
     const h = await render(ContactForm);
-    expect(h).toMatch(/<div\b[^>]*\bdata-eroare\b[^>]*\bhidden\b[^>]*>/);
-    expect(h).toMatch(/<p\b[^>]*\bdata-mesaj="linkuri"[^>]*\bhidden\b[^>]*>/);
-    expect(h).toMatch(/<p\b[^>]*\bdata-mesaj="eroare"[^>]*\bhidden\b[^>]*>/);
+    expect(h).toMatch(/<div\b(?=[^>]*\sdata-eroare[\s>])(?=[^>]*\shidden[\s>])[^>]*>/);
+    expect(h).toMatch(/<p\b(?=[^>]*\sdata-mesaj="linkuri")(?=[^>]*\shidden[\s>])[^>]*>/);
+    expect(h).toMatch(/<p\b(?=[^>]*\sdata-mesaj="eroare")(?=[^>]*\shidden[\s>])[^>]*>/);
     expect(h).toContain('dar e încă aici.');
   });
 

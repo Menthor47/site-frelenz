@@ -802,7 +802,7 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
   - ~1 KB pe fiecare pagină cu hartă (trenurile și butonul de oprire);
   - sub 1 KB pe `/proiecte/acest-site/` (fișa);
   - 0 KB pe paginile fără hartă (legale, 404, paginile de răspuns ale formularului);
-  - pe `/contact/`, scriptul formularului (decizia 30) se adaugă la cel al trenurilor. Bugetul lui se măsoară după primul build și se trece aici; nu e încă măsurat.
+  - pe `/contact/`, scriptul formularului (decizia 30) se adaugă la cel al trenurilor: ~1,1 KB (1131 de octeți necomprimat, 632 cu gzip, măsurat în `dist/` pe 2026-10-24). `qa:page` îi permite paginii al doilea script după clasa `formular`.
 - **CSS:** cel mult 25 KB pe pagină, necomprimat.
 - **Fonturi:** o singură familie, Atkinson Hyperlegible Next variabilă, cu latin și latin-ext, ~53–60 KB, ambele subseturi preîncărcate.
 - **Greutatea paginii Acasă:** sub 150 KB transferați. Se măsoară în producție, cu Brotli și cache gol (auditul `total-byte-weight` din Lighthouse, rulat pe domeniu). Pe `wrangler dev` nu există compresia Cloudflare, deci măsurătoarea de acolo nu contează.
