@@ -3,7 +3,8 @@ import { CAMPURI, CAPCANA, FARA_SERVICIU, SERVICII, type NumeCamp } from '../../
 import { PE_UN_RAND } from '../../worker/validate';
 import { render, textOf } from './helpers';
 
-// Formularul de contact (§3.5): atributele HTML vin din aceleași reguli ca Worker-ul (src/form-rules.ts), fără JavaScript.
+// Formularul de contact (§3.5): atributele HTML vin din aceleași reguli ca Worker-ul (src/form-rules.ts). Funcționează fără
+// JavaScript; cu JavaScript, trimiterea și explicația de eroare vin din src/client/contact-form.ts (decizia 30).
 
 /** Eticheta de deschidere a câmpului `nume` (input, textarea sau select). */
 function camp(h: string, nume: string): string {
@@ -15,12 +16,19 @@ const atribut = (eticheta: string, nume: string) => new RegExp(`\\s${nume}(?:="(
 const AUTOCOMPLETE: Partial<Record<NumeCamp, string>> = { nume: 'name', email: 'email', telefon: 'tel', firma: 'organization' };
 
 describe('ContactForm (§3.5)', () => {
-  test('trimite prin POST la /api/contact, fără JavaScript', async () => {
+  test('trimite prin POST la /api/contact, iar fără JavaScript rămâne POST-ul obișnuit', async () => {
     const h = await render(ContactForm);
     expect(h).toMatch(/<form\b[^>]*\bmethod="post"[^>]*\baction="\/api\/contact"/);
-    expect(h).not.toMatch(/<script\b/);
     expect(h).not.toMatch(/\son[a-z]+=/);
     expect(h).not.toMatch(/\sstyle=/);
+  });
+
+  test('explicația de eroare e ascunsă la încărcare, cu un mesaj pentru fiecare caz', async () => {
+    const h = await render(ContactForm);
+    expect(h).toMatch(/<div\b[^>]*\bdata-eroare\b[^>]*\bhidden\b[^>]*>/);
+    expect(h).toMatch(/<p\b[^>]*\bdata-mesaj="linkuri"[^>]*\bhidden\b[^>]*>/);
+    expect(h).toMatch(/<p\b[^>]*\bdata-mesaj="eroare"[^>]*\bhidden\b[^>]*>/);
+    expect(h).toContain('dar e încă aici.');
   });
 
   test.each(Object.entries(CAMPURI) as [NumeCamp, (typeof CAMPURI)[NumeCamp]][])('%s: atributele HTML vin din form-rules', async (nume, regula) => {

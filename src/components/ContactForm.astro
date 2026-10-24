@@ -1,6 +1,7 @@
 ---
-// Formularul de contact (§3.5): fără JavaScript, trimis prin POST la Worker (/api/contact), care îl validează cu aceleași
-// reguli. `required`, `maxlength` și `type` vin din src/form-rules.ts, ca browserul și serverul să judece la fel.
+// Formularul de contact (§3.5): trimis prin POST la Worker (/api/contact), care îl validează cu aceleași reguli. Funcționează
+// și fără JavaScript. Cu JavaScript (decizia 30), trimiterea se face din pagină, iar o eroare lasă mesajul în câmpuri, cu
+// explicația din `[data-eroare]`, sub buton. `required`, `maxlength` și `type` vin din src/form-rules.ts, ca browserul și serverul să judece la fel.
 // Fiecare câmp are etichetă vizibilă; cele obligatorii spun asta în text. Nota de sub Mesaj e legată prin `aria-describedby`.
 // Capcana e un câmp pe care un om nu-l vede și nu-l atinge: scos din ecran, `tabindex=-1`, `autocomplete=off`,
 // într-un bloc `aria-hidden`. Fără CNP și fără bifă de acord.
@@ -69,6 +70,13 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
     <input id={id(CAPCANA)} name={CAPCANA} type="text" tabindex="-1" autocomplete="off" />
   </div>
 
+  <div class="formular__eroare" role="alert" tabindex="-1" hidden data-eroare>
+    <p data-mesaj="linkuri" hidden>
+      Mesajul are mai mult de {CAMPURI.mesaj.maxLinkuri} linkuri, dar e încă aici. Scoate câteva linkuri și trimite din nou, sau scrie-mi direct, la contactele de pe pagină.
+    </p>
+    <p data-mesaj="eroare" hidden>Mesajul n-a plecat, dar e încă aici. Încearcă din nou peste un minut, sau scrie-mi direct, la contactele de pe pagină.</p>
+  </div>
+
   <div class="formular__trimite">
     <button type="submit" class="buton-cta">Cere o ofertă</button>
     <p class="formular__nota">
@@ -78,6 +86,12 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
     </p>
   </div>
 </form>
+
+<script>
+  import { initFormular } from '../client/contact-form';
+
+  for (const formular of document.querySelectorAll<HTMLFormElement>('form.formular')) initFormular(formular);
+</script>
 
 <style>
   .formular {
@@ -154,6 +168,26 @@ const ID_NOTA_MESAJ = 'formular-mesaj-nota';
     grid-template-columns: minmax(0, 1fr);
     justify-items: start;
     gap: 0.5rem;
+  }
+
+  /* Explicația de după o eroare (doar cu JavaScript): pe toată lățimea formularului, cu bară roșie ca să se vadă. */
+  .formular__eroare {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border-left: 4px solid var(--red-dark);
+    background: var(--tint-red);
+    color: var(--ink);
+  }
+
+  .formular__eroare p {
+    margin: 0;
+  }
+
+  /* Ascunderea e explicită: `hidden` trebuie să câștige dacă stilul de mai sus pune un `display` pe explicație. */
+  .formular__eroare[hidden],
+  .formular__eroare [hidden] {
+    display: none;
   }
 
   .formular__trimite .buton-cta {
