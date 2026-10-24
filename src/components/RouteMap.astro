@@ -81,7 +81,8 @@ const idAbonament = `traseu-abonament-${marime}`;
     --culoare: var(--blue);
   }
 
-  /* Eticheta traseului: text vizibil, cu un eșantion din linie în față. */
+  /* Eticheta traseului: text vizibil, cu un eșantion din linie în față. Mărimea e de pe scară (§5.3): --text-md pe traseul
+     compact, --text-lg pe cel mare (regula de mai jos). */
   .traseu__eticheta {
     display: flex;
     flex-wrap: wrap;
@@ -89,12 +90,16 @@ const idAbonament = `traseu-abonament-${marime}`;
     gap: 0.5rem 0.75rem;
     max-width: none;
     margin: 0 0 1.25rem;
-    font-size: 1.25em;
+    font-size: var(--text-md);
     font-weight: 800;
     line-height: 1.2;
     /* Cu `flex-wrap`, un text care nu încape lângă eșantionul de linie trece sub el, cu toată lățimea, și se rupe la spații;
        `anywhere` rămâne plasa de siguranță pentru un cuvânt mai lung decât rândul (text mărit la 200%, la 320px). */
     overflow-wrap: anywhere;
+  }
+
+  .trasee--mare .traseu__eticheta {
+    font-size: var(--text-lg);
   }
 
   .traseu__eticheta::before {

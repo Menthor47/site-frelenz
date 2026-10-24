@@ -39,6 +39,15 @@ test('Acasă: zona de sus e întunecată, cu text deschis', async ({ page }) => 
   expect(await calculat(page, '.acasa-sus', 'color')).toBe(NOAPTE_TEXT);
 });
 
+// Erorile (§5.2): mereu cu iconiță și cu text. Iconița din titlul paginii de eroare e în roșul erorilor (--red-dark), iar
+// titlul rămâne în culoarea textului (auditul de design din 2026-10-24, D-05).
+test('pagina de eroare: iconița din titlu e roșul erorilor, iar titlul rămâne negru', async ({ page }) => {
+  await page.goto('/contact/eroare/');
+  await expect(page.locator('h1 svg[data-iconita="eroare"]')).toHaveCount(1);
+  expect(await calculat(page, 'h1 svg[data-iconita="eroare"]', 'stroke')).toBe('rgb(184, 56, 42)');
+  expect(await calculat(page, 'h1', 'color')).toBe('rgb(20, 22, 26)');
+});
+
 // Fișa de pe /proiecte/acest-site/ folosește același token, dar pagina există doar în previzualizare (DRAFT=1).
 for (const [pagina, selector] of [
   ['/', '.acasa-trasee'],

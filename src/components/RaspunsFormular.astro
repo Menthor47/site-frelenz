@@ -1,9 +1,11 @@
 ---
 // Paginile de răspuns ale formularului (§3.5): statice, noindex, fără hartă (§5.6) și fără firimituri, lipsă din sitemap
-// (src/lib/seo.ts). Textul vine din pagină (slot); paginile de eroare adaugă și contactele directe.
+// (src/lib/seo.ts). Textul vine din pagină (slot); paginile de eroare adaugă contactele directe și iconița de eroare în
+// titlu (§5.2: erorile au mereu iconiță și text).
 import { paginaAprobata } from '../approvals';
 import Base from '../layouts/Base.astro';
 import ContacteDirecte from './ContacteDirecte.astro';
+import Iconita from './Iconita.astro';
 
 interface Props {
   titlu: string;
@@ -11,14 +13,16 @@ interface Props {
   cale: '/contact/multumim/' | '/contact/eroare/' | '/contact/prea-multe-linkuri/';
   /** Pe paginile de eroare: e-mailul, telefonul și WhatsApp, ca vizitatorul să poată scrie direct. */
   contacte?: boolean;
+  /** Pe paginile de eroare: iconița de eroare în fața titlului. */
+  eroare?: boolean;
 }
 
-const { titlu, descriere, cale, contacte = false } = Astro.props;
+const { titlu, descriere, cale, contacte = false, eroare = false } = Astro.props;
 ---
 
 <Base titlu={titlu} descriere={descriere} cale={cale} aprobat={paginaAprobata(cale)} noindex>
   <div class="contener raspuns">
-    <h1>{titlu}</h1>
+    <h1 class:list={[eroare && 'raspuns__eroare']}>{eroare && <Iconita nume="eroare" />}{titlu}</h1>
     <slot />
     {contacte && <ContacteDirecte />}
   </div>
@@ -37,5 +41,16 @@ const { titlu, descriere, cale, contacte = false } = Astro.props;
   .raspuns :global(p) {
     font-size: var(--text-md);
     line-height: 1.45;
+  }
+
+  /* Pe paginile de eroare, titlul are în față iconița de eroare, în roșul erorilor (§5.2); textul titlului rămâne negru.
+     Iconița stă în rând, ca o literă, nu într-un flex: așa, un cuvânt care nu mai încape lângă ea (text mărit la 200%,
+     pe 320px) trece pe rândul următor. E puțin mai mică decât textul, cu baza triunghiului pe linia de bază a rândului. */
+  .raspuns__eroare :global(.iconita) {
+    width: 0.85em;
+    height: 0.85em;
+    margin-right: 0.3em;
+    vertical-align: -0.1em;
+    color: var(--red-dark);
   }
 </style>

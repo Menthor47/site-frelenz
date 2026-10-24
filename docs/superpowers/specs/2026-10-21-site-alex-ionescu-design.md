@@ -59,7 +59,7 @@ Pornește de la `plan-site-alex-ionescu.md` (planul lui Alex) și de la deciziil
 | 25 | Banda de sus a Acasă (1b) | Întunecată, ca un prag: fundal `#0E1116`, text `#E8ECF2`, liniile și trenurile luminate, plăcuța H1-ului albă. Aleasă de Alex pe 2026-10-23 dintr-un set de patru variante. Excepție de la §5.1 („Doar temă luminoasă”), doar pentru această bandă. Pe telefon, butonul „Oprește trenurile” stă deasupra hărții, pe dreapta, iar plăcuța H1-ului coboară cu el. Extinsă de decizia 28: pe toate paginile. |
 | 26 | Traseul „Cum lucrăm” de pe Acasă (2a) | Fundal `#D9E4F7`, pe toată lățimea, aleasă de Alex pe 2026-10-23. Are 1,28:1 față de alb, unde `--tint-blue` (`#EAF0FB`) are 1,14:1. `--tint-blue` rămâne pentru celelalte locuri. |
 | 27 | Trenurile (3a) | Rămân doar pe Acasă, aleși de Alex pe 2026-10-23. Paginile de serviciu, de studiu, de ghid, `/servicii/`, `/cum-lucrez/`, `/despre/` și `/contact/` au harta statică, fără trenuri și fără buton de oprire. Un tren care trece o singură dată ar fi o extindere separată, nu e în spec. Înlocuită de decizia 28 (2026-10-23). |
-| 28 | Antet, bandă și trenuri pe toate paginile (înlocuiește 27, extinde 25) | Antetul e întunecat pe toate paginile, ca banda de sus (fundal `#0E1116`). Pe fiecare pagină cu hartă, banda are trenuri, linia grupului plină cu „Ești aici” și butonul „Oprește trenurile”. Butonul e mai mic (text 12,8px), cu fundal `#EAF0FB` și text `#14161A` (14,97:1), contur 1px `--ink`, zona de atingere 44px. Aleasă de Alex pe 2026-10-23. Reface §5.1, §5.6, §5.7 și §9.1. |
+| 28 | Antet, bandă și trenuri pe toate paginile (înlocuiește 27, extinde 25) | Antetul e întunecat pe toate paginile, ca banda de sus (fundal `#0E1116`). Pe fiecare pagină cu hartă, banda are trenuri, linia grupului plină cu „Ești aici” și butonul „Oprește trenurile”. Butonul e mai mic (text 12,8px; din 2026-10-24, 14,4px, `--text-sm`, ca toate mărimile să fie pe scară), cu fundal `#EAF0FB` și text `#14161A` (14,97:1), contur 1px `--ink`, zona de atingere 44px. Aleasă de Alex pe 2026-10-23. Reface §5.1, §5.6, §5.7 și §9.1. |
 | 29 | Suprafețe stratificate (2026-10-23) | Fundal `--suprafata` sub bandă, carduri albe cu contur `--card-contur` pentru secțiunile de conținut; Servicii cu șase carduri în grilă; Despre cu profil; Contact pe două coloane. Detalii în `docs/superpowers/specs/2026-10-23-layered-surfaces-design.md`. Benzile de îndemn și fișa folosesc și ele `#D9E4F7`. După revizuirea din aceeași zi, alese de Alex: ghidurile, studiile de caz și listele `/proiecte/` și `/ghiduri/` au conținutul într-un singur card alb (titlul rămâne pe suprafață); pe `/servicii/`, liniile cu un singur serviciu (Diagnostic, Construcție) stau alături, pe același rând. |
 | 30 | Formular cu JavaScript (2026-10-24) | Cu JavaScript pornit, formularul se trimite din pagină: `fetch` la `/api/contact`, cu aceleași câmpuri ca POST-ul obișnuit, iar fetch urmează redirecționarea 303 a Worker-ului, deci pagina de ajungere spune rezultatul. Worker-ul nu se schimbă. La o eroare, mesajul rămâne în câmpuri, explicația apare sub buton și focusul trece pe ea. Trimiterea reușită merge la „Am primit cererea ta”. Nu se scrie nimic în browser (fără cookie-uri, fără stocare locală), deci Politica de cookie-uri rămâne adevărată și nu e nevoie de banner. Fără JavaScript, rămâne POST-ul obișnuit, cu paginile de răspuns. Schimbare cerută pe 2026-10-24, cu două condiții: niciun mesaj pierdut și o experiență mai bună. Reface rândul 20, „Formularul” din 3.5, §3 (arhitectura), §9.1 și §10 (verificările). |
 
@@ -478,7 +478,7 @@ Secțiunile paginii de serviciu sunt carduri pe `--suprafata` (decizia 29): fiec
 - **Contrast ridicat:** butonul „Cere o ofertă” are un contur transparent de 2px (scăzut din padding, deci aceeași mărime), pe care modul de contrast ridicat îl face vizibil când scoate fundalul.
 - **Linkurile din text** sunt mereu subliniate.
 - **Focus:** `outline: 2px solid #14161A; outline-offset: 0;` plus `box-shadow: 0 0 0 4px #FFFFFF`, ca haloul alb să se vadă 2px în afara conturului (tehnica WCAG C40). Pe orice fundal, unul dintre cele două tonuri trece de 3:1. Focusul se verifică în subsol (#14161A), pe banda albastră și pe butonul în starea hover (#1A4FB8).
-- **Erorile:** text #B8382A, mereu cu iconiță și cu text, niciodată doar prin culoare.
+- **Erorile:** text #B8382A, mereu cu iconiță și cu text, niciodată doar prin culoare. Pe paginile de eroare ale formularului, iconița stă în fața titlului, în `--red-dark`; titlul rămâne în culoarea textului.
 - **Subsolul:**
   - textul e alb, la 92% opacitate;
   - linkurile spre servicii au culoarea grupului: galben, verde, roșu, iar albastrul e #6B9BF0 (6,53:1 pe #14161A);
@@ -491,9 +491,9 @@ Secțiunile paginii de serviciu sunt carduri pe `--suprafata` (decizia 29): fiec
 - **O singură familie: Atkinson Hyperlegible Next**, variabilă doar pe axa de greutate, cu subseturile latin și latin-ext (~53–60 KB în total):
   - **800** pentru titluri, cu `letter-spacing` între −0,01em și −0,02em la mărimile mari și înălțimea rândului 1,1–1,2;
   - **700** pentru subtitluri, etichete și `strong`;
-  - **400** pentru text: 18px, înălțimea rândului 1,6, cel mult ~70 de caractere pe rând.
+  - **400** pentru text: 18px, înălțimea rândului 1,6, cel mult ~70 de caractere pe rând: 34em pe paragrafe, pe liste și pe răspunsurile din „Întrebări frecvente”.
 - **Fără italic:** `styles: ["normal"]`. `em` se marchează prin greutate.
-- **Scara** (raport ~1,25): 14,4 / 18 / 22,5 / 28 / 35 / H1 `clamp(2.25rem, 5vw, 3.5rem)`.
+- **Scara** (raport ~1,25): 14,4 / 18 / 22,5 / 28 / 35 / H1 `clamp(2.25rem, 5vw, 3.5rem)`. Meniul din antet are 16px. Altă mărime nu există: eticheta traseelor ia `--text-md` pe traseul compact și `--text-lg` pe cel mare, iar butonul „Oprește trenurile”, `--text-sm` (verificat în `tests/e2e/tipografie.spec.ts`).
 - **Etichetele** sunt în sentence case, fără majuscule.
 - **Încărcarea fontului:**
   - găzduit pe site, prin Astro Fonts API (furnizor Fontsource);
@@ -514,7 +514,7 @@ Secțiunile paginii de serviciu sunt carduri pe `--suprafata` (decizia 29): fiec
   Sub 380px, „consultant SEO” trece pe rândul următor.
 - **„Ești aici”:** o stație plină albastră, cu inel alb, pusă pe linia grupului, pe banda de sus.
 - **Favicon:** aceeași stație plină albastră. `public/favicon.svg` e iconița principală. Din el se desenează la build (`src/lib/iconite.ts`) două PNG-uri: `/favicon-96.png` (96×96), pentru programele care nu citesc SVG, și `/apple-touch-icon.png` (180×180), pentru ecranul de start al iPhone-ului, cu stația pe fundalul antetului (`--noapte`), pentru că iOS umple transparența cu negru.
-- **Iconițe:** puține, SVG inline, doar unde au sens: eroare, telefon, WhatsApp, e-mail.
+- **Iconițe:** puține, SVG inline, doar unde au sens: eroare, telefon, WhatsApp, e-mail. Componenta `Iconita`: un desen pe o grilă de 24, cu linii de 2 și colțuri drepte, în culoarea textului (`currentColor`), de 1,25em, cu `aria-hidden` (numele îl dă textul de lângă ea). Telefonul e un telefon mobil, WhatsApp un balon de mesaj generic (nu logo-ul aplicației), e-mailul un plic, eroarea un triunghi cu semnul exclamării. Apar la contactele directe (Contact și paginile de eroare), în coloana Contact din subsol și, cea de eroare, în titlul paginilor de eroare ale formularului.
 
 ### 5.5 Fișa paginii (doar pe `/proiecte/acest-site/`)
 
@@ -559,7 +559,7 @@ O listă `<dl>` pe `#D9E4F7`, ca benzile: pe suprafața paginii `--tint-blue` ar
 Așa nu există niciodată mișcare fără un buton de oprire care funcționează (WCAG 2.2.2).
 
 **Butonul „Oprește trenurile” / „Pornește trenurile”:**
-- e mic și secundar: text de 12,8px, fundal `#EAF0FB` (`--tint-blue`), contur de 1px `--ink`, zona de atingere 44px (decizia 28), colțuri drepte, pe desktop într-un colț al hărții, departe de titlu și de butonul principal; pe telefon deasupra hărții, aliniat la dreapta, pentru că plăcuța H1-ului acoperă colțul de jos și stațiile de sus ocupă colțul de sus (decizia 25);
+- e mic și secundar: text de 14,4px (`--text-sm`, cel mai mic de pe scară), fundal `#EAF0FB` (`--tint-blue`), contur de 1px `--ink`, zona de atingere 44px (decizia 28), colțuri drepte, pe desktop într-un colț al hărții, departe de titlu și de butonul principal; pe telefon deasupra hărții, aliniat la dreapta, pentru că plăcuța H1-ului acoperă colțul de jos și stațiile de sus ocupă colțul de sus (decizia 25);
 - are totuși zona de atingere de minimum 44×44px și focusul din 5.2;
 - eticheta alternează și nu folosește `aria-pressed` (cele două tipare se exclud);
 - e cerut de WCAG 2.2.2, pentru că animația durează mai mult de 5 secunde.

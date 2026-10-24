@@ -61,6 +61,17 @@ test('text mărit la 200% pe /contact/: câmpurile nu se suprapun, fără derula
   expect(await faraDerulareOrizontala(page)).toBe(true);
 });
 
+// Titlul paginilor de eroare are în față iconița de eroare (§5.2): cu textul mărit la 200%, pe 320px, cuvântul lung de
+// după ea („Mesajul”) trebuie să treacă pe rândul următor, nu să iasă din pagină.
+for (const cale of ['/contact/eroare/', '/contact/prea-multe-linkuri/']) {
+  test(`text mărit la 200% pe ${cale}, la 320px: fără derulare orizontală`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.goto(cale);
+    await textMarit(page);
+    expect(await faraDerulareOrizontala(page)).toBe(true);
+  });
+}
+
 // Pază împotriva eșecului tăcut: dacă `container-type` dispare de pe card, interogarea de container nu se mai aplică,
 // formularul rămâne mereu pe o coloană, iar niciun alt test nu observă.
 test('formularul are două coloane pe desktop și una când cardul e îngust', async ({ page }) => {
