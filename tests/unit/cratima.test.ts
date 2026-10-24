@@ -9,6 +9,12 @@ test('găsește cuvintele cu cratimă, inclusiv cu diacritice, majuscule și mai
   expect(intregi('dă-mi-l')).toEqual(['dă-mi-l']);
 });
 
+// Punctuația lipită de cuvânt stă în aceeași bucată, ca rândul următor să nu înceapă cu „. ” sau „: ” (polish, 2026-10-24).
+test('punctuația și ghilimelele lipite de cuvânt rămân cu el', () => {
+  expect(intregi('Cuprinde trei părți ale site-ului. Partea tehnică: viteza.')).toEqual(['site-ului.']);
+  expect(intregi('Verific site-ului: viteza, (site-ul) și „e-mail”, apoi n-a.')).toEqual(['site-ului:', '(site-ul)', '„e-mail”,', 'n-a.']);
+});
+
 test('nu atinge linia de pauză, intervalele, cratima izolată sau cea de la capăt', () => {
   expect(intregi('7–11 secunde, SEO – audit, a - b, -a, b-, --')).toEqual([]);
 });

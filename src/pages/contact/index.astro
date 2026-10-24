@@ -96,9 +96,12 @@ const ID_DIRECT = 'direct-titlu';
 
   /* Cardul îngust din dreapta: titlul e mai mic, iar rândurile se umplu în ordine (nu echilibrat), ca „scrie-mi” să nu se
      rupă la cratimă. Echilibrarea din base.css alegea tocmai ruptura „Sau scrie- / mi direct”; fontul nu are U+2011. */
+  /* `scroll-margin-top`: linkul „contactele de pe pagină” din explicația de eroare duce aici; cardul (padding 1,5–2rem și
+     conturul) se vede întreg deasupra titlului, nu tăiat de marginea ecranului. */
   .contact__direct h2 {
     font-size: var(--text-lg);
     text-wrap: wrap;
+    scroll-margin-top: 3rem;
   }
 
   /* „Formularul” repetă H1-ul „Cere o ofertă”: rămâne pentru cititoarele de ecran, nu se vede. */

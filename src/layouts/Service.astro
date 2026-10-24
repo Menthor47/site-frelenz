@@ -211,6 +211,11 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
     margin-block: 0.4rem;
   }
 
+  /* Ultimul element nu adaugă margine sub listă: sub el rămâne doar padding-ul cardului (32px, 24px pe telefon). */
+  li:last-child {
+    margin-bottom: 0;
+  }
+
   li::marker {
     color: var(--culoare);
     font-weight: 800;
@@ -237,9 +242,15 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
     margin-block: 0 1rem;
   }
 
+  .inrudite li:last-child {
+    margin-bottom: 0;
+  }
+
+  /* 44×44px: „SEO” singur ar avea ~35px lățime; textul rămâne aliniat la stânga. */
   .inrudite a {
     display: inline-flex;
     align-items: center;
+    min-width: 44px;
     min-height: 44px;
     font-weight: 700;
   }

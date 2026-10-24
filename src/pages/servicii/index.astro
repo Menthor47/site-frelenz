@@ -49,9 +49,9 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
   <div class="contener servicii">
     <h1>Servicii</h1>
     <p class="servicii__intro">
-      Eu, Alex Ionescu, lucrez pe patru linii: vizibilitate (SEO și căutarea AI), diagnostic (auditul SEO), construcție (site-uri
-      de prezentare noi) și reparație (redesign și mentenanță). Pe pagina fiecărui serviciu vezi pentru cine e, ce primești și cum
-      se desfășoară.
+      <FaraRupere
+        text="Eu, Alex Ionescu, lucrez pe patru linii: vizibilitate (SEO și căutarea AI), diagnostic (auditul SEO), construcție (site-uri de prezentare noi) și reparație (redesign și mentenanță). Pe pagina fiecărui serviciu vezi pentru cine e, ce primești și cum se desfășoară."
+      />
     </p>
 
     <div class="linii">
@@ -85,7 +85,7 @@ const linii = [...new Set(servicii.map((s) => s.grup))].map((grup) => ({ grup, s
     </div>
 
     <div class="servicii__final">
-      <p>Nu știi de unde să începi? Spune-mi ce site ai sau de ce ai nevoie și îți spun ce serviciu ți se potrivește.</p>
+      <p><FaraRupere text="Nu știi de unde să începi? Spune-mi ce site ai sau de ce ai nevoie și îți spun ce serviciu ți se potrivește." /></p>
       <Cta />
     </div>
   </div>

@@ -189,13 +189,13 @@ const { idContacte } = Astro.props;
   /* Explicația de după o eroare (doar cu JavaScript, decizia 30): sub buton, pe toată lățimea, cu iconiță și text #B8382A
      (§5.2: erorile au mereu iconiță și text, niciodată doar culoare; 5,07:1 pe --tint-red). Contur de 1px, ca la carduri. */
   .formular__eroare {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: start;
-    column-gap: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.5rem 0.75rem;
     justify-self: stretch;
     margin: 0;
-    padding: 0.75rem 1rem;
+    padding: 0.75rem;
     border: 1px solid var(--red-dark);
     background: var(--tint-red);
     color: var(--red-dark);
@@ -206,8 +206,11 @@ const { idContacte } = Astro.props;
     margin-top: 0.175em;
   }
 
+  /* Textul stă lângă iconiță cât are cel puțin 9em; mai îngust (text mărit la 200% pe telefon), trece sub ea, pe toată
+     lățimea, în loc să rămână o coloană de câteva litere. */
   .formular__eroare p {
-    grid-column: 2;
+    flex: 1 1 9em;
+    min-width: 0;
     margin: 0;
   }
 
@@ -218,7 +221,10 @@ const { idContacte } = Astro.props;
   }
 
   /* Conturul transparent vine din butoane.css (vizibil în modul de contrast ridicat), deci aici nu se pune `border: 0`. */
+  /* Lățimea minimă ține butonul la fel de lat cât spune „Se trimite…” (mai scurt), ca nimic de sub el să nu se miște.
+     `min(…, 100%)`: cu textul mărit la 200%, 8,5em ar trece de lățimea cardului (min-width bate max-width). */
   .formular__trimite .buton-cta {
+    min-width: min(8.5em, 100%);
     max-width: 100%;
     cursor: pointer;
   }

@@ -8,8 +8,12 @@ export interface Segment {
   intreg: boolean;
 }
 
-/** Litere sau cifre legate prin cratime: „site-ul”, „într-un”, „e-mail”. Linia de pauză (–) și intervalele nu intră. */
-const CU_CRATIMA = /[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)+/gu;
+/**
+ * Litere sau cifre legate prin cratime: „site-ul”, „într-un”, „e-mail”. Linia de pauză (–) și intervalele nu intră.
+ * Semnele lipite de cuvânt (ghilimele și paranteza de deschidere, punctuația de după) intră în aceeași bucată: altfel
+ * browserul poate rupe rândul între cuvântul întreg și punctul de după el, iar rândul următor ar începe cu „. ”.
+ */
+const CU_CRATIMA = /[„“"«(]?[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)+[.,:;!?…)»”"]*/gu;
 
 /** Textul în bucăți, în ordine: cuvintele cu cratimă (`intreg`) și restul. Lipite la loc, dau exact textul primit. */
 export function segmenteCratima(text: string): Segment[] {

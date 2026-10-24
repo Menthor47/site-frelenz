@@ -129,8 +129,10 @@ const cuNume = pasi.some((p) => p.nume !== undefined);
     margin: 0 0 0.25rem;
   }
 
+  /* Pașii sunt fraze scurte, de două-trei rânduri: `balance` le împarte egal, unde `pretty` lasă uneori un cuvânt singur. */
   .pasi-traseu__text {
     margin: 0;
+    text-wrap: balance;
   }
 
   /* Orizontal: stațiile pe o linie, aliniate pe coloane egale, cu numele și textul sub ele. */

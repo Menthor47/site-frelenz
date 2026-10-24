@@ -97,8 +97,13 @@ const faraButon = cale === '/' || cale.startsWith('/contact/');
     font-weight: 400;
   }
 
-  /* Sub 380px, „consultant SEO” trece pe rândul următor. */
+  /* Sub 380px, „consultant SEO” trece pe rândul următor. Pe două rânduri, logo-ul are deja peste 44px, deci padding-ul
+     scade, la fel pe toate paginile (cu buton sau fără), ca numele să nu sară între pagini. */
   @media (max-width: 379.98px) {
+    .logo {
+      padding-block: 0.25rem;
+    }
+
     .logo__rol {
       display: block;
     }
@@ -180,6 +185,16 @@ const faraButon = cale === '/' || cale.startsWith('/contact/');
   @media (max-width: 22.49rem) {
     .meniu__dublat {
       display: none;
+    }
+
+    /* Pe paginile fără buton (Acasă, Contact), cele patru linkuri rămân: cu padding mai mic (tot 44px înălțime) încap pe
+       un rând la 320px (286px în loc de 302px), iar „Contact” nu mai stă singur pe al treilea rând. */
+    .meniu {
+      margin-left: -0.375rem;
+    }
+
+    .meniu a {
+      padding-inline: 0.375rem;
     }
   }
 </style>

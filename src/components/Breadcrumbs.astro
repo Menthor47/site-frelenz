@@ -42,11 +42,11 @@ const ultimul = pasi.length - 1;
     min-height: 44px;
   }
 
-  /* Linkul însuși are zona de atingere de 44×44px (§5.8), nu doar rândul: textul rămâne centrat, deci nu se mută. */
+  /* Linkul însuși are zona de atingere de 44×44px (§5.8), nu doar rândul. Textul stă la stânga, ca primul cuvânt să fie
+     aliniat cu marginea conținutului (H1-ul de dedesubt); zona în plus rămâne la dreapta lui. */
   a {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     min-width: 44px;
     min-height: 44px;
   }

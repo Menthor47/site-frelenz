@@ -5,6 +5,7 @@
 // estompate (§5.6). JSON-LD: WebPage; BreadcrumbList vine din Base (ruling R10). Fără JavaScript.
 // Ciorne: explicațiile pașilor spun doar ce scrie deja în spec și în pașii serviciilor, fără termene (#14, #18).
 import { paginaAprobata } from '../approvals';
+import FaraRupere from '../components/FaraRupere.astro';
 import Indemn from '../components/Indemn.astro';
 import PasiTraseu from '../components/PasiTraseu.astro';
 import RouteMap from '../components/RouteMap.astro';
@@ -51,8 +52,9 @@ const PASI = [
   <div class="contener cum">
     <h1>Cum lucrez</h1>
     <p class="cum__intro">
-      Eu, Alex Ionescu, lucrez în patru pași: evaluare, ofertă, lucru și raport. De la ofertă, traseul are două variante: o
-      remediere unică sau o remediere urmată de un abonament lunar. Lucrez doar cu firme, PFA-uri și alte entități profesionale.
+      <FaraRupere
+        text="Eu, Alex Ionescu, lucrez în patru pași: evaluare, ofertă, lucru și raport. De la ofertă, traseul are două variante: o remediere unică sau o remediere urmată de un abonament lunar. Lucrez doar cu firme, PFA-uri și alte entități profesionale."
+      />
     </p>
   </div>
 
@@ -75,7 +77,7 @@ const PASI = [
         <p class="format format--unic">Remedierea unică repară ce am găsit la evaluare și se încheie cu raportul.</p>
         <p class="format format--abonament">Cu abonamentul lunar, remedierea costă mai puțin, iar lucrul continuă lună de lună după ea.</p>
       </div>
-      <p class="cum__pret">Prețul, reducerea și ce include abonamentul le stabilim după ce mă uit la site-ul tău.</p>
+      <p class="cum__pret"><FaraRupere text="Prețul, reducerea și ce include abonamentul le stabilim după ce mă uit la site-ul tău." /></p>
     </section>
   </div>
 
@@ -136,6 +138,11 @@ const PASI = [
     .formate {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       column-gap: 3rem;
+    }
+
+    /* Fraza despre preț are lățimea primei coloane, nu 34em: altfel intra pe jumătate sub a doua coloană. */
+    .cum__pret {
+      max-width: calc((100% - 3rem) / 2);
     }
   }
 

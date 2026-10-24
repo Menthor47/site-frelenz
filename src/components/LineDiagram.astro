@@ -57,7 +57,8 @@ const { randuri } = Astro.props;
     position: relative;
     display: grid;
     /* A treia coloană se poate strânge (`minmax(0, auto)`), ca un serviciu cu nume lung să încapă și cu textul mărit la 200%. */
-    grid-template-columns: var(--d) minmax(1rem, 1fr) minmax(0, auto);
+    /* Segmentul are cel puțin 2,5rem, ca linia să se vadă și când numele serviciului ocupă aproape tot rândul (320px). */
+    grid-template-columns: var(--d) minmax(2.5rem, 1fr) minmax(0, auto);
     align-items: center;
     max-width: none;
     padding-block: 0.75rem;

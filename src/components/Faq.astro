@@ -56,11 +56,13 @@ const afisate = intrebariVizibile(intrebari, DRAFT);
   }
 
   /* Întrebarea: titlu mic, ca să se vadă în scanare, fără să concureze cu H2 al secțiunii. */
+  /* `pretty` ca la răspunsuri: întrebarea nu se încheie cu un cuvânt singur pe ultimul rând („… a unui / site?”). */
   dt {
     margin: 0 0 0.5rem;
     font-size: var(--text-md);
     font-weight: 800;
     line-height: 1.25;
+    text-wrap: pretty;
   }
 
   /* Măsura răspunsurilor (34em, §5.3) vine din base.css, unde `dd` stă lângă `p` și `li`: lățimea listei, de 70ch, lăsa
