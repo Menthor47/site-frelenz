@@ -129,6 +129,7 @@ Fiecare componentă are un singur rol și își primește datele prin props, din
 | `FaraRupere` | textul primit, cu cuvintele cu cratimă ținute întregi pe un rând (§5.3); pentru titlurile, răspunsul direct, listele și întrebările frecvente din colecții | props |
 | `LineDiagram` | „De unde pornești?”: fiecare rând e un tronson scurt de linie, cu stația-problemă, segmentul în culoarea grupului și capătul de linie cu serviciul, ca link; linkul are problema ca descriere (`aria-describedby`) | colecția servicii (câmpurile `problema`, `ordine`) |
 | `RouteMap` | cele două trasee (remediere unică, abonament), desenate static | text din conținut |
+| `PasiTraseu` | pașii unei secvențe desenați ca linie de metrou: stații numerotate (contor CSS), linia în culoarea grupului sau, pentru pașii comuni ambelor trasee, în ambele culori alăturate; verticală, sau orizontală cu textul sub stații într-un container de cel puțin 48rem | props |
 | `PageFacts` | fișa paginii, doar pe `/proiecte/acest-site/` (vezi 5.5) | script inline mic |
 | `Faq` | întrebări vizibile, cu FAQPage în graf | props |
 | `Breadcrumbs` | firimituri vizibile (`nav` + `ol`), cu BreadcrumbList | ruta |
@@ -387,7 +388,7 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
 2. **H1-ul** cu cuvântul-cheie, apoi `raspunsDirect`: 2–3 fraze despre ce e serviciul și cui îi folosește.
 3. **„Pentru cine e”** și **„Semne că ai nevoie”**.
 4. **„Ce primești”:** lista de livrabile.
-5. **„Cum se desfășoară”:** pașii, numerotați pentru că sunt o secvență. Duratele apar doar dacă le confirmă Alex.
+5. **„Cum se desfășoară”:** pașii, numerotați pentru că sunt o secvență, desenați ca linia grupului (`PasiTraseu`): fiecare pas e o stație cu numărul lui. De la 64rem, cardul stă alături de „Ce primești”, la aceeași înălțime. Duratele apar doar dacă le confirmă Alex.
 6. **Un proiect relevant**, dacă există unul publicabil.
 7. **4 întrebări frecvente**, vizibile. Fiecare răspuns începe cu răspunsul direct.
 8. **Doar pe SEO și AEO/GEO:** un rând care spune că nu garantez poziții în Google sau apariții în răspunsurile motoarelor AI.
@@ -400,7 +401,7 @@ Secțiunile paginii de serviciu sunt carduri pe `--suprafata` (decizia 29): fiec
 
 - **`/servicii/`:** serviciile grupate pe cele 4 linii, fiecare cu `raspunsDirect` și „Ce primești” pe scurt. Nu repetă „De unde pornești?” de pe Acasă. Fiecare serviciu este un card pe `--suprafata`, cu bara din stânga de 4px în culoarea grupului (decizia 29). Pe desktop, liniile cu două servicii iau tot rândul, cu cardurile alăturate, iar liniile cu un singur serviciu (Diagnostic, Construcție) stau alături, pe același rând; pe telefon, totul e pe o coloană. Ordinea din pagină rămâne cea a câmpului `ordine`.
 - **`/cum-lucrez/`:**
-  - `RouteMap` mare, cu cei patru pași explicați;
+  - `RouteMap` mare, cu cei patru pași explicați: pașii sunt linia comună a ambelor trasee (`PasiTraseu`, galbenul închis și albastrul alăturate), orizontală pe desktop, cu explicația sub fiecare stație; cele două formate stau alăturate, fiecare cu eșantionul liniei lui;
   - cele două formate, fără cifre: „Prețul, reducerea și ce include abonamentul le stabilim după ce mă uit la site-ul tău.”;
   - pagina spune clar că lucrez doar cu firme, PFA-uri și alte entități profesionale.
 - **Studiul de caz:** context → problema → ce am făcut → rezultat → serviciile folosite. La rezultat intră doar ce se poate dovedi, scris ca text, cu sursa și data, plus capturi cu text alternativ.

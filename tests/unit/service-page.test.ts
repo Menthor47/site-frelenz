@@ -246,8 +246,12 @@ describe('Service.astro, culorile grupului (§5.2)', () => {
 
   test('șablonul nu-și redefinește culorile grupului', () => expect(css).not.toMatch(/\[data-grup=/));
 
-  test('numerele pașilor folosesc culoarea de text a grupului', () => {
-    const bloc = /\.serviciu__pasi li::marker\s*\{([^}]*)\}/.exec(css)?.[1] ?? '';
-    expect(bloc).toContain('color: var(--culoare-text);');
+  // Pașii sunt desenați ca linia grupului (PasiTraseu, `linie="grup"`): linia ia `--culoare` din `data-grup`, iar numărul stă
+  // în stație, negru pe alb, deci nu mai e text colorat.
+  test('„Cum se desfășoară” e o linie în culoarea grupului, alături de „Ce primești”', async () => {
+    const h = main(await pagina());
+    const pereche = /<div\b[^>]*class="serviciu__pereche"[^>]*>([\s\S]*?)<\/section>\s*<\/div>/.exec(h)?.[1] ?? '';
+    expect(titluriH2(pereche)).toEqual(['Ce primești', 'Cum se desfășoară']);
+    expect(pereche).toMatch(/<ol\b[^>]*class="[^"]*\bpasi-traseu--grup\b/);
   });
 });
