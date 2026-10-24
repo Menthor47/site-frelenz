@@ -47,7 +47,8 @@ describe('ContactForm (§3.5)', () => {
     expect(nota).toBeGreaterThan(eroare);
 
     const bloc = /<div\b[^>]*\sdata-eroare[\s>][\s\S]*?<\/div>/.exec(h)?.[0] ?? '';
-    expect(bloc).toMatch(/<svg\b(?=[^>]*\saria-hidden="true")(?=[^>]*\sfocusable="false")[^>]*>/);
+    // Aceeași iconiță de eroare ca în titlul paginilor de eroare (Iconita, §5.4).
+    expect(bloc).toMatch(/<svg\b(?=[^>]*\sdata-iconita="eroare")(?=[^>]*\saria-hidden="true")[^>]*>/);
     expect([...bloc.matchAll(/<a\b[^>]*\bhref="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => [m[1], textOf(m[2] ?? '')])).toEqual([
       ['#direct-titlu', 'contactele de pe pagină'],
       ['#direct-titlu', 'contactele de pe pagină'],

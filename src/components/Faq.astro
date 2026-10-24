@@ -63,10 +63,9 @@ const afisate = intrebariVizibile(intrebari, DRAFT);
     line-height: 1.25;
   }
 
-  /* Răspunsurile au măsura paragrafelor (34em, base.css, §5.3): `<dd>` nu e `p`, iar lățimea listei, de 70ch, lăsa rânduri
-     de peste 100 de caractere. */
+  /* Măsura răspunsurilor (34em, §5.3) vine din base.css, unde `dd` stă lângă `p` și `li`: lățimea listei, de 70ch, lăsa
+     rânduri de peste 100 de caractere. */
   dd {
-    max-width: 34em;
     margin: 0;
   }
 </style>
