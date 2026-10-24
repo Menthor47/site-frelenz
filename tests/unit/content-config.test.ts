@@ -1,9 +1,14 @@
-import type { z } from 'astro/zod';
+import { z } from 'astro/zod';
 import { collections } from '../../src/content.config';
 
 // Schemele se verifică direct: la build, o intrare care le încalcă oprește `astro build`.
+// O colecție cu imagini își face schema dintr-o funcție care primește `image()` de la Astro (la build, `image()` importă
+// fișierul prin astro:assets, §9.1). Aici `image()` e înlocuită de o schemă care acceptă doar căi spre imagini.
+const imagine = () => z.string().regex(/\.(?:avif|jpe?g|png|webp)$/);
+type SchemaCuImagini = (context: { image: typeof imagine }) => z.ZodType;
 function schema(nume: keyof typeof collections): z.ZodType {
-  return collections[nume].schema as z.ZodType;
+  const s = collections[nume].schema as z.ZodType | SchemaCuImagini;
+  return typeof s === 'function' ? s({ image: imagine }) : s;
 }
 const cadere = (nume: keyof typeof collections, date: unknown) => schema(nume).safeParse(date);
 const caiCuErori = (nume: keyof typeof collections, date: unknown) =>
@@ -132,6 +137,9 @@ describe('colecția proiecte', () => {
     expect(caiCuErori('proiecte', { ...proiect, servicii: [] })).toEqual(['servicii']);
     expect(caiCuErori('proiecte', { ...proiect, servicii: ['nu-exista'] })).toEqual(['servicii.0']);
   });
+  // Capturile trec prin `image()` (astro:assets, §9.1), ca la build să primească lățime, înălțime și format optimizat.
+  test('sursa unei capturi trebuie să fie o imagine, nu orice text', () =>
+    expect(caiCuErori('proiecte', { ...proiect, capturi: [{ src: './captura.txt', alt: 'Captura paginii' }] })).toEqual(['capturi.0.src']));
   test('o captură fără text alternativ pică', () =>
     expect(caiCuErori('proiecte', { ...proiect, capturi: [{ src: '/x.png', alt: '' }] })).toEqual(['capturi.0.alt']));
   test('capturile lipsă devin listă goală', () =>

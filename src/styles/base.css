@@ -77,10 +77,23 @@ h4 {
   line-height: 1.2;
 }
 
+/* Textul de citit (§5.3): cel mult ~70 de caractere pe rând. `ch` e lat în Atkinson (~0,65em), deci 70ch dădea ~90; 34em dă
+   ~70. `dd` intră aici pentru răspunsurile din întrebările frecvente, care altfel ajungeau la ~100–115 caractere pe desktop.
+   `pretty` nu lasă un cuvânt singur pe ultimul rând; un browser care nu-l cunoaște păstrează împărțirea obișnuită. */
 p,
-li {
-  /* Cel mult ~70 de caractere pe rând. `ch` e lat în Atkinson (~0,65em), deci 70ch dădea ~90; 34em dă ~70. */
+li,
+dd {
   max-width: 34em;
+  text-wrap: pretty;
+}
+
+/* Cuvintele cu cratimă („site-ul”, „într-un”, „n-a”) stau întregi pe un rând (FaraRupere.astro): CSS nu poate opri ruperea
+   după cratimă, iar fontul livrat n-are cratima fără rupere (U+2011). Ca bloc în rând, cuvântul trece întreg pe rândul
+   următor; doar dacă e mai lat decât rândul (text mărit la 200% pe 320px) se rupe totuși, la cratimă, în loc să iasă din
+   pagină, cum ar face `white-space: nowrap`. */
+.fara-rupere {
+  display: inline-block;
+  max-width: 100%;
 }
 
 p {

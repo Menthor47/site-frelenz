@@ -1,0 +1,174 @@
+---
+// Pașii unei secvențe desenați ca o linie de metrou (§5.1, §5.6), ca traseele din RouteMap: o stație numerotată pentru
+// fiecare pas, pe o linie colorată, cu textul pasului lângă stație. Semantic e o listă ordonată (`<ol>`); numărul din stație
+// vine dintr-un contor CSS, iar desenul (stațiile și linia) e din pseudo-elemente, deci nu dublează lista pentru cititoare.
+// - `linie="grup"`: linia ia culoarea grupului paginii (`--culoare`, din `data-grup`, tokens.css). Pe paginile de serviciu.
+// - `linie="comuna"`: pașii comuni ambelor trasee (remedierea unică și abonamentul), deci linia are ambele culori, alăturate:
+//   galbenul închis și albastrul, ca în RouteMap. Pe /cum-lucrez/.
+// - `orizontal`: de la un container de cel puțin 48rem, linia devine orizontală, cu textul sub stații. Altfel, verticală.
+// Fără script și fără animație (§5.7). Textul trece prin FaraRupere (cuvintele cu cratimă nu se rup).
+import FaraRupere from './FaraRupere.astro';
+
+interface Pas {
+  /** Numele stației, ca titlu (`h3`); lipsește la pașii care sunt doar o frază (paginile de serviciu). */
+  nume?: string;
+  text: string;
+}
+
+interface Props {
+  pasi: readonly Pas[];
+  linie?: 'grup' | 'comuna';
+  orizontal?: boolean;
+}
+
+const { pasi, linie = 'grup', orizontal = false } = Astro.props;
+const cuNume = pasi.some((p) => p.nume !== undefined);
+---
+
+<div class="pasi-traseu-cutie">
+  <ol class:list={['pasi-traseu', `pasi-traseu--${linie}`, orizontal && 'pasi-traseu--orizontal', cuNume && 'pasi-traseu--cu-nume']}>
+    {
+      pasi.map((p) => (
+        <li class="pasi-traseu__pas">
+          {p.nume !== undefined && <h3 class="pasi-traseu__nume">{p.nume}</h3>}
+          <p class="pasi-traseu__text">
+            <FaraRupere text={p.text} />
+          </p>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  /* Lățimea cardului (nu a ecranului) hotărăște când linia devine orizontală. */
+  .pasi-traseu-cutie {
+    container-type: inline-size;
+  }
+
+  .pasi-traseu {
+    /* Diametrul stației (încape numărul), grosimea liniei și a conturului; geometria se calculează din ele, ca în RouteMap.
+       `--prim` e înălțimea primului rând al pasului: stația stă pe mijlocul lui. */
+    --d: 2rem;
+    --t: 0.5rem;
+    --b: 3px;
+    --prim: calc(var(--text-base) * 1.6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: pas;
+  }
+
+  /* Cu nume, primul rând e titlul stației (h3: --text-lg, rând de 1,2). */
+  .pasi-traseu--cu-nume {
+    --prim: calc(var(--text-lg) * 1.2);
+  }
+
+  /* Galbenul închis (#8A5A00) și albastrul, ca traseele din RouteMap; ambele trec de 3:1 pe alb (§5.2). */
+  .pasi-traseu--comuna {
+    --culoare: var(--yellow-dark);
+    --culoare-2: var(--blue);
+  }
+
+  /* Pe verticală: stația la stânga, textul la dreapta, segmentul până la stația următoare. */
+  .pasi-traseu__pas {
+    position: relative;
+    max-width: none;
+    min-height: var(--d);
+    padding: 0 0 1.5rem calc(var(--d) + 1rem);
+    counter-increment: pas;
+  }
+
+  .pasi-traseu__pas:last-child {
+    padding-bottom: 0;
+  }
+
+  /* Stația: cerc alb cu contur, cu numărul pasului; colțurile rotunde sunt permise doar stațiilor (§5.8). */
+  .pasi-traseu__pas::before {
+    content: counter(pas);
+    position: absolute;
+    z-index: 1;
+    top: calc((var(--prim) - var(--d)) / 2);
+    left: 0;
+    display: grid;
+    place-items: center;
+    width: var(--d);
+    height: var(--d);
+    border: var(--b) solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: var(--text-sm);
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  /* Segmentul: de la centrul stației până la centrul stației următoare. */
+  .pasi-traseu__pas::after {
+    content: '';
+    position: absolute;
+    top: calc(var(--prim) / 2);
+    left: calc((var(--d) - var(--t)) / 2);
+    width: var(--t);
+    height: 100%;
+    background: var(--culoare);
+  }
+
+  /* Linia comună: două benzi alăturate, una în culoarea fiecărui traseu. */
+  .pasi-traseu--comuna .pasi-traseu__pas::after {
+    left: calc(var(--d) / 2 - var(--t));
+    width: calc(2 * var(--t));
+    background: linear-gradient(to right, var(--culoare) 50%, var(--culoare-2) 50%);
+  }
+
+  .pasi-traseu__pas:last-child::after {
+    display: none;
+  }
+
+  .pasi-traseu__nume {
+    margin: 0 0 0.25rem;
+  }
+
+  .pasi-traseu__text {
+    margin: 0;
+  }
+
+  /* Orizontal: stațiile pe o linie, aliniate pe coloane egale, cu numele și textul sub ele. */
+  @container (min-width: 48rem) {
+    .pasi-traseu--orizontal {
+      display: grid;
+      grid-auto-columns: minmax(0, 1fr);
+      grid-auto-flow: column;
+    }
+
+    .pasi-traseu--orizontal .pasi-traseu__pas {
+      padding: calc(var(--d) + 1rem) 1.5rem 0 0;
+    }
+
+    .pasi-traseu--orizontal .pasi-traseu__pas::before {
+      top: 0;
+    }
+
+    .pasi-traseu--orizontal .pasi-traseu__pas::after {
+      top: calc((var(--d) - var(--t)) / 2);
+      left: calc(var(--d) / 2);
+      width: 100%;
+      height: var(--t);
+    }
+
+    .pasi-traseu--orizontal.pasi-traseu--comuna .pasi-traseu__pas::after {
+      top: calc(var(--d) / 2 - var(--t));
+      height: calc(2 * var(--t));
+      background: linear-gradient(to bottom, var(--culoare) 50%, var(--culoare-2) 50%);
+    }
+  }
+
+  /* Cu culorile forțate (modul de contrast ridicat), fundalurile dispar: linia trece pe culoarea textului. */
+  @media (forced-colors: active) {
+    .pasi-traseu__pas::after,
+    .pasi-traseu--comuna .pasi-traseu__pas::after,
+    .pasi-traseu--orizontal.pasi-traseu--comuna .pasi-traseu__pas::after {
+      background: CanvasText;
+    }
+  }
+</style>

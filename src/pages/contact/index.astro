@@ -13,6 +13,8 @@ import { nodContactPage } from '../../lib/jsonld';
 import { PAGINI_STATICE } from '../../lib/routes';
 
 const CALE = '/contact/';
+/** Titlul cardului cu contactele directe; explicația de eroare a formularului trimite aici (decizia 30). */
+const ID_DIRECT = 'direct-titlu';
 ---
 
 <Base
@@ -37,11 +39,11 @@ const CALE = '/contact/';
     <div class="contact__grila">
       <section class="carte carte--formular" aria-labelledby="formular-titlu">
         <h2 id="formular-titlu" class="ascuns">Formularul</h2>
-        <ContactForm />
+        <ContactForm idContacte={ID_DIRECT} />
       </section>
 
-      <section class="carte contact__direct" aria-labelledby="direct-titlu">
-        <h2 id="direct-titlu">Sau scrie-mi direct</h2>
+      <section class="carte contact__direct" aria-labelledby={ID_DIRECT}>
+        <h2 id={ID_DIRECT}>Sau scrie-mi direct</h2>
         <ContacteDirecte />
       </section>
     </div>

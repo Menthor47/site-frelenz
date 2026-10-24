@@ -61,6 +61,17 @@ test('text mărit la 200% pe /contact/: câmpurile nu se suprapun, fără derula
   expect(await faraDerulareOrizontala(page)).toBe(true);
 });
 
+// Titlul paginilor de eroare are în față iconița de eroare (§5.2): cu textul mărit la 200%, pe 320px, cuvântul lung de
+// după ea („Mesajul”) trebuie să treacă pe rândul următor, nu să iasă din pagină.
+for (const cale of ['/contact/eroare/', '/contact/prea-multe-linkuri/']) {
+  test(`text mărit la 200% pe ${cale}, la 320px: fără derulare orizontală`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.goto(cale);
+    await textMarit(page);
+    expect(await faraDerulareOrizontala(page)).toBe(true);
+  });
+}
+
 // Pază împotriva eșecului tăcut: dacă `container-type` dispare de pe card, interogarea de container nu se mai aplică,
 // formularul rămâne mereu pe o coloană, iar niciun alt test nu observă.
 test('formularul are două coloane pe desktop și una când cardul e îngust', async ({ page }) => {
@@ -122,6 +133,27 @@ test('cu JS, prea multe linkuri: explicația apare pe pagină, cu focusul pe ea,
   await expect(page.locator('[data-mesaj="eroare"]')).toBeHidden();
   await expect(page).toHaveURL(/\/contact\/$/);
   await expect(page.locator('textarea[name="mesaj"]')).toHaveValue(CU_PATRU_LINKURI);
+
+  // Sub buton (decizia 30), cu iconița de eroare (§5.2), iar „contactele de pe pagină” duc la cardul cu contactele directe.
+  const buton = await page.getByRole('button', { name: 'Cere o ofertă' }).boundingBox();
+  const eroare = await page.locator('[data-eroare]').boundingBox();
+  expect(eroare!.y).toBeGreaterThanOrEqual(buton!.y + buton!.height);
+  await expect(page.locator('[data-eroare] svg')).toBeVisible();
+  await page.locator('[data-mesaj="linkuri"] a').click();
+  await expect(page).toHaveURL(/#direct-titlu$/);
+  await expect(page.locator('#direct-titlu')).toBeInViewport();
+});
+
+// Modul de contrast ridicat scoate fundalul butoanelor; conturul transparent (butoane.css) devine vizibil în locul lui.
+test('în modul de contrast ridicat, butonul de trimitere are contur', async ({ page }) => {
+  await page.emulateMedia({ forcedColors: 'active' });
+  await page.goto('/contact/');
+  const contur = await page.getByRole('button', { name: 'Cere o ofertă' }).evaluate((b) => {
+    const s = getComputedStyle(b);
+    return { stil: s.borderTopStyle, latime: s.borderTopWidth };
+  });
+  expect(contur.stil).toBe('solid');
+  expect(Number.parseFloat(contur.latime)).toBeGreaterThan(0);
 });
 
 // Răspunsurile Worker-ului de eroare sunt mocate: așa nu se consumă din limita de trimiteri a `wrangler dev`.
@@ -180,12 +212,14 @@ for (const [cale, titlu, text] of [
   ],
   ['/contact/eroare/', 'Mesajul n-a plecat', 'Mesajul n-a plecat. Apasă Înapoi ca să-l recuperezi și încearcă din nou peste un minut, sau scrie-mi direct la'],
 ] as const) {
-  test(`${cale}: noindex, fără hartă, cu textul din §3.5`, async ({ page }) => {
+  test(`${cale}: noindex, fără hartă și fără butonul din antet, cu textul din §3.5`, async ({ page }) => {
     await page.goto(cale);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
     await expect(page.locator('h1')).toContainText(titlu);
     await expect(page.locator('main')).toContainText(text);
     await expect(page.locator('.harta')).toHaveCount(0);
+    // Fără JavaScript, pe paginile de eroare butonul ar deschide un formular gol în locul lui Înapoi, care readuce mesajul.
+    await expect(page.locator('.antet .buton-cta')).toHaveCount(0);
     if (cale !== '/contact/multumim/') {
       await expect(page.locator('main a[href^="mailto:"]')).toBeVisible();
       await expect(page.locator('main a[href^="tel:"]')).toBeVisible();

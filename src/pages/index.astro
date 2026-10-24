@@ -198,10 +198,10 @@ const intrebari = [
     margin-bottom: 1.5rem;
   }
 
-  /* Traseele stau pe toată lățimea (§4.3 punctul 4), pe #D9E4F7 (opțiunea 2a, aleasă de Alex 2026-10-23). E mai
-     vizibilă decât --tint-blue, care e 1,14:1 față de alb. Restul locurilor cu --tint-blue rămân neschimbate. */
+  /* Traseele stau pe toată lățimea (§4.3 punctul 4), pe --albastru-benzi (opțiunea 2a, aleasă de Alex 2026-10-23). E mai
+     vizibil decât --tint-blue, care e 1,14:1 față de alb. Restul locurilor cu --tint-blue rămân neschimbate. */
   .acasa-trasee {
-    background: #d9e4f7;
+    background: var(--albastru-benzi);
   }
 
   /* Banda albastră cu îndemnul final (§4.3 punctul 7). Pe albastru, doar text alb (§5.2); butonul devine alb, cu text
@@ -234,10 +234,10 @@ const intrebari = [
 
   /* Varianta 1b, aleasă de Alex (2026-10-23): banda de sus e întunecată, ca un prag. Liniile și trenurile stau pe
      întuneric și se citesc ca niște lumini, iar plăcuța H1-ului rămâne albă, ca o plăcuță de stație. Restul paginii
-     rămâne luminos. Culorile sunt cele din previzualizarea aprobată: text #E8ECF2 pe #0E1116 are 15,95:1. */
+     rămâne luminos. Culorile sunt cele din previzualizarea aprobată: --noapte-text pe --noapte are 15,95:1. */
   .acasa-sus {
     padding-top: 0.5rem;
-    background: #0e1116;
-    color: #e8ecf2;
+    background: var(--noapte);
+    color: var(--noapte-text);
   }
 </style>

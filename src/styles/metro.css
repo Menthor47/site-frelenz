@@ -115,7 +115,8 @@
   }
 }
 
-/* Butonul „Oprește trenurile” (§5.6): mic și secundar, cu zona de atingere de 44×44px. Pe desktop stă în colțul de jos
+/* Butonul „Oprește trenurile” (§5.6): mic și secundar, cu textul cel mai mic de pe scară (--text-sm) și zona de atingere
+   de 44×44px. Pe desktop stă în colțul de jos
    din dreapta al hărții, unde n-ajung liniile; pe telefon stă deasupra hărții, aliniat la dreapta (regula de mai jos).
    Focusul e cel global, din base.css. Nu primește `display`, ca atributul `hidden` să-l ascundă în continuare. */
 .harta__buton {
@@ -128,7 +129,7 @@
   border: 1px solid var(--ink);
   background: var(--tint-blue);
   color: var(--ink);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   line-height: 1.2;
   cursor: pointer;
 }
@@ -206,7 +207,7 @@
    Opacitatea e pe grupul liniei, deci estompează și stațiile, care își acoperă linia înainte de compunere: linia nu se vede
    prin ele. */
 .banda {
-  background: #0e1116;
+  background: var(--noapte);
 }
 
 .harta--noapte .harta__linie {
@@ -224,13 +225,13 @@
 }
 
 .harta--noapte .harta__statie {
-  fill: #0e1116;
-  stroke: #e8ecf2;
+  fill: var(--noapte);
+  stroke: var(--noapte-text);
 }
 
 .harta--noapte .harta__eticheta {
-  fill: #e8ecf2;
-  stroke: #0e1116;
+  fill: var(--noapte-text);
+  stroke: var(--noapte);
 }
 
 .harta--noapte .tren__halou {

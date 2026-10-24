@@ -161,9 +161,47 @@ test('segmentul din „De unde pornești?” și banda serviciului au același n
 
 test('favicon-ul e stația plină albastră (§5.4)', async ({ page }) => {
   await page.goto('/');
-  const href = await page.locator('link[rel="icon"]').getAttribute('href');
+  const href = await page.locator('link[rel="icon"][type="image/svg+xml"]').getAttribute('href');
   expect(href).toBe('/favicon.svg');
   const raspuns = await page.request.get(href!);
   expect(raspuns.ok()).toBe(true);
   expect(await raspuns.text()).toContain('#2D6CDF');
+});
+
+// Iconițele PNG se generează la build (auditul din 2026-10-24, SEO-02): fiecare iconiță din <head> trebuie să existe, cu
+// tipul declarat (iconița Apple n-are `type`; e PNG).
+test('fiecare iconiță din <head> se servește, cu tipul declarat', async ({ page }) => {
+  await page.goto('/');
+  const iconite = await page
+    .locator('link[rel="icon"], link[rel="apple-touch-icon"]')
+    .evaluateAll((linkuri) => linkuri.map((l) => ({ href: l.getAttribute('href') ?? '', tip: l.getAttribute('type') ?? 'image/png' })));
+  expect(iconite.map((i) => i.href).sort()).toEqual(['/apple-touch-icon.png', '/favicon-96.png', '/favicon.svg']);
+  for (const { href, tip } of iconite) {
+    const raspuns = await page.request.get(href);
+    expect(raspuns.status(), href).toBe(200);
+    expect(raspuns.headers()['content-type'], href).toContain(tip);
+  }
+});
+
+// §5.3: textul de citit are cel mult ~70 de caractere pe rând (34em). Răspunsurile din întrebările frecvente sunt `dd`,
+// iar până la typeset ajungeau la ~100–115 caractere pe desktop.
+test('la 1440px, răspunsurile din întrebările frecvente nu trec de măsura de citit (34em)', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const latimi = await page.locator('.faq dd').evaluateAll((dd) =>
+    dd.map((e) => e.getBoundingClientRect().width / Number.parseFloat(getComputedStyle(e).fontSize)),
+  );
+  expect(latimi.length).toBeGreaterThan(0);
+  for (const em of latimi) expect(em).toBeLessThanOrEqual(34.01);
+});
+
+// §5.3: cuvintele cu cratimă din textele colecțiilor nu se rup la capăt de rând (FaraRupere.astro).
+test('cuvintele cu cratimă din „De unde pornești?” stau întregi pe un rând', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto('/');
+  const intregi = page.locator('.linie-rand__problema .fara-rupere');
+  expect(await intregi.count()).toBeGreaterThan(0);
+  // Un bloc în rând are un singur dreptunghi; dacă s-ar rupe la cratimă, ar avea înălțimea a două rânduri.
+  const randuri = await intregi.evaluateAll((s) => s.map((e) => e.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(e).lineHeight)));
+  for (const r of randuri) expect(r).toBeLessThan(1.5);
 });

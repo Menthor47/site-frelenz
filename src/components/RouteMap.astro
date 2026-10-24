@@ -4,11 +4,11 @@
 // (320px, text la 200%), iar etichetele stațiilor din buclă sunt text care se rupe ca restul paginii.
 // Desenul (stațiile și liniile) e făcut din pseudo-elemente, deci nu apare în arborele de accesibilitate.
 // Se vede întreg de la început: fără script, fără animație, fără desenare la derulare (§5.7).
-//   - Remedierea unică: linia în galbenul închis #8A5A00 (--yellow-dark); galbenul tare are 1,63:1 pe --tint-blue (§5.2), iar #8A5A00 are 4,63:1 pe #D9E4F7.
+//   - Remedierea unică: linia în galbenul închis #8A5A00 (--yellow-dark); galbenul tare are 1,63:1 pe --tint-blue (§5.2), iar #8A5A00 are 4,63:1 pe --albastru-benzi.
 //   - Abonamentul: linia albastră, aceiași pași, apoi o buclă lunară. Etichetele stațiilor din buclă le-a ales Alex
 //     (#15, 2026-10-22): Verificare, Actualizări, Raport.
 //   - Diferența dintre trasee nu stă doar în culoare: fiecare are o etichetă text vizibilă.
-// Fundalul (#D9E4F7, albastrul benzii de trasee) îl pune pagina. `marime` schimbă doar scara: `compact` pe Acasă, `mare` pe /cum-lucrez/ (pașii explicați vin de la pagină).
+// Fundalul (--albastru-benzi) îl pune pagina. `marime` schimbă doar scara: `compact` pe Acasă, `mare` pe /cum-lucrez/ (pașii explicați vin de la pagină).
 interface Props {
   marime: 'compact' | 'mare';
 }
@@ -72,7 +72,7 @@ const idAbonament = `traseu-abonament-${marime}`;
     font-size: var(--text-md);
   }
 
-  /* Culorile traseelor. Pe #D9E4F7: #8A5A00 are 4,63:1, albastrul 3,79:1, ambele peste pragul de 3:1 pentru grafică. */
+  /* Culorile traseelor. Pe --albastru-benzi: #8A5A00 are 4,63:1, albastrul 3,79:1, ambele peste pragul de 3:1 pentru grafică. */
   .traseu--unic {
     --culoare: var(--yellow-dark);
   }
@@ -81,7 +81,8 @@ const idAbonament = `traseu-abonament-${marime}`;
     --culoare: var(--blue);
   }
 
-  /* Eticheta traseului: text vizibil, cu un eșantion din linie în față. */
+  /* Eticheta traseului: text vizibil, cu un eșantion din linie în față. Mărimea e de pe scară (§5.3): --text-md pe traseul
+     compact, --text-lg pe cel mare (regula de mai jos). */
   .traseu__eticheta {
     display: flex;
     flex-wrap: wrap;
@@ -89,12 +90,16 @@ const idAbonament = `traseu-abonament-${marime}`;
     gap: 0.5rem 0.75rem;
     max-width: none;
     margin: 0 0 1.25rem;
-    font-size: 1.25em;
+    font-size: var(--text-md);
     font-weight: 800;
     line-height: 1.2;
     /* Cu `flex-wrap`, un text care nu încape lângă eșantionul de linie trece sub el, cu toată lățimea, și se rupe la spații;
        `anywhere` rămâne plasa de siguranță pentru un cuvânt mai lung decât rândul (text mărit la 200%, la 320px). */
     overflow-wrap: anywhere;
+  }
+
+  .trasee--mare .traseu__eticheta {
+    font-size: var(--text-lg);
   }
 
   .traseu__eticheta::before {

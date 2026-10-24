@@ -25,8 +25,10 @@ const hrefuri = (html: string): string[] => [...html.matchAll(/<a\b[^>]*\bhref="
 const FRAZA_SUBSOL = 'Fără cookie-uri de urmărire și fără scripturi terțe. Vezi cum e făcut site-ul.';
 
 describe('Header', () => {
-  test('Acasă și Contact nu au buton în antet', async () => {
-    for (const cale of ['/', '/contact/']) expect(await render(Header, { cale })).not.toContain('class="buton-cta"');
+  test('Acasă, Contact și paginile de răspuns ale formularului nu au buton în antet', async () => {
+    for (const cale of ['/', '/contact/', '/contact/multumim/', '/contact/eroare/', '/contact/prea-multe-linkuri/']) {
+      expect(await render(Header, { cale }), cale).not.toContain('class="buton-cta"');
+    }
     expect(await render(Header, { cale: '/servicii/seo/' })).toContain('Cere o ofertă');
   });
 
@@ -204,6 +206,19 @@ describe('Base', () => {
   test('og:type e „website”, iar pe paginile-articol (ghiduri, studii de caz) e „article”, ca în JSON-LD', async () => {
     expect(await pagina()).toMatch(/<meta property="og:type" content="website"/);
     expect(await pagina({ articol: true })).toMatch(/<meta property="og:type" content="article"/);
+  });
+
+  test('iconițele (§5.4): favicon.svg, un PNG de 96×96 pentru programele care nu citesc SVG și iconița Apple', async () => {
+    const linkuri = [...(await pagina()).matchAll(/<link\b([^>]*)>/g)].map((m) => m[1] ?? '').filter((a) => /\brel="(?:icon|apple-touch-icon)"/.test(a));
+    const atribute = (a: string) => Object.fromEntries([...a.matchAll(/\b(rel|href|type|sizes)="([^"]*)"/g)].map((m) => [m[1], m[2]]));
+    expect(linkuri.map(atribute)).toEqual(
+      expect.arrayContaining([
+        { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+        { rel: 'icon', href: '/favicon-96.png', type: 'image/png', sizes: '96x96' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+      ]),
+    );
+    expect(linkuri).toHaveLength(3);
   });
 
   test('ordinea în pagină: linkul de salt, antetul, conținutul, subsolul', async () => {

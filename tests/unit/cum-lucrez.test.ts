@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import PaginaCumLucrez from '../../src/pages/cum-lucrez.astro';
 import { adresareFormala } from '../shared/adresare';
 import { render, textOf } from './helpers';
@@ -23,22 +22,25 @@ describe('/cum-lucrez/ (§4.5)', () => {
     expect(primul).toContain(FRAZA_B2B);
   });
 
-  test('traseele mari, într-o secțiune pe albastru deschis', async () => {
+  // Fundalul secțiunii, albastrul benzilor, se verifică în browser (tests/e2e/culori.spec.ts).
+  test('traseele mari, într-o secțiune proprie', async () => {
     const h = main(await render(PaginaCumLucrez));
     const sectiune = /<section class="cum-trasee"[^>]*>([\s\S]*?)<\/section>/.exec(h)?.[1] ?? '';
     expect(sectiune).toMatch(/class="[^"]*trasee--mare/);
     expect(sectiune).toContain('Remediere unică');
     expect(sectiune).toContain('Remediere + abonament lunar');
-    const sursa = readFileSync(new URL('../../src/pages/cum-lucrez.astro', import.meta.url), 'utf8');
-    expect(/\.cum-trasee\s*\{([^}]*)\}/.exec(sursa)?.[1]).toContain('background: #d9e4f7;');
   });
 
+  // Pașii sunt linia comună a celor două trasee (PasiTraseu, `linie="comuna"`, orizontală pe desktop): o listă ordonată, cu
+  // numele stației ca titlu și explicația sub ea; numerele vin dintr-un contor CSS.
   test('cei patru pași, numerotați și explicați, cu numele stațiilor din trasee, în aceeași ordine', async () => {
     const h = main(await render(PaginaCumLucrez));
-    const lista = /<ol class="pasi-explicati"[^>]*>([\s\S]*?)<\/ol>/.exec(h)?.[1] ?? '';
+    const sectiune = /<section\b[^>]*aria-labelledby="pasii"[^>]*>([\s\S]*?)<\/section>/.exec(h)?.[1] ?? '';
+    expect(sectiune).toMatch(/<ol\b[^>]*class="[^"]*\bpasi-traseu--comuna\b[^"]*\bpasi-traseu--orizontal\b/);
+    const lista = /<ol\b[^>]*class="[^"]*\bpasi-traseu\b[^"]*"[^>]*>([\s\S]*?)<\/ol>/.exec(sectiune)?.[1] ?? '';
     const pasi = [...lista.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)].map((m) => m[1] ?? '');
     // Stațiile primului traseu (remedierea unică), cum le randează RouteMap.
-    const traseu = /<ol class="pasi\b[^"]*"[^>]*>([\s\S]*?)<\/ol>/.exec(h)?.[1] ?? '';
+    const traseu = /<ol class="pasi(?: [^"]*)?"[^>]*>([\s\S]*?)<\/ol>/.exec(h)?.[1] ?? '';
     const statii = [...traseu.matchAll(/<li class="pas"[^>]*>([\s\S]*?)<\/li>/g)].map((m) => textOf(m[1] ?? ''));
     expect(statii).toHaveLength(4);
     expect(pasi.map((p) => titluri(p, 3)[0])).toEqual(statii);
@@ -82,8 +84,8 @@ describe('/cum-lucrez/ (§4.5)', () => {
   test('pașii și formatele sunt carduri; banda cu trasee nu e', async () => {
     const h = await render(PaginaCumLucrez);
     expect(h).toContain('class="main--suprafata"');
-    expect(h).toMatch(/<section[^>]*class="carte"[^>]*aria-labelledby="pasii"/);
-    expect(h).toMatch(/<section[^>]*class="carte"[^>]*aria-labelledby="formate"/);
+    expect(h).toMatch(/<section[^>]*class="carte\b[^"]*"[^>]*aria-labelledby="pasii"/);
+    expect(h).toMatch(/<section[^>]*class="carte\b[^"]*"[^>]*aria-labelledby="formate"/);
     // Banda cu trasee nu are `carte` printre clasele ei, în orice ordine (`class="carte cum-trasee"` pică la fel).
     const eticheta = [...h.matchAll(/<section\b[^>]*>/g)].map((m) => m[0]).find((e) => /\sclass="[^"]*\bcum-trasee\b/.test(e)) ?? '';
     const clase = (/\sclass="([^"]*)"/.exec(eticheta)?.[1] ?? '').split(/\s+/);

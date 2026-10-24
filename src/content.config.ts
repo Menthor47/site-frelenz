@@ -39,42 +39,45 @@ const servicii = defineCollection({
 
 const proiecte = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/proiecte' }),
-  schema: z.object({
-    slug: z.string().min(1),
-    titlu: z.string().min(1),
-    // Meta description (§4.2): fiecare studiu de caz e o pagină.
-    descriere: z.string().min(140).max(160),
-    // Numele clientului sau „anonim”.
-    client: z.string().min(1),
-    acord: z.boolean(),
-    aprobat: z.boolean(),
-    context: z.string().min(1),
-    problema: z.string().min(1),
-    ceAmFacut: listaDeTexte,
-    rezultate: z.array(
-      z.object({
-        text: z.string().min(1),
-        sursa: z.string().min(1),
-        data: z.coerce.date(),
-      }),
-    ),
-    // Prima intrare dă linia de metrou a proiectului (§4.1).
-    servicii: z.array(slugServiciu).min(1),
-    // Marcajul [DE COMPLETAT:#n] cât timp serviciile de mai sus sunt provizorii (un slug nu poate fi marcaj).
-    serviciiDeConfirmat: z.string().regex(/^\[DE COMPLETAT:#\d+\]$/).optional(),
-    capturi: z.array(z.object({ src: z.string().min(1), alt: z.string().min(1) })).default([]),
-    // Doar pentru `acest-site`: scorurile Lighthouse măsurate în producție.
-    scoruri: z
-      .array(
+  // Schema e o funcție ca să primească `image()`: capturile se importă prin astro:assets (§9.1), cu lățime și înălțime.
+  schema: ({ image }) =>
+    z.object({
+      slug: z.string().min(1),
+      titlu: z.string().min(1),
+      // Meta description (§4.2): fiecare studiu de caz e o pagină.
+      descriere: z.string().min(140).max(160),
+      // Numele clientului sau „anonim”.
+      client: z.string().min(1),
+      acord: z.boolean(),
+      aprobat: z.boolean(),
+      context: z.string().min(1),
+      problema: z.string().min(1),
+      ceAmFacut: listaDeTexte,
+      rezultate: z.array(
         z.object({
-          valoare: z.number().min(0).max(100),
-          data: z.coerce.date(),
-          versiuneLighthouse: z.string().min(1),
+          text: z.string().min(1),
           sursa: z.string().min(1),
+          data: z.coerce.date(),
         }),
-      )
-      .optional(),
-  }),
+      ),
+      // Prima intrare dă linia de metrou a proiectului (§4.1).
+      servicii: z.array(slugServiciu).min(1),
+      // Marcajul [DE COMPLETAT:#n] cât timp serviciile de mai sus sunt provizorii (un slug nu poate fi marcaj).
+      serviciiDeConfirmat: z.string().regex(/^\[DE COMPLETAT:#\d+\]$/).optional(),
+      // `src`: calea imaginii, relativă la fișierul .md (ex. `./szitrans/acasa.png`).
+      capturi: z.array(z.object({ src: image(), alt: z.string().min(1) })).default([]),
+      // Doar pentru `acest-site`: scorurile Lighthouse măsurate în producție.
+      scoruri: z
+        .array(
+          z.object({
+            valoare: z.number().min(0).max(100),
+            data: z.coerce.date(),
+            versiuneLighthouse: z.string().min(1),
+            sursa: z.string().min(1),
+          }),
+        )
+        .optional(),
+    }),
 });
 
 const ghiduri = defineCollection({

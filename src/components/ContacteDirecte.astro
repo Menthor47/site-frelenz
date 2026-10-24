@@ -1,13 +1,15 @@
 ---
 // Contactele directe (§4.5): e-mailul, telefonul (`tel:`) și WhatsApp ca link simplu, fără widget. Pe /contact/ și pe
 // paginile de eroare ale formularului, ca vizitatorul să poată scrie direct dacă formularul nu merge. Totul din site.config.
+// Fiecare rând începe cu iconița canalului (§5.4), ca să se vadă dintr-o privire.
 import { site } from '../site.config';
+import Iconita from './Iconita.astro';
 ---
 
 <ul class="contacte">
-  <li><span class="contacte__eticheta">E-mail:</span> <a href={`mailto:${site.email}`}>{site.email}</a></li>
-  <li><span class="contacte__eticheta">Telefon:</span> <a href={`tel:${site.telefonE164}`}>{site.telefonAfisat}</a></li>
-  <li><span class="contacte__eticheta">WhatsApp:</span> <a href={site.whatsapp}>scrie-mi pe WhatsApp</a></li>
+  <li><Iconita nume="email" /><span class="contacte__eticheta">E-mail:</span> <a href={`mailto:${site.email}`}>{site.email}</a></li>
+  <li><Iconita nume="telefon" /><span class="contacte__eticheta">Telefon:</span> <a href={`tel:${site.telefonE164}`}>{site.telefonAfisat}</a></li>
+  <li><Iconita nume="whatsapp" /><span class="contacte__eticheta">WhatsApp:</span> <a href={site.whatsapp}>scrie-mi pe WhatsApp</a></li>
 </ul>
 
 <style>

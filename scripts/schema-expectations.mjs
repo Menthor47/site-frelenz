@@ -111,12 +111,13 @@ export function asteptariPentru(cale) {
  * Câte `<script>` fără JSON-LD are voie pagina, citit din HTML-ul ei, ca în §9.1 (după decizia 28), fără o listă de rute:
  * - 1 pe orice pagină cu hartă animată (trenurile și butonul de oprire; MetroMap o marchează cu clasa `harta--animata`);
  * - +1 pe pagina cu fișa de măsurători (PageFacts; clasa `fisa`), adică `/proiecte/acest-site/`;
+ * - +1 pe pagina cu formularul de contact (ContactForm; clasa `formular`), adică `/contact/` (decizia 30);
  * - 0 pe paginile fără hartă (legale, 404, răspunsurile formularului) și pe cele cu harta statică.
  * Contează clasa din atributul `class`, nu o aceeași denumire din CSS-ul inline.
  */
 export function scripturiPermise(html) {
   const arClasa = (clasa) => new RegExp(`class="([^"]*\\s)?${clasa}(\\s[^"]*)?"`).test(html);
-  return (arClasa('harta--animata') ? 1 : 0) + (arClasa('fisa') ? 1 : 0);
+  return (arClasa('harta--animata') ? 1 : 0) + (arClasa('fisa') ? 1 : 0) + (arClasa('formular') ? 1 : 0);
 }
 
 /**

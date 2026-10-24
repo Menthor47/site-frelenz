@@ -1,10 +1,12 @@
 ---
-// /cum-lucrez/ (§4.5): cele două trasee, mari (RouteMap), apoi cei patru pași explicați, cele două formate fără cifre,
+// /cum-lucrez/ (§4.5): cele două trasee, mari (RouteMap), apoi cei patru pași explicați, desenați ca linia comună a ambelor
+// trasee, cu explicația sub fiecare stație (PasiTraseu), cele două formate alăturate, fără cifre,
 // cu fraza exactă despre preț, și mențiunea că lucrez doar cu firme (B2B). Harta din bandă are toate liniile la fel de
 // estompate (§5.6). JSON-LD: WebPage; BreadcrumbList vine din Base (ruling R10). Fără JavaScript.
 // Ciorne: explicațiile pașilor spun doar ce scrie deja în spec și în pașii serviciilor, fără termene (#14, #18).
 import { paginaAprobata } from '../approvals';
 import Indemn from '../components/Indemn.astro';
+import PasiTraseu from '../components/PasiTraseu.astro';
 import RouteMap from '../components/RouteMap.astro';
 import Base from '../layouts/Base.astro';
 import { nodWebPage } from '../lib/jsonld';
@@ -64,22 +66,15 @@ const PASI = [
   <div class="contener cum cum--sectiuni">
     <section class="carte" aria-labelledby="pasii">
       <h2 id="pasii">Cei patru pași</h2>
-      <ol class="pasi-explicati">
-        {
-          PASI.map((pas) => (
-            <li>
-              <h3>{pas.nume}</h3>
-              <p>{pas.explicatie}</p>
-            </li>
-          ))
-        }
-      </ol>
+      <PasiTraseu pasi={PASI.map((pas) => ({ nume: pas.nume, text: pas.explicatie }))} linie="comuna" orizontal />
     </section>
 
-    <section class="carte" aria-labelledby="formate">
+    <section class="carte cum__formate" aria-labelledby="formate">
       <h2 id="formate">Remediere unică sau abonament lunar</h2>
-      <p>Remedierea unică repară ce am găsit la evaluare și se încheie cu raportul.</p>
-      <p>Cu abonamentul lunar, remedierea costă mai puțin, iar lucrul continuă lună de lună după ea.</p>
+      <div class="formate">
+        <p class="format format--unic">Remedierea unică repară ce am găsit la evaluare și se încheie cu raportul.</p>
+        <p class="format format--abonament">Cu abonamentul lunar, remedierea costă mai puțin, iar lucrul continuă lună de lună după ea.</p>
+      </div>
       <p class="cum__pret">Prețul, reducerea și ce include abonamentul le stabilim după ce mă uit la site-ul tău.</p>
     </section>
   </div>
@@ -107,11 +102,11 @@ const PASI = [
     line-height: 1.45;
   }
 
-  /* Traseele stau pe albastru deschis, pe toată lățimea (RouteMap lasă fundalul paginii): #D9E4F7, ca banda de pe Acasă
-     (decizia 26), care se vede pe suprafața paginii; --tint-blue ar dispărea pe ea. */
+  /* Traseele stau pe albastru deschis, pe toată lățimea (RouteMap lasă fundalul paginii): --albastru-benzi, ca banda de pe
+     Acasă (decizia 26), care se vede pe suprafața paginii; --tint-blue ar dispărea pe ea. */
   .cum-trasee {
     padding-block: 3rem;
-    background: #d9e4f7;
+    background: var(--albastru-benzi);
   }
 
   .cum-trasee h2 {
@@ -123,31 +118,56 @@ const PASI = [
     margin-top: 1.5rem;
   }
 
-  /* Pașii sunt o secvență (§5.1), deci au numere: le dă `<ol>`, cu numărul în fața numelui pasului. */
-  /* Cât să încapă „4.” la mărimea numelui pasului: numărul stă în container, nu în marginea paginii. */
-  .pasi-explicati {
+  /* Cele două formate sunt variante egale, ca traseele de deasupra: alăturate de la un card de 40rem, fiecare cu eșantionul
+     liniei lui (galbenul închis pentru remedierea unică, albastrul pentru abonament, ca în RouteMap), sub textul la măsura lui. */
+  /* Containerul e cardul: o interogare nu se aplică elementului care o declară. */
+  .cum__formate {
+    container-type: inline-size;
+  }
+
+  .formate {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @container (min-width: 40rem) {
+    .formate {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 3rem;
+    }
+  }
+
+  .format {
     margin: 0;
-    padding-left: 2.25rem;
   }
 
-  .pasi-explicati li + li {
-    margin-top: 1.5rem;
+  .format::before {
+    content: '';
+    display: block;
+    width: 2.5rem;
+    height: 0.5rem;
+    margin-bottom: 0.75rem;
+    background: var(--culoare);
   }
 
-  .pasi-explicati li::marker {
-    font-size: var(--text-lg);
-    font-weight: 800;
+  .format--unic {
+    --culoare: var(--yellow-dark);
   }
 
-  .pasi-explicati h3 {
-    margin-bottom: 0.25rem;
-  }
-
-  .pasi-explicati p {
-    margin: 0;
+  .format--abonament {
+    --culoare: var(--blue);
   }
 
   .cum__pret {
     font-weight: 700;
+  }
+
+  /* Cu culorile forțate, eșantioanele trec pe culoarea textului, ca liniile din RouteMap. */
+  @media (forced-colors: active) {
+    .format::before {
+      background: CanvasText;
+    }
   }
 </style>

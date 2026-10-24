@@ -44,25 +44,28 @@ test('negru pe albastru e sub 4,5 (interdicția din §5.2 e reală)', () => {
   expect(ratio(tok('--ink'), tok('--blue'))).toBeLessThan(4.5);
 });
 
-// Albastrul benzilor (decizia 26) nu e token: e un literal în pagina Acasă, în Cum lucrez, în Indemn și în fișă.
-const BANDA = '#D9E4F7';
-
+// Albastrul benzilor deschise (decizia 26): traseele de pe Acasă și din Cum lucrez, benzile de îndemn și fișa paginii.
+// Că benzile chiar îl au se verifică în browser, pe culoarea calculată (tests/e2e/culori.spec.ts).
 test.each([
   ['--ink', 4.5],
   ['--yellow-dark', 4.5],
   ['--blue', 3],
-] as const)('%s pe albastrul benzilor (#D9E4F7) ≥ %s', (fg, min) => {
-  expect(ratio(tok(fg), BANDA)).toBeGreaterThanOrEqual(min);
+] as const)('%s pe albastrul benzilor (--albastru-benzi) ≥ %s', (fg, min) => {
+  expect(ratio(tok(fg), tok('--albastru-benzi'))).toBeGreaterThanOrEqual(min);
 });
 
-test.each(['components/Indemn.astro', 'components/PageFacts.astro', 'pages/cum-lucrez.astro', 'pages/index.astro'])(
-  '%s are fundalul benzii #D9E4F7, nu --tint-blue (1,02:1 pe suprafață)',
-  (fisier) => {
-    const sursa = readFileSync(new URL(`../../src/${fisier}`, import.meta.url), 'utf8');
-    expect(sursa).toContain('background: #d9e4f7;');
-    expect(sursa).not.toContain('background: var(--tint-blue)');
-  },
-);
+// Antetul și banda de sus, întunecate pe toate paginile (decizia 28): textul trece de 4,5:1, liniile M1–M4 de 3:1 (grafică).
+test.each([
+  ['--noapte-text', 15],
+  ['--noapte-text-2', 4.5],
+  ['--paper', 4.5],
+  ['--yellow', 3],
+  ['--blue', 3],
+  ['--red', 3],
+  ['--green', 3],
+] as const)('%s pe antetul și banda întunecate (--noapte) ≥ %s', (fg, min) => {
+  expect(ratio(tok(fg), tok('--noapte'))).toBeGreaterThanOrEqual(min);
+});
 
 test('tokenurile din §5.2 au exact valorile din spec', () => {
   const asteptat: Record<string, string> = {
@@ -87,6 +90,11 @@ test('tokenurile din §5.2 au exact valorile din spec', () => {
     '--suprafata': '#E9EEF5',
     '--card': '#FFFFFF',
     '--card-contur': '#D5DCE6',
+    '--albastru-benzi': '#D9E4F7',
+    '--noapte': '#0E1116',
+    '--noapte-text': '#E8ECF2',
+    '--noapte-text-2': '#A7B0BE',
+    '--noapte-contur': '#2A313C',
   };
   for (const [nume, valoare] of Object.entries(asteptat)) {
     expect(tok(nume).toUpperCase(), nume).toBe(valoare);

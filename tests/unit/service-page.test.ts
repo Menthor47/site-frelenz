@@ -66,9 +66,12 @@ describe('Service.astro (§4.4)', () => {
     expect(textOf(`<nav ${nav}</nav>`)).toBe('Acasă Servicii SEO');
   });
 
-  test('H1-ul, apoi răspunsul direct ca prim paragraf', async () => {
+  test('H1-ul, apoi răspunsul direct ca prim paragraf; „site-ul” nu se rupe la cratimă', async () => {
     const h = main(await pagina());
-    expect(h).toMatch(/<h1[^>]*>Servicii SEO pentru site-ul firmei tale<\/h1>\s*<p[^>]*>Ofer servicii SEO pentru firme\./);
+    const [, h1 = '', raspuns = ''] = /<h1[^>]*>([\s\S]*?)<\/h1>\s*<p[^>]*>([\s\S]*?)<\/p>/.exec(h) ?? [];
+    expect(textOf(h1)).toBe('Servicii SEO pentru site-ul firmei tale');
+    expect(textOf(raspuns)).toMatch(/^Ofer servicii SEO pentru firme\./);
+    expect(h1).toContain('<span class="fara-rupere">site-ul</span>');
   });
 
   test('secțiunile, în ordinea din §4.4', async () =>
@@ -243,8 +246,12 @@ describe('Service.astro, culorile grupului (§5.2)', () => {
 
   test('șablonul nu-și redefinește culorile grupului', () => expect(css).not.toMatch(/\[data-grup=/));
 
-  test('numerele pașilor folosesc culoarea de text a grupului', () => {
-    const bloc = /\.serviciu__pasi li::marker\s*\{([^}]*)\}/.exec(css)?.[1] ?? '';
-    expect(bloc).toContain('color: var(--culoare-text);');
+  // Pașii sunt desenați ca linia grupului (PasiTraseu, `linie="grup"`): linia ia `--culoare` din `data-grup`, iar numărul stă
+  // în stație, negru pe alb, deci nu mai e text colorat.
+  test('„Cum se desfășoară” e o linie în culoarea grupului, alături de „Ce primești”', async () => {
+    const h = main(await pagina());
+    const pereche = /<div\b[^>]*class="serviciu__pereche"[^>]*>([\s\S]*?)<\/section>\s*<\/div>/.exec(h)?.[1] ?? '';
+    expect(titluriH2(pereche)).toEqual(['Ce primești', 'Cum se desfășoară']);
+    expect(pereche).toMatch(/<ol\b[^>]*class="[^"]*\bpasi-traseu--grup\b/);
   });
 });

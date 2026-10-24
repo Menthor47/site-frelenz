@@ -3,6 +3,7 @@
 // Fraza despre cum e făcut site-ul apare doar după ce /proiecte/acest-site/ există. Ghidurile nu au loc în subsol (§3.4).
 import { SERVICII } from '../form-rules';
 import { site } from '../site.config';
+import Iconita from './Iconita.astro';
 import LegalId from './LegalId.astro';
 
 interface Props {
@@ -60,9 +61,9 @@ const legale = [
     <div>
       <h2 class="subsol__titlu">Contact</h2>
       <ul>
-        <li><a href={`tel:${site.telefonE164}`}>{site.telefonAfisat}</a></li>
-        <li><a href={site.whatsapp}>WhatsApp</a></li>
-        <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
+        <li><a href={`tel:${site.telefonE164}`}><Iconita nume="telefon" />{site.telefonAfisat}</a></li>
+        <li><a href={site.whatsapp}><Iconita nume="whatsapp" />WhatsApp</a></li>
+        <li><a href={`mailto:${site.email}`}><Iconita nume="email" />{site.email}</a></li>
       </ul>
     </div>
   </div>
@@ -131,9 +132,11 @@ const legale = [
   }
 
   /* Zona de atingere de 44×44px pentru linkurile din subsol (§5.8); „SEO” singur ar avea doar ~33px lățime. */
+  /* `gap` desparte iconița de text la contacte (§5.4); celelalte linkuri au doar text. */
   li a {
     display: inline-flex;
     align-items: center;
+    gap: 0.5rem;
     min-height: 44px;
     min-width: 44px;
     /* Textul linkului e un element flex: `anywhere` îi lasă adresa de e-mail să se rupă în loc să iasă din coloană. */

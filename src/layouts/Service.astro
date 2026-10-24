@@ -1,12 +1,15 @@
 ---
 // Șablonul paginii de serviciu (§4.4), același pentru toate 6. Ordinea din pagină e cea din spec:
 // banda cu harta (linia grupului plină, „Ești aici”) și firimiturile, H1-ul cu cuvântul-cheie și răspunsul direct,
-// „Pentru cine e” și „Semne că ai nevoie”, „Ce primești”, „Cum se desfășoară”, proiectul (dacă există), întrebările
-// frecvente, nota despre garanții (doar pe SEO și AEO/GEO), serviciile înrudite și ghidul, apoi un singur îndemn.
+// „Pentru cine e” și „Semne că ai nevoie”, „Ce primești” și „Cum se desfășoară” (alăturate pe desktop; pașii desenați ca
+// linia grupului, PasiTraseu), proiectul (dacă există), întrebările frecvente, nota despre garanții (doar pe SEO și
+// AEO/GEO), serviciile înrudite și ghidul, apoi un singur îndemn.
 // Șablonul nu citește colecțiile: pagina (src/pages/servicii/[slug].astro) îi dă doar ce se poate publica (§3.4).
 // Fără JavaScript. Banda primește clasa `vt-<slug>` prin Base (ruling R5), pentru tranziția M3 din §5.7.
 import type { CollectionEntry } from 'astro:content';
+import FaraRupere from '../components/FaraRupere.astro';
 import Indemn from '../components/Indemn.astro';
+import PasiTraseu from '../components/PasiTraseu.astro';
 import Faq from '../components/Faq.astro';
 import TextSauMarcaj from '../components/TextSauMarcaj.astro';
 import { cereServiciu } from '../form-rules';
@@ -55,29 +58,31 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
   suprafata={true}
 >
   <div class="contener serviciu" data-grup={s.grup}>
-    <h1>{s.h1}</h1>
-    <p class="serviciu__raspuns">{s.raspunsDirect}</p>
+    <h1><FaraRupere text={s.h1} /></h1>
+    <p class="serviciu__raspuns"><FaraRupere text={s.raspunsDirect} /></p>
 
     <div class="serviciu__doua carte">
       <section>
         <h2>Pentru cine e</h2>
-        <ul>{s.pentruCine.map((t) => <li>{t}</li>)}</ul>
+        <ul>{s.pentruCine.map((t) => <li><FaraRupere text={t} /></li>)}</ul>
       </section>
       <section>
         <h2>Semne că ai nevoie</h2>
-        <ul>{s.semne.map((t) => <li>{t}</li>)}</ul>
+        <ul>{s.semne.map((t) => <li><FaraRupere text={t} /></li>)}</ul>
       </section>
     </div>
 
-    <section class="carte">
-      <h2>Ce primești</h2>
-      <ul>{s.livrabile.map((t) => <li>{t}</li>)}</ul>
-    </section>
+    <div class="serviciu__pereche">
+      <section class="carte">
+        <h2>Ce primești</h2>
+        <ul>{s.livrabile.map((t) => <li><FaraRupere text={t} /></li>)}</ul>
+      </section>
 
-    <section class="carte">
-      <h2>Cum se desfășoară</h2>
-      <ol class="serviciu__pasi">{s.pasi.map((t) => <li>{t}</li>)}</ol>
-    </section>
+      <section class="carte">
+        <h2>Cum se desfășoară</h2>
+        <PasiTraseu pasi={s.pasi.map((text) => ({ text }))} />
+      </section>
+    </div>
 
     {
       proiectVizibil && (
@@ -109,7 +114,7 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
           inrudite.map((i) => (
             <li>
               <a href={`/servicii/${i.slug}/`}>{i.nume}</a>
-              <span class="inrudite__problema">{i.problema}</span>
+              <span class="inrudite__problema"><FaraRupere text={i.problema} /></span>
             </li>
           ))
         }
@@ -128,8 +133,7 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
 </Base>
 
 <style>
-  /* Culoarea grupului vine din `data-grup` (tokens.css): `--culoare` dă bulinele, iar `--culoare-text` numerele pașilor,
-     care sunt text, deci varianta închisă, singura care trece de 4,5:1 pe alb. */
+  /* Culoarea grupului vine din `data-grup` (tokens.css): `--culoare` dă bulinele listelor și linia pașilor (PasiTraseu). */
   .serviciu {
     padding-block: 1rem 3rem;
   }
@@ -147,8 +151,23 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
 
   /* Cardurile stau la 1,5rem unul de altul. „Pentru cine e” și „Semne că ai nevoie” sunt un singur card, deci spațiul
      dintre ele e în card. */
-  .serviciu > .carte {
+  .serviciu > .carte,
+  .serviciu__pereche {
     margin-top: 1.5rem;
+  }
+
+  /* „Ce primești” și „Cum se desfășoară” au aceeași greutate (5–6 rânduri fiecare): de la 64rem stau alături, la aceeași
+     înălțime, fiecare cu textul la măsura lui (34em), în loc de două carduri late, pe jumătate goale. */
+  .serviciu__pereche {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 64rem) {
+    .serviciu__pereche {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   /* „Pentru cine e” și „Semne că ai nevoie” stau într-un singur card: una lângă alta pe desktop, cu 3rem între coloane,
@@ -179,10 +198,6 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
   li::marker {
     color: var(--culoare);
     font-weight: 800;
-  }
-
-  .serviciu__pasi li::marker {
-    color: var(--culoare-text);
   }
 
   .serviciu__proiect {
