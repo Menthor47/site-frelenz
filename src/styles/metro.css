@@ -22,20 +22,24 @@
 }
 
 /* Culorile liniilor M1–M4 din București (§5.1). Tabelul din §5.2 dă galbenul tare liniei M1; desenul e decorativ
-   (`aria-hidden`), deci nu e grafică cu sens, care ar cere #8A5A00. */
-.harta [data-linie='M1'] {
+   (`aria-hidden`), deci nu e grafică cu sens, care ar cere #8A5A00. Aceleași reguli dau culoarea și opțiunilor din
+   „De unde pornești?” (radio-urile cu `data-linie` din AlegatorTraseu: trec de 3:1 pe fundalul de noapte). În afara hărții și
+   a alegătorului niciun alt element din site nu poartă `data-linie`, iar nimic altceva nu dă `--culoare` acestor elemente, deci
+   selectorul fără `.harta` în față nu prinde decât ce trebuie. Același set de reguli servește harta și alegătorul, ca să încapă
+   sub limita de 25 KB de CSS pe pagină (§9.1 „Bugete” din spec-ul principal). */
+[data-linie='M1'] {
   --culoare: var(--yellow);
 }
 
-.harta [data-linie='M2'] {
+[data-linie='M2'] {
   --culoare: var(--blue);
 }
 
-.harta [data-linie='M3'] {
+[data-linie='M3'] {
   --culoare: var(--red);
 }
 
-.harta [data-linie='M4'] {
+[data-linie='M4'] {
   --culoare: var(--green);
 }
 
@@ -112,6 +116,37 @@
   .harta--pe-acasa [data-linie='M1'],
   .harta--pe-acasa [data-linie='M4'] {
     display: none;
+  }
+}
+
+/* Pe Acasă fiecare linie are câte un „Ești aici” (§3 din spec-ul metroul îmbunătățit), ascuns până alege vizitatorul o
+   linie. Regula care îl arată trebuie să fie mai specifică decât aceasta (sau mai târzie) și să dea `display: inline`, adică
+   valoarea implicită a unui <g>. */
+.harta--pe-acasa .harta__aici-grup {
+  display: none;
+}
+
+/* Pozițiile „Ești aici” vin din TRASEE (src/lib/harta.ts), aceleași ca pe bandă și în imaginile OG, deci acolo nu se schimbă.
+   Doar pe telefon (sub 48rem) se mută aici, din CSS, pentru că plăcuța albă a H1-ului acoperă partea de jos a hărții (spec
+   metroul îmbunătățit, §3). Plăcuța începe la ~139 de unități de sus cât merg trenurile (butonul „Oprește trenurile” stă
+   deasupra hărții) și mai jos cu „reduced motion”, deci pozițiile de mai jos trebuie să fie libere în ambele așezări.
+   Unitățile din `translate` sunt unitățile desenului (1200×240). Mutarea cade pe altă stație a aceleiași linii:
+   - M4: de pe (600, 200), sub plăcuță, pe (840, 120), stația de corespondență de pe M2, chiar la dreapta plăcuței; eticheta
+     trece în stânga și deasupra stației (`text-anchor: end`), unde mai e loc și în fereastra de 534 de unități de la 320px;
+   - M2: stația rămâne (520, 120), dar eticheta urcă deasupra ei (de la y + 36 la y − 16), ca să nu intre sub plăcuță.
+   M1 (460, 40) și M3 (700, 80) sunt sus și nu se mută. Haloul etichetei peste alte linii e în regulă. */
+@media (max-width: 47.98rem) {
+  .harta--pe-acasa .harta__aici-grup[data-linie='M4'] {
+    transform: translate(240px, -80px);
+  }
+
+  .harta--pe-acasa .harta__aici-grup[data-linie='M4'] .harta__eticheta {
+    text-anchor: end;
+    transform: translateX(-36px);
+  }
+
+  .harta--pe-acasa .harta__aici-grup[data-linie='M2'] .harta__eticheta {
+    transform: translateY(-52px);
   }
 }
 
@@ -210,11 +245,18 @@
   background: var(--noapte);
 }
 
-.harta--noapte .harta__linie {
-  opacity: 1;
+/* Pe telefon banda se ascunde cu totul (spec metroul îmbunătățit, §5): cu harta, trenurile, butonul „Oprește trenurile” și
+   zona `aria-live`. Locul ei îl iau firimiturile, desenate ca linia grupului (Breadcrumbs.astro). `display: none` scoate și
+   butonul din ordinea de Tab, deci „Sari la conținut” duce direct la firimituri. Acasă nu e afectată: harta ei nu stă în bandă. */
+@media (max-width: 47.98rem) {
+  .banda {
+    display: none;
+  }
 }
 
-/* Pe bandă și pe harta statică, liniile sunt estompate, în afară de linia grupului paginii (cea plină). */
+/* Pe bandă și pe harta statică, liniile sunt estompate, în afară de linia grupului paginii (cea plină). Pe Acasă liniile au
+   opacitatea implicită, 1, deci nu are nevoie de o regulă `.harta--noapte .harta__linie { opacity: 1 }`, care ar repeta
+   valoarea implicită și ar adăuga CSS fără efect (limita de 25 KB de CSS pe pagină, §9.1 „Bugete” din spec-ul principal). */
 .harta--statica .harta__linie,
 .harta--banda .harta__linie {
   opacity: 0.35;
@@ -237,3 +279,6 @@
 .harta--noapte .tren__halou {
   opacity: 0.7;
 }
+
+/* Regulile prin care alegătorul „De unde pornești?” comandă harta de pe Acasă stau în alegator-harta.css (le importă
+   AlegatorTraseu): le folosește doar Acasă, iar metro.css ajunge pe toate paginile (limita de 25 KB de CSS pe pagină, §9.1 „Bugete”). */

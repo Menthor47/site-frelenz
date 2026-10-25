@@ -3,33 +3,57 @@
 // - Zona de sus e o compoziție (ruling R12): harta animată și, peste marginea ei de jos, H1-ul ca o plăcuță de stație,
 //   albă și opacă, ca liniile și trenurile să intre sub ea și textul să rămână lizibil (§5.6). Sub hartă, subtitlul și butonul.
 //   În DOM, harta vine după „Cere o ofertă”, ca butonul de oprire să urmeze în ordinea focusului; locul ei vine din grilă.
-// - Apoi, liniștit: „De unde pornești?”, cele două trasee, proiectele (doar dacă există unul publicabil), întrebările
-//   frecvente generale și banda albastră cu îndemnul final. Antetul nu are butonul „Cere o ofertă” pe Acasă (Header).
+// - „De unde pornești?” stă tot în hero, sub hartă: alegătorul de traseu (spec metroul îmbunătățit, §3), un formular simplu
+//   cu șase opțiuni și câte un panou pe serviciu. În DOM vine ultimul, deci focusul merge „Cere o ofertă”, „Oprește trenurile”,
+//   apoi alegătorul. Nu mai există secțiunea separată cu aceleași șase probleme.
+// - Apoi, liniștit: cele două trasee, proiectele (doar dacă există unul publicabil), întrebările frecvente generale și banda
+//   albastră cu îndemnul final. Antetul nu are butonul „Cere o ofertă” pe Acasă (Header).
 // Singurul script e cel al trenurilor (MetroMap). JSON-LD: WebPage și FAQPage, din aceleași întrebări ca pagina.
 import { getCollection } from 'astro:content';
 import { paginaAprobata } from '../approvals';
+import AlegatorTraseu from '../components/AlegatorTraseu.astro';
 import Cta from '../components/Cta.astro';
 import Faq from '../components/Faq.astro';
-import LineDiagram from '../components/LineDiagram.astro';
-import MetroMap from '../components/MetroMap.astro';
 import ProiecteRezumat from '../components/ProiecteRezumat.astro';
 import RouteMap from '../components/RouteMap.astro';
 import { cereServiciu } from '../form-rules';
-import Base from '../layouts/Base.astro';
+// Schelet, nu Base: Acasă n-are bandă și firimituri, deci nici CSS-ul firimiturilor (linie-statii.css și Breadcrumbs.astro);
+// regulile benzii sunt în metro.css, pe toate paginile (limita de 25 KB de CSS pe pagină, §9.1 „Bugete”).
+import Schelet from '../layouts/Schelet.astro';
 import { DRAFT } from '../lib/env';
 import { nodFaq, nodWebPage } from '../lib/jsonld';
 import { proiectePublicabile } from '../lib/publish';
 import { PAGINI_STATICE } from '../lib/routes';
+// MetroMap se importă ultimul, nu în ordinea alfabetică: Astro ordonează foile de stil ale paginii și după locul importului,
+// iar metro.css (din MetroMap) stă în foaia comună cu Schelet. Importat mai sus, ar trage foaia comună înaintea stilurilor din
+// RouteMap, Faq și ProiecteRezumat; importat aici, rămâne după ele, deci în cascadă regulile din metro.css vin ultimele.
+import MetroMap from '../components/MetroMap.astro';
 
 const CALE = '/';
 
 /** Câte proiecte intră pe Acasă (§4.3 punctul 5); restul sunt pe /proiecte/. */
 const PROIECTE_PE_ACASA = 3;
 
+/** Ce îl doare pe vizitator, pe serviciu: etichetele alegătorului (ciorne la „tu”, tabelul de texte din spec-ul metroul
+ *  îmbunătățit, §8). Se aprobă odată cu pagina. Cheile sunt slug-urile din src/form-rules.ts. */
+const ETICHETE: Readonly<Record<string, string>> = {
+  seo: 'Nu mă găsesc clienții în Google',
+  'optimizare-aeo-geo': 'Nu apar când întreabă cineva ChatGPT',
+  'audit-seo': 'Au scăzut vizitele și nu știu de ce',
+  'creare-site': 'N-am încă un site',
+  'redesign-site': 'Site-ul arată învechit',
+  'mentenanta-site': 'Site-ul e lent și neactualizat',
+};
+
+// Serviciile în ordinea `ordine`, cu pașii din colecție (aceiași ca pe pagina serviciului) și numele din form-rules.
 const randuri = (await getCollection('servicii'))
   .map((intrare) => intrare.data)
   .sort((a, b) => a.ordine - b.ordine)
-  .map((s) => ({ problema: s.problema, slug: s.slug, nume: cereServiciu(s.slug, 'Acasă').nume, grup: s.grup }));
+  .map((s) => {
+    const eticheta = ETICHETE[s.slug];
+    if (eticheta === undefined) throw new Error(`Acasă: serviciul „${s.slug}” nu are etichetă în ETICHETE (src/pages/index.astro)`);
+    return { slug: s.slug, nume: cereServiciu(s.slug, 'Acasă').nume, grup: s.grup, eticheta, pasi: s.pasi };
+  });
 
 const proiecte = proiectePublicabile((await getCollection('proiecte')).map((intrare) => intrare.data), DRAFT).slice(0, PROIECTE_PE_ACASA);
 
@@ -60,7 +84,7 @@ const intrebari = [
 ];
 ---
 
-<Base
+<Schelet
   titlu={PAGINI_STATICE['/'].titlu}
   descriere={PAGINI_STATICE['/'].descriere}
   cale={CALE}
@@ -75,14 +99,8 @@ const intrebari = [
       <Cta />
     </div>
     <MetroMap variant="animated" />
+    <AlegatorTraseu randuri={randuri} />
   </div>
-
-  <section class="acasa-sectiune acasa-sectiune--carte" aria-labelledby="de-unde-pornesti">
-    <div class="contener carte">
-      <h2 id="de-unde-pornesti">De unde pornești?</h2>
-      <LineDiagram randuri={randuri} />
-    </div>
-  </section>
 
   <section class="acasa-sectiune acasa-trasee" aria-labelledby="cum-lucram">
     <div class="contener">
@@ -95,7 +113,7 @@ const intrebari = [
     proiecte.length > 0 && (
       <section class="acasa-sectiune acasa-sectiune--carte" aria-labelledby="proiecte">
         <div class="contener carte">
-          <h2 id="proiecte">Proiecte</h2>
+          <h2 id="proiecte">Proiecte: stații vizitate</h2>
           <ProiecteRezumat proiecte={proiecte} />
         </div>
       </section>
@@ -115,9 +133,19 @@ const intrebari = [
       <Cta />
     </div>
   </div>
-</Base>
+</Schelet>
 
-<style>
+{
+  /* Stiluri globale, nu cu scop: clasele de aici (`acasa-…`) există doar pe Acasă, deci clasa de scop de pe fiecare parte a
+     selectorilor (`.astro-xxxxxxxx`, ~300 de octeți) nu apăra nimic; fără ea, Acasă rămâne sub limita de 25 KB de CSS pe pagină
+     (§9.1 „Bugete” din spec-ul principal; spec-ul metroul îmbunătățit, nota de la început). Regulile care prind elemente din alte componente (`.harta`,
+     `.alegator`, `.buton-cta`) trebuie oricum globale, fiindcă elementele acelea n-au clasa de scop a paginii. Singurul selector
+     cu descendent pe un element, `.acasa-sectiune h2`, prinde tot doar titlurile de aici: RouteMap, Faq și ProiecteRezumat
+     n-au H2. Fără clasa de scop, selectorii au câte o clasă mai puțin pe fiecare parte, dar ordinea dintre regulile de aici
+     contează la fel, iar regulile globale care prind aceleași elemente (`h1`, `h2`, `p`, `.buton-cta`) au specificitate mai
+     mică; pe hover, `.acasa-final .buton-cta:hover` o întrece pe `.buton-cta:hover`. Comentariu JSX: nu ajunge în pagină. */
+}
+<style is:global>
   /* Grila zonei de sus: coloana din mijloc e containerul (72rem, cu marginile laterale); harta ia toată lățimea pe mobil
      și se aliniază singură cu containerul pe desktop (metro.css). H1-ul stă în același rând cu harta, deasupra ei. */
   .acasa-sus {
@@ -130,7 +158,7 @@ const intrebari = [
     padding-bottom: 3.5rem;
   }
 
-  .acasa-sus > :global(.harta) {
+  .acasa-sus > .harta {
     grid-column: lat;
     grid-row: 1;
     align-self: start;
@@ -177,6 +205,13 @@ const intrebari = [
   .acasa-sus__buton {
     grid-column: text;
     margin-top: 1.25rem;
+  }
+
+  /* Alegătorul „De unde pornești?” (AlegatorTraseu): pe coloana de text, sub buton. În DOM vine după hartă, deci locul lui
+     din grilă e primul rând liber de sub „Cere o ofertă”. */
+  .acasa-sus > .alegator {
+    grid-column: text;
+    margin-top: 2rem;
   }
 
   .acasa-sectiune {
@@ -226,8 +261,8 @@ const intrebari = [
     line-height: 1.25;
   }
 
-  .acasa-final :global(.buton-cta),
-  .acasa-final :global(.buton-cta:hover) {
+  .acasa-final .buton-cta,
+  .acasa-final .buton-cta:hover {
     background: var(--paper);
     color: var(--ink);
   }

@@ -11,6 +11,10 @@ export default defineConfig({
   site: site.url,
   outDir: isDraft ? './dist-draft' : './dist',
   compressHTML: true,
+  // Stilurile cu scop primesc clasa `.astro-xxxxxxxx` în loc de atributul `[data-astro-cid-xxxxxxxx]`: aceeași specificitate
+  // (0,1,0), dar 15 caractere în loc de 25 la fiecare selector. Pe Acasă înseamnă ~2,4 KB mai puțin, pentru limita de 25 KB de
+  // CSS pe pagină (§9.1 „Bugete” din spec-ul principal; spec-ul metroul îmbunătățit, nota de la început).
+  scopedStyleStrategy: 'class',
   trailingSlash: 'always',
   // Excluderile din sitemap (paginile noindex, 404, /_test/) sunt în src/lib/seo.ts, ca să le poată testa vitest.
   integrations: [sitemap({ filter: inSitemap })],

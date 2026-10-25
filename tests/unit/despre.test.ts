@@ -57,7 +57,8 @@ describe('/despre/ (§4.5)', () => {
   });
 
   // Stratul de suprafețe (§4.5): povestea stă în carduri pe coloana din stânga, profilul într-un card pe cea din dreapta.
-  // Astro adaugă `data-astro-cid-…` după `class`, deci etichetele se potrivesc cu `[^>]*`, nu cu un `class="…"` exact.
+  // Etichetele se potrivesc cu `[^>]*`: pot avea și alte atribute după `class`. Clasa de scop a lui Astro (`astro-…`) o scoate
+  // `render` (helpers.ts), deci `class="carte"` e exact clasa scrisă în pagină.
   test('secțiunile sunt carduri în coloana poveștii, iar povestea și profilul stau în aceeași grilă', async () => {
     stare.profiluri.push('https://www.linkedin.com/in/exemplu');
     const h = main(await render(PaginaDespre));

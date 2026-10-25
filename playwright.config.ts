@@ -18,7 +18,9 @@ export default defineConfig({
     { name: 'chrome', use: { channel: 'chrome' } },
     // §5.6 cere ca trenurile (SMIL și oprirea lor) să fie verificate în Chrome, Safari și Firefox: testele Acasă rulează
     // și în Firefox și WebKit (motorul Safari), aduse o dată cu `npx playwright install firefox webkit`.
-    { name: 'firefox', use: { browserName: 'firefox' }, testMatch: /home\.spec\.ts$/ },
+    // Firefox mai ia un singur spec în plus, contact-restaurare.spec.ts: doar el restaurează formularul la reîncărcare (alegerea
+    // vizitatorului nu trebuie suprascrisă de serviciul din link), deci doar acolo se poate verifica. Nu primește celelalte specuri.
+    { name: 'firefox', use: { browserName: 'firefox' }, testMatch: /(home|contact-restaurare)\.spec\.ts$/ },
     { name: 'webkit', use: { browserName: 'webkit' }, testMatch: /home\.spec\.ts$/ },
   ],
   ...(!serverExtern && {

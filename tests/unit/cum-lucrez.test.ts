@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import PaginaCumLucrez from '../../src/pages/cum-lucrez.astro';
 import { adresareFormala } from '../shared/adresare';
 import { render, textOf } from './helpers';
@@ -53,6 +54,19 @@ describe('/cum-lucrez/ (§4.5)', () => {
     expect(text).toContain('Cu abonamentul lunar, remedierea costă mai puțin, iar lucrul continuă lună de lună după ea.');
     expect(text).toContain(FRAZA_PRET);
     expect(text).not.toMatch(/\d/);
+  });
+
+  // A-14 (spec §6): legenda formatelor deosebește linia plină (remedierea unică) de cea punctată (abonamentul), ambele în
+  // cerneală; culorile grupurilor rămân doar pentru servicii. Culoarea calculată se verifică în browser (culori.spec.ts).
+  test('legenda formatelor: eșantion plin și eșantion punctat, în --ink, fără culorile grupurilor', () => {
+    const sursa = readFileSync(new URL('../../src/pages/cum-lucrez.astro', import.meta.url), 'utf8');
+    const stiluri = (/<style>([\s\S]*?)<\/style>/.exec(sursa)?.[1] ?? '').replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(stiluri).not.toMatch(/--(?:yellow|blue|green|red)/);
+    const regula = (selector: string) => new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(stiluri)?.[1] ?? '';
+    expect(regula('.format--unic')).toMatch(/--culoare:\s*var\(--ink\)/);
+    expect(regula('.format--abonament')).toMatch(/--culoare:\s*var\(--ink\)/);
+    expect(regula('.format--abonament::before')).toMatch(/border-top-style:\s*dashed/);
+    expect(regula('.format::before')).toMatch(/border-top:\s*[^;]*\bsolid\b/);
   });
 
   test('la „tu”, fără promisiuni interzise', async () => {

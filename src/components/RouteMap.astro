@@ -4,10 +4,14 @@
 // (320px, text la 200%), iar etichetele stațiilor din buclă sunt text care se rupe ca restul paginii.
 // Desenul (stațiile și liniile) e făcut din pseudo-elemente, deci nu apare în arborele de accesibilitate.
 // Se vede întreg de la început: fără script, fără animație, fără desenare la derulare (§5.7).
-//   - Remedierea unică: linia în galbenul închis #8A5A00 (--yellow-dark); galbenul tare are 1,63:1 pe --tint-blue (§5.2), iar #8A5A00 are 4,63:1 pe --albastru-benzi.
-//   - Abonamentul: linia albastră, aceiași pași, apoi o buclă lunară. Etichetele stațiilor din buclă le-a ales Alex
-//     (#15, 2026-10-22): Verificare, Actualizări, Raport.
-//   - Diferența dintre trasee nu stă doar în culoare: fiecare are o etichetă text vizibilă.
+// Traseele sunt în cerneală (--ink), ambele (A-14, spec §6): culorile grupurilor rămân doar pentru servicii, peste tot. Cerneala
+// are 14,14:1 pe --albastru-benzi și 15,83:1 pe --tint-blue, deci linia și stațiile trec mult peste pragul de 3:1 pentru grafică.
+// Diferența dintre trasee e de formă, nu de culoare:
+//   - Remedierea unică: linia plină, care se termină într-o stație plină (capătul traseului).
+//   - Abonamentul: aceeași linie și aceiași pași, continuați de o buclă lunară cu chenarul punctat. Ultima stație dinaintea buclei
+//     rămâne goală, fiindcă traseul nu se oprește acolo. Etichetele stațiilor din buclă le-a ales Alex (#15, 2026-10-22):
+//     Verificare, Actualizări, Raport.
+//   - În plus, fiecare traseu are o etichetă text vizibilă, iar bucla are „Se repetă lunar”: nimic nu stă doar în desen.
 // Fundalul (--albastru-benzi) îl pune pagina. `marime` schimbă doar scara: `compact` pe Acasă, `mare` pe /cum-lucrez/ (pașii explicați vin de la pagină).
 interface Props {
   marime: 'compact' | 'mare';
@@ -72,22 +76,24 @@ const idAbonament = `traseu-abonament-${marime}`;
     font-size: var(--text-md);
   }
 
-  /* Culorile traseelor. Pe --albastru-benzi: #8A5A00 are 4,63:1, albastrul 3,79:1, ambele peste pragul de 3:1 pentru grafică. */
+  /* Culoarea liniei fiecărui traseu: cerneala, la ambele (A-14). Rămân două reguli, câte una pe traseu, ca un traseu să-și
+     poată schimba linia fără să-l atingă pe celălalt. Pe --albastru-benzi, cerneala are 14,14:1. */
   .traseu--unic {
-    --culoare: var(--yellow-dark);
+    --culoare: var(--ink);
   }
 
   .traseu--abonament {
-    --culoare: var(--blue);
+    --culoare: var(--ink);
   }
 
-  /* Eticheta traseului: text vizibil, cu un eșantion din linie în față. Mărimea e de pe scară (§5.3): --text-md pe traseul
-     compact, --text-lg pe cel mare (regula de mai jos). */
+  /* Eticheta traseului: text vizibil, cu un eșantion din linie în față (plin la remedierea unică, punctat la abonament, ca
+     bucla lui). Mărimea e de pe scară (§5.3): --text-md pe traseul compact, --text-lg pe cel mare (regula de mai jos). */
   /* Grilă, nu flex cu `flex-wrap`: eșantionul de linie rămâne pe primul rând, iar textul se rupe lângă el (pe două coloane,
      la 48–64rem, eșantionul ajungea singur pe un rând și stațiile celor două trasee nu mai erau aliniate). */
   .traseu__eticheta {
+    --lungime-mostra: calc(5 * var(--t));
     display: grid;
-    grid-template-columns: 2.5rem minmax(0, 1fr);
+    grid-template-columns: var(--lungime-mostra) minmax(0, 1fr);
     align-items: center;
     gap: 0.5rem 0.75rem;
     max-width: none;
@@ -103,11 +109,19 @@ const idAbonament = `traseu-abonament-${marime}`;
     font-size: var(--text-lg);
   }
 
+  /* Eșantionul e chenarul de sus al unui element fără înălțime, nu un fundal: așa poate fi plin sau punctat, iar cu culorile
+     forțate (fundalurile dispar) își păstrează forma. Lungimea e de 5 grosimi (2,5rem pe traseul compact, 3,75rem pe cel mare):
+     un chenar punctat are liniuțe de 2 grosimi și goluri de 1, iar sub 5 grosimi browserul îl desenează plin, deci nu s-ar mai
+     deosebi de linia plină. */
   .traseu__eticheta::before {
     content: '';
-    width: 2.5rem;
-    height: var(--t);
-    background: var(--culoare);
+    width: var(--lungime-mostra);
+    height: 0;
+    border-top: var(--t) solid var(--culoare);
+  }
+
+  .traseu--abonament .traseu__eticheta::before {
+    border-top-style: dashed;
   }
 
   .pasi {
@@ -155,16 +169,25 @@ const idAbonament = `traseu-abonament-${marime}`;
     display: none;
   }
 
+  /* Capătul remedierii unice e o stație plină (capăt de linie); stațiile de pe parcurs rămân goale. Plină = cerneală, și în
+     chenar, și înăuntru. Ultima stație a abonamentului nu intră aici: după ea urmează bucla. */
+  .traseu--unic .pasi > .pas:last-child::before {
+    background: var(--ink);
+  }
+
   .pasi--spre-bucla > .pas:last-child::after {
     height: calc(100% - 0.5lh);
   }
 
-  /* Bucla: un dreptunghi din aceeași linie. Marginea lui din stânga e chiar continuarea liniei verticale a pașilor,
-     iar stațiile ei stau pe această margine. */
+  /* Bucla: un dreptunghi din aceeași linie, dar punctat: linia plină a pașilor se continuă într-un chenar cu goluri, care se
+     repetă. Marginea lui din stânga e chiar continuarea liniei verticale a pașilor, iar stațiile ei stau pe această margine
+     (au fundal plin, deci golurile nu se văd sub ele). */
   .bucla {
     margin-left: calc((var(--d) - var(--t)) / 2);
     padding: 0.75rem 1rem 0.5rem calc((var(--d) - var(--t)) / 2 + 0.75rem);
-    border: var(--t) solid var(--culoare);
+    border-width: var(--t);
+    border-style: dashed;
+    border-color: var(--culoare);
   }
 
   /* `min-height`: o stație are cel puțin un rând, ca cercurile să nu se înghesuie unul într-altul. */
@@ -280,10 +303,19 @@ const idAbonament = `traseu-abonament-${marime}`;
     }
   }
 
-  /* Cu culorile forțate (modul de contrast ridicat), fundalurile dispar: liniile trec pe culoarea textului, chenarul rămâne. */
+  /* Cu culorile forțate (modul de contrast ridicat), fundalurile dispar: liniile trec pe culoarea textului, iar chenarele (al
+     buclei și al eșantioanelor) își păstrează forma, plină sau punctată, fiindcă stilul chenarului nu se schimbă. Capătul plin
+     al remedierii unice ar rămâne altfel gol (fundalul stației e forțat la culoarea paginii): îl umplem cu culoarea textului. */
   @media (forced-colors: active) {
-    .pas::after,
+    .pas::after {
+      background: CanvasText;
+    }
+
     .traseu__eticheta::before {
+      border-top-color: CanvasText;
+    }
+
+    .traseu--unic .pasi > .pas:last-child::before {
       background: CanvasText;
     }
 

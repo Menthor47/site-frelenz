@@ -1,0 +1,318 @@
+---
+// „De unde pornești?” în hero (spec metroul îmbunătățit, §3): vizitatorul alege ce îl doare, iar site-ul îi arată traseul.
+// E un formular obișnuit, `GET /contact/`, cu un `<fieldset>` și șase butoane radio (`name="serviciu"`, valorile din SERVICII),
+// urmat de câte un panou „Traseul tău” pe serviciu. Merge fără JavaScript și fără `:has()`: trimite oricum serviciul ales.
+// - Legenda e H2-ul aprobat „De unde pornești?” (`id="de-unde-pornesti"`); secțiunea separată de pe Acasă a dispărut.
+// - Fiecare radio are `data-linie` (linia grupului, din LINIA_GRUPULUI), ca harta de sus să știe ce linie s-o lumineze (regulile
+//   care leagă alegătorul de hartă stau în alegator-harta.css, spec §3). Tot `data-linie` îi dă culoarea liniei (metro.css).
+// - Panourile (pașii reali ai serviciului, desenați cu PasiTraseu) sunt toate în HTML, dar ascunse din CSS. Starea de bază:
+//   panourile ascunse și butonul general „Cere o ofertă” vizibil; în `@supports selector(:has(*))` panoul alegerii se arată,
+//   iar butonul general dispare (spec §3). Alegerea se vede și fără `:has()`, din `:checked` (chenar de 2px, bulina plină).
+// - Linia din panou poartă clasa `vt-<slug>` (ruling R5, §5.7): `transitions.css` îi dă `view-transition-name: segment-<slug>`,
+//   același nume ca banda paginii de serviciu. PasiTraseu n-are prop de clasă, deci clasa e pe un element care o învelește.
+// - `data-grup` pe panou dă `--culoare` liniei din panou (tokens.css). Panoul e alb, ca plăcuța H1-ului, deci culorile de pe alb.
+// Fără script și fără atribute `style` (CSP). Etichetele trec prin FaraRupere (cuvintele cu cratimă nu se rup).
+import type { Grup } from '../form-rules';
+import { LINIA_GRUPULUI } from '../lib/harta';
+import FaraRupere from './FaraRupere.astro';
+import PasiTraseu from './PasiTraseu.astro';
+import '../styles/alegator-harta.css';
+
+interface Rand {
+  slug: string;
+  nume: string;
+  grup: Grup;
+  /** Ce îl doare pe vizitator, în câteva cuvinte (tabelul de texte din spec, §8). */
+  eticheta: string;
+  /** Pașii serviciului, din colecție: aceiași ca pe pagina lui. */
+  pasi: readonly string[];
+}
+
+interface Props {
+  /** Serviciile, în ordinea în care se afișează; pagina le sortează după `ordine`. */
+  randuri: readonly Rand[];
+}
+
+const { randuri } = Astro.props;
+---
+
+<form class="alegator" data-alegator method="get" action="/contact/">
+  <fieldset class="alegator__set">
+    <legend class="alegator__legenda"><h2 id="de-unde-pornesti">De unde pornești?</h2></legend>
+    <div class="alegator__optiuni">
+      {
+        randuri.map((rand) => (
+          <label class="alegator__optiune">
+            <input class="alegator__radio" type="radio" name="serviciu" value={rand.slug} data-linie={LINIA_GRUPULUI[rand.grup]} />
+            <span class="alegator__nume">
+              <FaraRupere text={rand.eticheta} />
+            </span>
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+
+  <button class="buton-cta alegator__trimite-general" type="submit">Cere o ofertă</button>
+
+  {
+    randuri.map((rand) => (
+      <div class="alegator__panou" data-serviciu={rand.slug} data-grup={rand.grup}>
+        <h3 class="alegator__titlu">Traseul tău: {rand.nume}</h3>
+        <div class={`alegator__linie vt-${rand.slug}`}>
+          <PasiTraseu pasi={rand.pasi.map((text) => ({ text }))} orizontal />
+        </div>
+        <div class="alegator__actiuni">
+          <button class="buton-cta" type="submit">Cere oferta pentru {rand.nume}</button>
+          <a class="alegator__vezi" href={`/servicii/${rand.slug}/`}>
+            Vezi pagina {rand.nume}
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+    ))
+  }
+</form>
+
+{
+  /* Stiluri globale, nu cu scop: alegătorul e doar pe Acasă, iar clasele lui (`alegator…`) nu există în altă parte, deci clasa
+     de scop de pe fiecare parte a selectorilor (`.astro-xxxxxxxx`, ~690 de octeți aici) nu apăra nimic. Fără ea, Acasă rămâne
+     sub limita de 25 KB de CSS pe pagină (§9.1 „Bugete” din spec-ul principal; spec-ul metroul îmbunătățit, nota de la început). Fără clasa de scop, selectorii
+     au câte o clasă mai puțin pe fiecare parte, dar ordinea dintre regulile de aici contează la fel, iar regulile globale care
+     prind aceleași elemente (`.buton-cta`, `:focus-visible`, `h2`, `h3`, `a`) au specificitate mai mică sau alte proprietăți. Selectorii cu descendenți (`.alegator button`, `.alegator__legenda h2`, `[data-serviciu]`) prind tot doar
+     elemente de aici: componentele din panou (PasiTraseu, FaraRupere) n-au butoane, titluri H2 sau `data-serviciu`.
+     Comentariu JSX, nu HTML: nu ajunge în pagină. */
+}
+<style is:global>
+  /* Lățimea formularului (nu a ecranului) hotărăște câte opțiuni încap pe un rând; `rem` dintr-o interogare de container crește
+     odată cu textul, deci cu textul mărit la 200% opțiunile trec pe o singură coloană în loc să se strângă. */
+  .alegator {
+    container-type: inline-size;
+  }
+
+  .alegator button {
+    cursor: pointer;
+  }
+
+  /* Fieldset-ul și legenda fără aspectul implicit al browserului (chenar, padding, `min-width: min-content`). */
+  .alegator__set {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .alegator__legenda {
+    padding: 0;
+    margin-bottom: 1rem;
+  }
+
+  /* H2-ul din legendă e mai mic decât cel al secțiunilor, ca sub plăcuța H1-ului să rămână un titlu secundar. */
+  .alegator__legenda h2 {
+    margin: 0;
+    font-size: var(--text-lg);
+  }
+
+  /* Două opțiuni pe rând pe telefon; pragurile pentru una sau trei pe rând sunt la finalul blocului. */
+  .alegator__optiuni {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  /* O opțiune: eticheta e ținta de atingere (§5.8, cel puțin 44px). Radio-ul nativ o acoperă toată, fără `appearance`: el e
+     chenarul, deci tot dreptunghiul se apasă, are focus și se verifică de cititoarele de ecran ca radio, iar textul de deasupra
+     nu prinde clicul (`pointer-events: none`). Bulina o desenează `.alegator__nume::before`. Starea alesă se vede și fără
+     `:has()`, din frații radio-ului. */
+  .alegator__optiune {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    color: var(--noapte-text);
+    font-size: var(--text-sm);
+    line-height: 1.3;
+  }
+
+  .alegator__radio {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 1px solid var(--noapte-text-2);
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  /* Doar cu mouse: pe un ecran tactil `:hover` rămâne pe opțiunea atinsă ultima, ca o a doua alegere pe fundal gri. */
+  @media (hover: hover) {
+    .alegator__radio:hover {
+      border-color: var(--noapte-text);
+      background: var(--noapte-contur);
+    }
+  }
+
+  /* Alegerea nu stă doar în culoare (§5.2): chenarul crește de la 1px la 2px, ia culoarea liniei opțiunii (`--culoare`, din
+     regulile `[data-linie]` ale hărții, metro.css; trec de 3:1 pe fundalul de noapte), iar bulina se umple; pe lângă ele,
+     titlul panoului numește serviciul. */
+  .alegator__radio:checked {
+    border: 2px solid var(--culoare);
+  }
+
+  /* Focus de la tastatură pe fundal întunecat (§5.2): focusul global are contur închis, care aici s-ar pierde, deci conturul ia
+     culoarea textului, la 3px de chenar, peste golul de 0,5rem dintre opțiuni. */
+  .alegator__radio:focus-visible {
+    outline: 2px solid var(--noapte-text);
+    outline-offset: 3px;
+    box-shadow: none;
+  }
+
+  .alegator__nume {
+    position: relative;
+    padding-left: 1.875rem;
+    pointer-events: none;
+    overflow-wrap: anywhere;
+  }
+
+  /* Bulina e o stație (§5.8: rotunjirea e permisă stațiilor): cerc cu contur; ales, are miezul plin. */
+  .alegator__nume::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: -0.625rem;
+    border: 2px solid var(--noapte-text);
+    border-radius: 50%;
+  }
+
+  .alegator__radio:checked + .alegator__nume::before {
+    background: var(--noapte-text);
+    box-shadow: inset 0 0 0 3px var(--noapte);
+  }
+
+  /* Butonul general, pentru browserele fără `:has()`: sub opțiuni, pe rând propriu. */
+  .alegator__trimite-general {
+    margin-top: 1rem;
+  }
+
+  /* Panoul „Traseul tău”: alb și opac, ca plăcuța H1-ului, deci textul e închis și culorile de pe alb. Ascuns în starea de bază;
+     îl arată regulile din `@supports selector(:has(*))`, de la finalul blocului (spec §3). */
+  .alegator__panou {
+    display: none;
+    margin-top: 1rem;
+    padding: 1.25rem;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .alegator__titlu {
+    margin: 0 0 1.25rem;
+  }
+
+  .alegator__actiuni {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+    margin-top: 1.25rem;
+  }
+
+  /* Numele serviciului din buton și din link poate fi lung („Optimizare AEO și GEO”, „Mentenanță site”): cu textul la 200% pe
+     320px un singur cuvânt e mai lat decât panoul. Ca ultimă soluție cuvântul se rupe, în loc să iasă din panou și din
+     pagină (WCAG 1.4.10). Cu text normal nu se rupe nimic. */
+  .alegator__actiuni .buton-cta,
+  .alegator__vezi {
+    overflow-wrap: anywhere;
+  }
+
+  /* „Vezi pagina … →”: link cu zona de atingere de 44px; săgeata e decor, lângă ultimul cuvânt. */
+  .alegator__vezi {
+    display: inline-flex;
+    gap: 0.25rem;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 700;
+  }
+
+  /* Cele două praguri ale formularului, după regulile de bază (aceeași specificitate, deci câștigă ce vine mai târziu): sub 19rem
+     (320px) opțiunile stau câte una pe rând; de la 36rem sunt trei pe rând, cu text de bază și panoul mai larg. */
+  @container (max-width: 18.99rem) {
+    .alegator__optiuni {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* Text mărit la 200% pe 320px: formularul are 8rem (256px), iar „Cere oferta pentru Optimizare AEO și GEO” ar rămâne cu o
+     coloană de ~3rem între padding-ul panoului (1,25rem pe fiecare parte) și al butonului (alte 1,25rem), deci s-ar rupe în litere,
+     pe zeci de rânduri. Sub 12rem de formular (de la ~145% pe 320px; la 100% formularul are 18rem pe 320px) padding-ul lateral
+     al panoului și al butonului se strânge, iar cel mai lung cuvânt („Mentenanță”, ~6,2rem) încape întreg. Săgeata din link, care
+     e decor (`aria-hidden`), nu mai ia loc din cuvântul lui: fără ea „Vezi pagina Mentenanță site” nu se mai rupe. */
+  @container (max-width: 12rem) {
+    .alegator__panou {
+      padding-inline: 0.375rem;
+    }
+
+    .alegator__actiuni .buton-cta {
+      padding-inline: 0.25rem;
+    }
+
+    .alegator__vezi span {
+      display: none;
+    }
+  }
+
+  @container (min-width: 36rem) {
+    .alegator__optiuni {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .alegator__optiune {
+      font-size: var(--text-base);
+    }
+
+    .alegator__panou {
+      padding: 1.5rem 2rem 2rem;
+    }
+  }
+
+  /* Cu `:has()` formularul reacționează la alegere, doar din CSS (spec §3): se arată panoul serviciului ales, iar butonul general
+     dispare, rămânând doar butonul din panou. Un `:has()` pe formular, nu pe radio, ca panoul (frate al fieldset-ului) să poată
+     fi ales. Selectorul întrece `display: none` de la panou, iar `.alegator .…` întrece `display: inline-flex` din `.buton-cta`.
+     Butonul general ascuns rămâne butonul implicit al formularului: Enter pe un radio îl „apasă” tot, deci trimite alegerea.
+     În formular, doar radio-urile au `value` și se pot alege, iar doar panourile au `data-serviciu`, deci selectorii nu
+     repetă clasele lor (limita de 25 KB de CSS pe pagină, §9.1 „Bugete” din spec-ul principal). Regulile care luminează linia de pe hartă sunt în
+     alegator-harta.css. */
+  @supports selector(:has(*)) {
+    .alegator .alegator__trimite-general {
+      display: none;
+    }
+
+    .alegator:has([value='seo']:checked) [data-serviciu='seo'],
+    .alegator:has([value='optimizare-aeo-geo']:checked) [data-serviciu='optimizare-aeo-geo'],
+    .alegator:has([value='audit-seo']:checked) [data-serviciu='audit-seo'],
+    .alegator:has([value='creare-site']:checked) [data-serviciu='creare-site'],
+    .alegator:has([value='redesign-site']:checked) [data-serviciu='redesign-site'],
+    .alegator:has([value='mentenanta-site']:checked) [data-serviciu='mentenanta-site'] {
+      display: block;
+    }
+  }
+
+  /* Cu culorile forțate (modul de contrast ridicat), fundalurile dispar: bulina aleasă trece pe culoarea textului, cu miez
+     din culoarea paginii, iar panoul primește chenar, ca să nu se piardă pe fundalul paginii. */
+  @media (forced-colors: active) {
+    .alegator__radio:checked + .alegator__nume::before {
+      background: CanvasText;
+      box-shadow: inset 0 0 0 3px Canvas;
+      forced-color-adjust: none;
+    }
+
+    .alegator__panou {
+      border: 1px solid CanvasText;
+    }
+  }
+</style>

@@ -1,0 +1,82 @@
+---
+// Scheletul fiecărei pagini: <head>, antetul, <main> și subsolul. Paginile nu îl folosesc direct, ci prin Base.astro, care pune
+// la începutul lui <main> banda cu harta și firimiturile. Excepția e Acasă (index.astro), care n-are nici bandă, nici firimituri:
+// Astro adună CSS-ul tuturor componentelor importate, chiar dacă nu se randează, deci prin Base ar primi și CSS-ul firimiturilor
+// (linie-statii.css și stilurile din Breadcrumbs.astro). Fără el, Acasă rămâne sub limita de 25 KB de CSS pe pagină (§9.1
+// „Bugete” din spec-ul principal; spec-ul metroul îmbunătățit, nota de la început).
+import { Font } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import JsonLd from '../components/JsonLd.astro';
+import SeoHead from '../components/SeoHead.astro';
+import { DRAFT } from '../lib/env';
+import { noduriPagina, type PasFirimitura } from '../lib/jsonld';
+import { areProiecte, ghiduriDeConstruit, proiectePublicabile } from '../lib/publish';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/butoane.css';
+import '../styles/transitions.css';
+
+export interface Props {
+  /** Titlul paginii, fără sufixul „ – Alex Ionescu” (îl adaugă `SeoHead`, dacă încape în 60 de caractere). */
+  titlu: string;
+  descriere: string;
+  /** Calea paginii, cu slash la început și la sfârșit (ex. `/servicii/`). Din ea se face canonical-ul. */
+  cale: string;
+  /** Aprobarea lui Alex pentru textul paginii. Nu ajunge în HTML: `check:launch` o citește din `src/approvals.ts` și din frontmatter. */
+  aprobat: boolean;
+  noindex?: boolean;
+  /** Ghidurile și studiile de caz (`Article` în JSON-LD): Open Graph le dă `og:type` „article”. */
+  articol?: boolean;
+  /** Nodurile JSON-LD ale paginii; `WebSite` și `Person` minimal se adaugă singure (vezi `JsonLd`). */
+  jsonld?: object[];
+  /** Pașii firimiturilor, doar pentru `BreadcrumbList` din JSON-LD. Firimiturile vizibile le pune Base.astro, în slotul `inceput`. */
+  firimituri?: PasFirimitura[];
+  /** Fundalul deschis al conținutului de sub bandă (`.main--suprafata`), pe care stau cardurile `.carte`. Îl dau Acasă și toate paginile publice cu bandă (servicii, Cum lucrez, Despre, Contact, Proiecte, Ghiduri); cele legale, 404, răspunsurile formularului și paginile interne de test nu. */
+  suprafata?: boolean;
+  /**
+   * „Sari la conținut” trece peste banda decorativă și butonul ei de oprire: cu bandă și firimituri, ținta e containerul
+   * firimiturilor, din slotul `inceput` (A-05 din auditul din 2026-10-24), iar <main> nu mai are `id="continut"`.
+   */
+  tintaSubBanda?: boolean;
+}
+
+const { titlu, descriere, cale, noindex = false, articol = false, jsonld = [], firimituri = [], suprafata = false, tintaSubBanda = false } = Astro.props;
+
+// Ce secțiuni există în producție (§3.4). Antetul și subsolul primesc doar rezultatul, nu colecțiile.
+const proiecte = (await getCollection('proiecte')).map((intrare) => intrare.data);
+const ghiduri = (await getCollection('ghiduri')).map((intrare) => intrare.data);
+const arataProiecte = areProiecte(proiecte, DRAFT);
+const arataGhiduri = ghiduriDeConstruit(ghiduri, DRAFT).length > 0;
+const arataAcestSite = proiectePublicabile(proiecte, DRAFT).some((proiect) => proiect.slug === 'acest-site');
+
+const noduri = noduriPagina(jsonld, firimituri);
+---
+
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <SeoHead titlu={titlu} descriere={descriere} cale={cale} noindex={noindex} articol={articol} />
+    {/* Favicon: stația plină albastră, ca „Ești aici” (§5.4, ruling R14). favicon.svg e iconița principală; PNG-ul de 96×96
+        e pentru programele care nu citesc SVG, iar iconița Apple, pentru ecranul de start al iPhone-ului (src/lib/iconite.ts).
+        Comentariu JSX, nu HTML: nu ajunge în paginile construite (A-18 din auditul din 2026-10-24). */}
+    <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <JsonLd noduri={noduri} />
+    <Font cssVariable="--font-sans" preload />
+  </head>
+  <body>
+    <a class="sari" href="#continut">Sari la conținut</a>
+    <Header cale={cale} arataProiecte={arataProiecte} arataGhiduri={arataGhiduri} />
+    <main id={tintaSubBanda ? undefined : 'continut'} tabindex={tintaSubBanda ? undefined : '-1'} class:list={[suprafata && 'main--suprafata']}>
+      <slot name="inceput" />
+      <slot />
+    </main>
+    <Footer arataAcestSite={arataAcestSite} arataProiecte={arataProiecte} />
+  </body>
+</html>

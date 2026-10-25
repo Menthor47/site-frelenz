@@ -1,6 +1,9 @@
 ---
 // Firimiturile vizibile (§9.2): `nav aria-label="Firimituri"` cu `ol`, iar ultimul pas, pagina curentă, are `aria-current="page"`.
 // BreadcrumbList pentru motoarele de căutare se adaugă în Base, din aceiași pași (`nodBreadcrumb`).
+// Sub 48rem, același marcaj e linia de metrou (spec metroul îmbunătățit, §5): fâșia întunecată din linie-statii.css, în culoarea
+// grupului paginii (`data-grup` pe containerul din Base.astro). De la 48rem în sus, firimiturile arată ca până acum.
+import '../styles/linie-statii.css';
 import type { PasFirimitura } from '../lib/jsonld';
 
 interface Props {
@@ -13,7 +16,7 @@ const ultimul = pasi.length - 1;
 ---
 
 <nav class="firimituri" aria-label="Firimituri">
-  <ol>
+  <ol class="linie-statii linie-statii--noapte">
     {
       pasi.map((pas, i) => (
         <li>{i === ultimul ? <span aria-current="page">{pas.nume}</span> : <a href={pas.cale}>{pas.nume}</a>}</li>
@@ -27,41 +30,52 @@ const ultimul = pasi.length - 1;
     font-size: var(--text-sm);
   }
 
-  ol {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
+  /* Linia (linie-statii.css) e doar pentru telefon: de la 48rem în sus, același marcaj revine la pașii pe un rând, cu „/” între
+     ei. Structura liniei e scrisă pentru orice lățime, deci aici se desface: fără linie și fără stații, pașii în rând, aliniați
+     la stânga. Selectorii au prefixul `.firimituri` ca să fie mai specifici decât ai liniei și să nu depindă de ordinea
+     foilor de stil. Fundalul întunecat, marginile negative și culorile deschise sunt deja doar sub 48rem, în linie-statii.css. */
+  @media (min-width: 48rem) {
+    .firimituri ol {
+      flex-wrap: wrap;
+      column-gap: 0;
+    }
 
-  li {
-    display: flex;
-    align-items: center;
-    /* Zona de atingere a rândului (§5.8). */
-    min-height: 44px;
-  }
+    .firimituri ol::before,
+    .firimituri a::before,
+    .firimituri [aria-current='page']::before {
+      content: none;
+    }
 
-  /* Linkul însuși are zona de atingere de 44×44px (§5.8), nu doar rândul. Textul stă la stânga, ca primul cuvânt să fie
-     aliniat cu marginea conținutului (H1-ul de dedesubt); zona în plus rămâne la dreapta lui. */
-  a {
-    display: inline-flex;
-    align-items: center;
-    min-width: 44px;
-    min-height: 44px;
-  }
+    .firimituri li {
+      flex: 0 1 auto;
+      justify-content: flex-start;
+      align-items: center;
+      /* Zona de atingere a rândului (§5.8). */
+      min-height: 44px;
+    }
 
-  /* Separatorul stă la capătul pasului dinainte, ca la rândurile înguste să nu rămână singur la început de rând.
-     E decor: textul alternativ gol îl scoate din citirea cu cititorul de ecran. */
-  li:not(:last-child)::after {
-    margin-inline: 0.5rem;
-    color: var(--ink-2);
-    content: '/';
-    content: '/' / '';
-  }
+    /* Linkul însuși are zona de atingere de 44×44px (§5.8, din linie-statii.css), nu doar rândul. Textul stă la stânga, ca primul
+       cuvânt să fie aliniat cu marginea conținutului (H1-ul de dedesubt); zona în plus rămâne la dreapta lui. */
+    .firimituri a,
+    .firimituri [aria-current='page'] {
+      flex-direction: row;
+      padding-block: 0;
+      text-align: start;
+      text-wrap: pretty;
+    }
 
-  [aria-current='page'] {
-    color: var(--ink);
-    font-weight: 700;
+    /* Separatorul stă la capătul pasului dinainte, ca la rândurile înguste să nu rămână singur la început de rând.
+       E decor: textul alternativ gol îl scoate din citirea cu cititorul de ecran. */
+    .firimituri li:not(:last-child)::after {
+      margin-inline: 0.5rem;
+      color: var(--ink-2);
+      content: '/';
+      content: '/' / '';
+    }
+
+    .firimituri [aria-current='page'] {
+      color: var(--ink);
+      font-weight: 700;
+    }
   }
 </style>

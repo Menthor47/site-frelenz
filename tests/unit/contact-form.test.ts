@@ -142,3 +142,115 @@ describe('ContactForm (§3.5)', () => {
     expect(textOf(h)).not.toMatch(/CNP/);
   });
 });
+
+// Formularul ca traseu (spec metroul îmbunătățit, §4): trei stații, adică trei `fieldset`-uri cu legendele din §8. Câmpurile își
+// păstrează ordinea, numele și regulile; linia și umplerea stațiilor sunt doar CSS (tests/e2e/contact.spec.ts).
+describe('ContactForm: trei stații (§4)', () => {
+  /** Fieldset-urile din formular: eticheta de deschidere, legenda (text) și conținutul. */
+  function statii(h: string) {
+    return [...h.matchAll(/<fieldset\b([^>]*)>([\s\S]*?)<\/fieldset>/g)].map((m) => ({
+      atribute: m[1] ?? '',
+      legenda: textOf(/<legend\b[^>]*>([\s\S]*?)<\/legend>/.exec(m[2] ?? '')?.[1] ?? ''),
+      continut: m[2] ?? '',
+    }));
+  }
+  const numeleCampurilor = (html: string) => [...html.matchAll(/<(?:input|textarea|select)\b[^>]*\bname="([^"]+)"/g)].map((m) => m[1]);
+
+  test('trei fieldset-uri, cu legendele din spec', async () => {
+    const s = statii(await render(ContactForm, PROPS));
+    expect(s.map((x) => x.legenda)).toEqual(['1. Cine ești', '2. Site-ul tău (opțional)', '3. Ce te încurcă']);
+    // Toate au clasa stației; doar a doua e marcată opțională (nu se umple, nu blochează nimic).
+    expect(s.map((x) => /\sclass="[^"]*\bformular__statie\b/.test(x.atribute))).toEqual([true, true, true]);
+    expect(s.map((x) => /\sclass="[^"]*\bformular__statie--optionala\b/.test(x.atribute))).toEqual([false, true, false]);
+    // Legenda e primul copil al fieldset-ului: așa o anunță cititoarele de ecran la fiecare câmp din grup.
+    for (const x of s) expect(x.continut.trimStart()).toMatch(/^<legend\b/);
+  });
+
+  test('fiecare câmp stă în fieldset-ul lui', async () => {
+    const s = statii(await render(ContactForm, PROPS));
+    expect(s.map((x) => numeleCampurilor(x.continut))).toEqual([['nume', 'email', 'telefon', 'firma'], ['site', 'serviciu'], ['mesaj']]);
+  });
+
+  test('capcana și butonul stau în afara fieldset-urilor', async () => {
+    const h = await render(ContactForm, PROPS);
+    const dupa = h.slice(h.lastIndexOf('</fieldset>'));
+    expect(numeleCampurilor(dupa)).toEqual([CAPCANA]);
+    expect(dupa).toMatch(/<button\b[^>]*type="submit"/);
+  });
+
+  // Capătul liniei: eticheta e text vizibil (nu aria-hidden), în același bloc cu butonul, ca să stea lângă el.
+  test('capătul liniei: Destinația: oferta ta, lângă buton', async () => {
+    const h = await render(ContactForm, PROPS);
+    const bloc = /<div\b[^>]*\sclass="[^"]*\bformular__capat\b[^"]*"[^>]*>([\s\S]*?)<\/div>/.exec(h);
+    expect(bloc, 'blocul butonului cu capătul liniei').not.toBeNull();
+    const continut = bloc?.[1] ?? '';
+    expect(continut).toMatch(/<button\b[^>]*\btype="submit"/);
+    expect(textOf(continut)).toContain('Destinația: oferta ta');
+    expect(continut).not.toMatch(/aria-hidden/);
+    expect(h.indexOf('Destinația: oferta ta')).toBeGreaterThan(h.search(/<button\b[^>]*\btype="submit"/));
+  });
+
+  test('opțiunile de serviciu au data-grup din SERVICII', async () => {
+    const h = await render(ContactForm, PROPS);
+    const select = /<select\b[^>]*\bname="serviciu"[^>]*>([\s\S]*?)<\/select>/.exec(h)?.[1] ?? '';
+    const optiuni = [...select.matchAll(/<option\b([^>]*)>/g)].map((m) => ({
+      valoare: /\svalue="([^"]*)"/.exec(m[1] ?? '')?.[1],
+      grup: /\sdata-grup="([^"]*)"/.exec(m[1] ?? '')?.[1],
+    }));
+    const dupaOrdine = [...SERVICII].sort((a, b) => a.ordine - b.ordine);
+    expect(optiuni).toEqual([
+      { valoare: '', grup: undefined },
+      ...dupaOrdine.map((s) => ({ valoare: s.slug, grup: s.grup })),
+      { valoare: FARA_SERVICIU.slug, grup: undefined },
+    ]);
+  });
+
+  // Scriptul formularului (src/client/contact-form.ts, spec metroul îmbunătățit, §4) scrie mesajele în aceste elemente. Câmpurile fără mesaj (telefon, firmă, site, serviciu) nu au unul.
+  test('elementele de eroare există și sunt ascunse', async () => {
+    const h = await render(ContactForm, PROPS);
+    const erori = [...h.matchAll(/<p\b(?=[^>]*\sclass="[^"]*\bformular__eroare-camp\b)([^>]*)>([\s\S]*?)<\/p>/g)];
+    expect(erori.map((m) => /\sid="([^"]*)"/.exec(m[1] ?? '')?.[1])).toEqual(['formular-nume-eroare', 'formular-email-eroare', 'formular-mesaj-eroare']);
+    for (const m of erori) {
+      expect(m[1], 'ascuns la încărcare').toMatch(/\shidden[\s>=]|\shidden$/);
+      expect(textOf(m[2] ?? ''), 'fără text până îl scrie scriptul').toBe('');
+    }
+  });
+
+  test('fiecare eroare stă imediat sub câmpul ei', async () => {
+    const h = await render(ContactForm, PROPS);
+    for (const nume of ['nume', 'email', 'mesaj']) {
+      const dupaCamp = h.slice(h.search(new RegExp(`<(?:input|textarea)\\b[^>]*\\bname="${nume}"`)));
+      // Prima etichetă `<p` de după câmp e eroarea lui, iar între ei nu apare alt câmp, altă etichetă sau altă stație.
+      const pozitieP = dupaCamp.search(/<p\b/);
+      expect(dupaCamp.slice(pozitieP).match(/^<p\b[^>]*/)?.[0], nume).toContain(`id="formular-${nume}-eroare"`);
+      expect(dupaCamp.slice(1, pozitieP), nume).not.toMatch(/<(?:input|textarea|select|label|fieldset|legend)\b/);
+    }
+  });
+
+  // Scriptul din browser nu importă regulile (src/form-rules.ts ar intra în bundle și ar depăși bugetul de 2 KB): le citește din
+  // pagină. `maxlength` e deja pe Mesaj (testul „fiecare câmp are regulile lui”); pragul de linkuri stă în `data-max-linkuri`.
+  test('Mesajul spune scriptului câte linkuri are voie să aibă (data-max-linkuri, din regulile Worker-ului)', async () => {
+    const h = await render(ContactForm, PROPS);
+    const mesaj = camp(h, 'mesaj');
+    expect(CAMPURI.mesaj.maxLinkuri, 'regula există').toBeGreaterThan(0);
+    expect(mesaj).toMatch(/\sid="formular-mesaj"/);
+    expect(atribut(mesaj, 'data-max-linkuri')?.[1]).toBe(String(CAMPURI.mesaj.maxLinkuri));
+  });
+
+  // Fără JavaScript contorul ar arăta cifre vechi după tastare; scriptul îl arată.
+  test('contorul de sub Mesaj există, ascuns și fără anunțuri la tastare', async () => {
+    const h = await render(ContactForm, PROPS);
+    const contor = /<p\b(?=[^>]*\sid="formular-mesaj-contor")([^>]*)>/.exec(h)?.[1] ?? '';
+    expect(contor, 'contorul').not.toBe('');
+    expect(contor).toMatch(/\sclass="[^"]*\bformular__contor\b/);
+    expect(contor).toMatch(/\saria-live="off"/);
+    expect(contor).toMatch(/\shidden[\s>=]|\shidden$/);
+  });
+
+  test('nota despre date și zona de eroare rămân sub buton, după capătul liniei', async () => {
+    const h = await render(ContactForm, PROPS);
+    const capat = h.indexOf('Destinația: oferta ta');
+    expect(capat).toBeGreaterThan(-1);
+    expect(h.search(/<div\b[^>]*\sdata-eroare[\s>]/)).toBeGreaterThan(capat);
+  });
+});

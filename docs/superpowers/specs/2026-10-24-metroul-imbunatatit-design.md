@@ -1,7 +1,9 @@
 # Metroul îmbunătățit: design
 
 Data: 2026-10-24. Stare: **cele patru secțiuni aprobate de Alex în chat, pe 2026-10-24** (Acasă, Contact, paginile interioare
-pe telefon, detaliile mici); textul acestui spec așteaptă revizuirea lui. Nu există cod pentru el.
+pe telefon, detaliile mici). **Implementat și necommitat, pe ramura `feat/site`; așteaptă revizuirea locală a lui Alex.**
+Bugetul de CSS (spec-ul principal, §9.1, 25 KB pe pagină) a cerut un pas în plus: `src/layouts/Schelet.astro` a fost scos din
+`Base.astro`, Astro folosește `scopedStyleStrategy: 'class'`, iar stilurile Acasă au trecut în CSS global.
 Pornește de la auditul din 2026-10-24 (`AUDIT-2026-10-24.md`, secțiunile D și F) și de la cererea „maximizează UX/UI-ul, fii
 creativ”. După o variantă editorială nouă, respinsă, Alex a ales: **păstrăm metroul de azi și îl facem să lucreze.**
 
@@ -184,7 +186,7 @@ Fiecare fază se poate publica singură și trece prin aceleași verificări (§
 
 ## 10. Decizii noi pentru spec-ul principal
 
-Se adaugă în tabelul de decizii din `2026-10-21-site-alex-ionescu-design.md` la implementarea fiecărei faze:
+Deciziile 31–34 sunt în registrul din `2026-10-21-site-alex-ionescu-design.md` (tabelul de decizii), unde le-au adăugat fazele implementate; tabelul de mai jos le păstrează aici, cu ce refac:
 
 | Nr. | Decizie | Reface |
 |---|---|---|

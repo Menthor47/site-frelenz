@@ -4,7 +4,8 @@
 // - `banda` (banda de sus a paginilor, prin `Base`): cu trenuri și buton de oprire, ca pe Acasă. Linia grupului `line` e
 //   plină și are „Ești aici”, celelalte sunt estompate; fără `line`, toate sunt la fel de estompate.
 // - `animated` (doar pe Acasă, în zona de sus): liniile se desenează o dată, apoi circulă câte un tren pe fiecare linie.
-//   Fără „Ești aici”.
+//   Nicio linie nu e plină, dar fiecare are un „Ești aici” ascuns din CSS (`.harta__aici-grup`, la fel desenat ca pe bandă),
+//   pe care îl arată alegătorul de pe Acasă pentru linia aleasă (spec metroul îmbunătățit, §3).
 // - `static` (nu o folosește nicio pagină publică, doar pagina internă /_test/harta/): ca banda, dar fără trenuri,
 //   fără buton și fără script.
 // Trenurile și butonul de oprire apar doar după ce pornește scriptul (src/client/trains.ts).
@@ -37,14 +38,18 @@ function mers({ drum, plecare: p }: Traseu['tren']) {
   return { dur: `${2 * drum}s`, keyPoints: puncte.map(rotunjit).join(';'), keyTimes: momente.map(rotunjit).join(';') };
 }
 
+/** Eticheta „Ești aici” stă deasupra stației sau dedesubt, în funcție de traseu (aceeași la bandă și la marcajele de pe Acasă). */
+const yEticheta = ({ aici, eticheta }: Traseu) => (eticheta === 'sus' ? aici[1] - 16 : aici[1] + 36);
+
 const { variant, line } = Astro.props;
+const peAcasa = variant === 'animated';
 // Trenurile, butonul de oprire și scriptul sunt pe Acasă și pe banda de sus a tuturor paginilor (WCAG 2.2.2 cere oprire).
-const cuTrenuri = variant === 'animated' || variant === 'banda';
-const plina = variant !== 'animated' && line !== undefined ? LINIA_GRUPULUI[line] : undefined;
+const cuTrenuri = peAcasa || variant === 'banda';
+const plina = !peAcasa && line !== undefined ? LINIA_GRUPULUI[line] : undefined;
 const ordine = ordineaDesenarii(plina);
 ---
 
-<div class:list={['harta', 'harta--noapte', cuTrenuri ? 'harta--animata' : 'harta--statica', variant === 'banda' && 'harta--banda', variant === 'animated' && 'harta--pe-acasa', plina !== undefined && 'harta--cu-linie']}>
+<div class:list={['harta', 'harta--noapte', cuTrenuri ? 'harta--animata' : 'harta--statica', variant === 'banda' && 'harta--banda', peAcasa && 'harta--pe-acasa', plina !== undefined && 'harta--cu-linie']}>
   <svg class="harta__desen" viewBox="0 0 1200 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     {
       ordine.map((t) => (
@@ -56,11 +61,23 @@ const ordine = ordineaDesenarii(plina);
           {t.linie === plina && (
             <>
               <circle class="harta__aici" cx={t.aici[0]} cy={t.aici[1]} r="13" />
-              <text class="harta__eticheta" x={t.aici[0] + 18} y={t.eticheta === 'sus' ? t.aici[1] - 16 : t.aici[1] + 36}>Ești aici</text>
+              <text class="harta__eticheta" x={t.aici[0] + 18} y={yEticheta(t)}>Ești aici</text>
             </>
           )}
         </g>
       ))
+    }
+    {
+      /* Pe Acasă, câte un „Ești aici” pe fiecare linie, în ordinea din TRASEE; metro.css le ascunde, iar alegătorul îl arată
+         pe cel al liniei alese. Stau în afara grupurilor liniilor (ca să nu urmeze opacitatea lor), după toate liniile
+         (deasupra lor, ca pe bandă) și sub trenuri. */
+      peAcasa &&
+        TRASEE.map((t) => (
+          <g class="harta__aici-grup" data-linie={t.linie}>
+            <circle class="harta__aici" cx={t.aici[0]} cy={t.aici[1]} r="13" />
+            <text class="harta__eticheta" x={t.aici[0] + 18} y={yEticheta(t)}>Ești aici</text>
+          </g>
+        ))
     }
     {
       cuTrenuri && (

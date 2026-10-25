@@ -1,0 +1,38 @@
+/* Alegătorul „De unde pornești?” (AlegatorTraseu) comandă harta de pe Acasă doar din CSS (spec metroul îmbunătățit, §3):
+   când un radio cu `data-linie` e ales, harta din același `.acasa-sus` luminează linia lui. Fără `:has()` (sau fără CSS) nu
+   se schimbă nimic aici: harta rămâne cum e, iar formularul merge ca unul simplu. Câte un selector pe linie, grupate pe efect,
+   fără imbricare CSS (un browser cu `:has()` și fără imbricare ar pierde regulile). Pe linia aleasă:
+   - celelalte linii trec la 0,35 opacitate, ca pe benzile paginilor interioare, iar trenurile lor se ascund;
+   - tot ce ține de ea pe hartă (linia, „Ești aici” și trenul) primește `display: inline`, valoarea implicită a unui <g>:
+     „Ești aici” (ascuns din regula `.harta--pe-acasa .harta__aici-grup`, metro.css) apare, iar sub 640px M1 și M4 (ascunse pe
+     telefon pe Acasă, metro.css) se văd dacă sunt alese, cu marcajul și trenul lor. Selectorul are specificitatea regulilor
+     care le ascund, plus cea a lui `:has()`, deci câștigă și fără ordine. Pe linie și pe tren, unde altfel nimic nu schimbă
+     `display`, `inline` e chiar valoarea pe care o aveau.
+   Singurele `input` din `.acasa-sus` sunt radio-urile alegătorului.
+   Cu „reduced motion” nu sunt trenuri (scriptul nu le pornește), iar schimbarea se face pe loc: nicio regulă de aici nu
+   animă ceva.
+   Regulile sunt într-un fișier separat de metro.css, care ajunge pe toate paginile: aici le primește doar Acasă (le importă
+   AlegatorTraseu), iar selectorii sunt scurți, pentru limita de 25 KB de CSS pe pagină (§9.1 „Bugete” din spec-ul principal;
+   spec-ul metroul îmbunătățit, nota de la început). */
+@supports selector(:has(*)) {
+  .acasa-sus:has(input[data-linie='M1']:checked) .harta__linie:not([data-linie='M1']),
+  .acasa-sus:has(input[data-linie='M2']:checked) .harta__linie:not([data-linie='M2']),
+  .acasa-sus:has(input[data-linie='M3']:checked) .harta__linie:not([data-linie='M3']),
+  .acasa-sus:has(input[data-linie='M4']:checked) .harta__linie:not([data-linie='M4']) {
+    opacity: 0.35;
+  }
+
+  /* Cu orice linie aleasă, toate trenurile se ascund; al liniei alese revine în regula de mai jos, care e cu o clasă (`.harta`)
+     mai specifică, deci câștigă și fără ordine. O singură regulă în loc de câte una pe linie, pentru bugetul de CSS: trenurile
+     rămase vizibile sunt aceleași ca înainte. */
+  .acasa-sus:has(input[data-linie]:checked) .tren {
+    display: none;
+  }
+
+  .acasa-sus:has(input[data-linie='M1']:checked) .harta [data-linie='M1'],
+  .acasa-sus:has(input[data-linie='M2']:checked) .harta [data-linie='M2'],
+  .acasa-sus:has(input[data-linie='M3']:checked) .harta [data-linie='M3'],
+  .acasa-sus:has(input[data-linie='M4']:checked) .harta [data-linie='M4'] {
+    display: inline;
+  }
+}

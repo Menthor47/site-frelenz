@@ -13,6 +13,7 @@ const proiect = {
   context: 'Un magazin online cu vizite în scădere.',
   ceAmFacut: ['Am reparat indexarea.'],
   rezultate: [],
+  servicii: ['mentenanta-site'],
 };
 
 const ghid = { slug: 'de-ce-nu-apare-site-ul-in-google', titlu: 'De ce nu apare site-ul meu în Google', raspuns: 'Pentru că Google nu l-a găsit încă.' };
@@ -37,6 +38,12 @@ describe('listele (decizia 29)', () => {
     expect(bucati).not.toBeNull();
     expect(bucati?.card).toContain('Un magazin online din București');
     expect(bucati?.inainte).toMatch(/<h1\b[^>]*>Proiecte<\/h1>/);
+  });
+
+  // Stațiile vizitate: pagina dă componentei serviciile proiectului (câmpurile vin întregi din colecție).
+  test('/proiecte/: cardul proiectului arată traseul serviciilor', async () => {
+    const t = /<ul\b[^>]*proiect__traseu[^>]*>[\s\S]*?<\/ul>/.exec(main(await render(PaginaProiecte, { proiecte: [proiect] })))?.[0] ?? '';
+    expect(t).toMatch(/<li\b[^>]*\sdata-grup="reparatie"[^>]*>\s*Mentenanță site\s*<\/li>/);
   });
 
   test('/ghiduri/: lista stă într-un singur card, sub titlu și introducere', async () => {

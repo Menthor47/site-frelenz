@@ -15,8 +15,11 @@ export function titluPagina(titlu: string): string {
   return complet.length <= LIMITA_TITLU ? complet : titlu;
 }
 
-/** Paginile noindex (§6.1), în afara celor din `/_test/`. Rutele au slash la final. */
-const FARA_SITEMAP: readonly string[] = ['/contact/multumim/', '/contact/eroare/', '/contact/prea-multe-linkuri/', '/404/'];
+/**
+ * Paginile noindex (§6.1), în afara celor din `/_test/`. Rutele au slash la final. Exportată pentru testul bugetului de CSS
+ * (tests/e2e/buget-css.spec.ts), care le verifică pe acestea plus pe cele din sitemap: toate paginile publice, dintr-o listă.
+ */
+export const FARA_SITEMAP: readonly string[] = ['/contact/multumim/', '/contact/eroare/', '/contact/prea-multe-linkuri/', '/404/'];
 
 /** Paginile interne de test se construiesc doar cu `DRAFT=1` și nu ajung niciodată în sitemap. */
 const PREFIX_INTERN = '/_test/';

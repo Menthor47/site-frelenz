@@ -57,7 +57,7 @@ test.describe('faraDerulareOrizontala', () => {
 test.describe('zoneAtingereMici', () => {
   const stil = '<style>.m{display:inline-block;width:30px;height:30px}.ok{display:inline-block;width:44px;height:44px}</style>';
 
-  test('prinde butoane, câmpuri, linkuri din meniu, din firimituri și din subsol, .buton-cta și rândurile din „De unde pornești?” sub 44px', async ({ page }) => {
+  test('prinde butoane, câmpuri, linkuri din meniu, din firimituri și din subsol, .buton-cta și opțiunile din „De unde pornești?” sub 44px', async ({ page }) => {
     await deschide(
       page,
       pagina(
@@ -65,13 +65,13 @@ test.describe('zoneAtingereMici', () => {
          <nav class="firimituri"><ol><li><a class="m" href="/">Acasă</a></li></ol></nav>
          <button class="m">Trimite</button><input class="m" name="nume"><select class="m"><option>x</option></select><textarea class="m" name="mesaj"></textarea>
          <a class="buton-cta m" href="/contact/">Cere o ofertă</a>
-         <ul><li class="linie-rand"><a class="m" href="/b/">Rând</a></li></ul>
+         <form class="alegator"><label class="m">Opțiune</label></form>
          <footer><a class="m" href="/c/">Subsol</a></footer>`,
         stil,
       ),
     );
     const mici = (await zoneAtingereMici(page)).join('\n');
-    for (const asteptat of ['a.m „Meniu” 30×30', 'a.m „Acasă” 30×30', 'button.m „Trimite” 30×30', 'input.m[nume] 30×30', 'select.m 30×30', 'textarea.m[mesaj] 30×30', 'a.buton-cta.m „Cere o ofertă” 30×30', 'a.m „Rând” 30×30', 'a.m „Subsol” 30×30']) {
+    for (const asteptat of ['a.m „Meniu” 30×30', 'a.m „Acasă” 30×30', 'button.m „Trimite” 30×30', 'input.m[nume] 30×30', 'select.m 30×30', 'textarea.m[mesaj] 30×30', 'a.buton-cta.m „Cere o ofertă” 30×30', 'label.m „Opțiune” 30×30', 'a.m „Subsol” 30×30']) {
       expect(mici).toContain(asteptat);
     }
   });

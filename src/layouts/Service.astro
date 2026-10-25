@@ -20,7 +20,7 @@ import Base from './Base.astro';
 
 interface Props {
   serviciu: CollectionEntry<'servicii'>['data'];
-  /** Serviciile din `inrudite`, în ordinea lor, cu problema din „De unde pornești?” ca explicație. */
+  /** Serviciile din `inrudite`, în ordinea lor, cu `problema` din colecție (o frază despre ce îl încurcă pe vizitator) ca explicație. */
   inrudite: readonly { slug: string; nume: string; problema: string }[];
   /** Ghidurile legate de serviciu care se construiesc (`ghiduriDeConstruit`); de obicei niciunul sau unul. */
   ghiduri: readonly { slug: string; titlu: string }[];
@@ -83,7 +83,10 @@ const contextProiect = proiectVizibil === undefined ? undefined : faraMarcaje([p
 
       <section class="carte">
         <h2>Cum se desfășoară</h2>
-        <PasiTraseu pasi={s.pasi.map((text) => ({ text }))} />
+        <PasiTraseu
+          pasi={s.pasi.map((text) => ({ text }))}
+          actiunePrimulPas={{ text: 'Trimite cererea', href: `/contact/?serviciu=${s.slug}` }}
+        />
       </section>
     </div>
   </div>

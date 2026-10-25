@@ -1,11 +1,14 @@
 ---
 // Pașii unei secvențe desenați ca o linie de metrou (§5.1, §5.6), ca traseele din RouteMap: o stație numerotată pentru
-// fiecare pas, pe o linie colorată, cu textul pasului lângă stație. Semantic e o listă ordonată (`<ol>`); numărul din stație
+// fiecare pas, pe o linie (în culoarea grupului pe paginile de serviciu, în cerneală pe /cum-lucrez/), cu textul pasului lângă stație. Semantic e o listă ordonată (`<ol>`); numărul din stație
 // vine dintr-un contor CSS, iar desenul (stațiile și linia) e din pseudo-elemente, deci nu dublează lista pentru cititoare.
 // - `linie="grup"`: linia ia culoarea grupului paginii (`--culoare`, din `data-grup`, tokens.css). Pe paginile de serviciu.
-// - `linie="comuna"`: pașii comuni ambelor trasee (remedierea unică și abonamentul), deci linia are ambele culori, alăturate:
-//   galbenul închis și albastrul, ca în RouteMap. Pe /cum-lucrez/.
+// - `linie="comuna"`: pașii comuni ambelor trasee (remedierea unică și abonamentul): o singură linie în cerneală (--ink), ca
+//   cele două trasee din RouteMap (A-14). Culorile grupurilor rămân doar pentru servicii. Pe /cum-lucrez/.
 // - `orizontal`: de la un container de cel puțin 48rem, linia devine orizontală, cu textul sub stații. Altfel, verticală.
+// - `actiunePrimulPas`: un link „text →” pe rând propriu, sub textul primului pas (§5, „Pasul 1 are acțiune”): pe paginile de
+//   serviciu, spre formular cu serviciul ales dinainte. Lipsește implicit, deci celelalte folosiri (Cum lucrez) nu se
+//   schimbă. Săgeata e decor (`aria-hidden`), deci numele linkului rămâne doar `text`; linkul are zona de atingere de 44px (§5.8).
 // Fără script și fără animație (§5.7). Textul trece prin FaraRupere (cuvintele cu cratimă nu se rup).
 import FaraRupere from './FaraRupere.astro';
 
@@ -19,21 +22,32 @@ interface Props {
   pasi: readonly Pas[];
   linie?: 'grup' | 'comuna';
   orizontal?: boolean;
+  /** Linkul de sub primul pas: `text` (fără săgeată, o adaugă componenta) și `href`. Fără el, niciun pas nu are link. */
+  actiunePrimulPas?: { text: string; href: string } | undefined;
 }
 
-const { pasi, linie = 'grup', orizontal = false } = Astro.props;
+// Acolada care deschide linkul stă lipită de `</p>` (mai jos): un spațiu între ele ar rămâne în HTML și fără acțiune, deci
+// celelalte pagini n-ar mai da același HTML ca înainte.
+const { pasi, linie = 'grup', orizontal = false, actiunePrimulPas } = Astro.props;
 const cuNume = pasi.some((p) => p.nume !== undefined);
 ---
 
 <div class="pasi-traseu-cutie">
   <ol class:list={['pasi-traseu', `pasi-traseu--${linie}`, orizontal && 'pasi-traseu--orizontal', cuNume && 'pasi-traseu--cu-nume']}>
     {
-      pasi.map((p) => (
+      pasi.map((p, i) => (
         <li class="pasi-traseu__pas">
           {p.nume !== undefined && <h3 class="pasi-traseu__nume">{p.nume}</h3>}
           <p class="pasi-traseu__text">
             <FaraRupere text={p.text} />
-          </p>
+          </p>{
+            i === 0 && actiunePrimulPas !== undefined && (
+              <a class="pasi-traseu__actiune" href={actiunePrimulPas.href}>
+                {actiunePrimulPas.text}
+                <span aria-hidden="true">→</span>
+              </a>
+            )
+          }
         </li>
       ))
     }
@@ -64,10 +78,10 @@ const cuNume = pasi.some((p) => p.nume !== undefined);
     --prim: calc(var(--text-lg) * 1.2);
   }
 
-  /* Galbenul închis (#8A5A00) și albastrul, ca traseele din RouteMap; ambele trec de 3:1 pe alb (§5.2). */
+  /* Linia comună e în cerneală, ca traseele din RouteMap (A-14): o singură linie, cu grosimea celorlalte, fără benzi colorate
+     alăturate și fără degrade. Cerneala are 18,11:1 pe alb, deci trece cu mult de pragul de 3:1 pentru grafică (§5.2). */
   .pasi-traseu--comuna {
-    --culoare: var(--yellow-dark);
-    --culoare-2: var(--blue);
+    --culoare: var(--ink);
   }
 
   /* Pe verticală: stația la stânga, textul la dreapta, segmentul până la stația următoare. */
@@ -114,13 +128,6 @@ const cuNume = pasi.some((p) => p.nume !== undefined);
     background: var(--culoare);
   }
 
-  /* Linia comună: două benzi alăturate, una în culoarea fiecărui traseu. */
-  .pasi-traseu--comuna .pasi-traseu__pas::after {
-    left: calc(var(--d) / 2 - var(--t));
-    width: calc(2 * var(--t));
-    background: linear-gradient(to right, var(--culoare) 50%, var(--culoare-2) 50%);
-  }
-
   .pasi-traseu__pas:last-child::after {
     display: none;
   }
@@ -133,6 +140,23 @@ const cuNume = pasi.some((p) => p.nume !== undefined);
   .pasi-traseu__text {
     margin: 0;
     text-wrap: balance;
+  }
+
+  /* Acțiunea primului pas: pe rând propriu, sub text, subliniată ca orice link din text (base.css). 44px înălțime (§5.8); `flex`
+     pune săgeata lângă ultimul cuvânt și o ține pe același rând cu el (nu rămâne singură pe rând). Cu textul la 200% pe 320px
+     coloana pasului e de ~110px, mai îngustă decât „Trimite”: cuvântul se rupe doar în ultimă instanță (`anywhere` coboară și
+     lățimea minimă a textului din flex, deci linkul încape în coloană), în loc să scoată pagina din ecran (WCAG 1.4.10). Cu
+     text normal nu se rupe nimic. */
+  .pasi-traseu__actiune {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    width: fit-content;
+    max-width: 100%;
+    min-height: 44px;
+    color: var(--blue-dark);
+    font-weight: 700;
+    overflow-wrap: anywhere;
   }
 
   /* Orizontal: stațiile pe o linie, aliniate pe coloane egale, cu numele și textul sub ele. */
@@ -157,19 +181,12 @@ const cuNume = pasi.some((p) => p.nume !== undefined);
       width: 100%;
       height: var(--t);
     }
-
-    .pasi-traseu--orizontal.pasi-traseu--comuna .pasi-traseu__pas::after {
-      top: calc(var(--d) / 2 - var(--t));
-      height: calc(2 * var(--t));
-      background: linear-gradient(to bottom, var(--culoare) 50%, var(--culoare-2) 50%);
-    }
   }
 
-  /* Cu culorile forțate (modul de contrast ridicat), fundalurile dispar: linia trece pe culoarea textului. */
+  /* Cu culorile forțate (modul de contrast ridicat), fundalurile dispar: linia trece pe culoarea textului. Aceeași regulă
+     pentru linia grupului și pentru cea comună, fiindcă ambele sunt acum o singură culoare, fără degrade. */
   @media (forced-colors: active) {
-    .pasi-traseu__pas::after,
-    .pasi-traseu--comuna .pasi-traseu__pas::after,
-    .pasi-traseu--orizontal.pasi-traseu--comuna .pasi-traseu__pas::after {
+    .pasi-traseu__pas::after {
       background: CanvasText;
     }
   }

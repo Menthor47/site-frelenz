@@ -1,0 +1,157 @@
+/* Linia cu stații (spec metroul îmbunătățit, §5): o listă (`ol` sau `ul`) în care fiecare `li` e o stație, cu eticheta sub ea.
+   Pagina curentă, `[aria-current="page"]`, e stația mare albastră, ca „Ești aici” de pe hartă (§5.4). Linia se desenează pe
+   `::before` al listei, în `--culoare-linie`; stația, pe `::before` al linkului (sau al etichetei curente), ca zona de atingere
+   de 44×44px să fie chiar linkul (§5.8). Fără JavaScript și fără atribute `style`. O importă componentele care o folosesc.
+
+   Structura e scrisă o singură dată, pentru orice lățime. O componentă care o vrea doar pe telefon (firimiturile) o desface
+   de la 48rem în sus, în stilurile ei (Breadcrumbs.astro).
+
+   Variantele dau doar culorile, prin două variabile:
+   `--culoare-linie` (linia și conturul stațiilor) și `--fond-linie` (fundalul fâșiei și umplutura stațiilor, care acoperă linia).
+   - `--noapte`: fâșia întunecată a firimiturilor, doar sub 48rem; iese din marginile containerului cu `--gutter` și ține toată
+     lățimea ecranului, lipită de antet.
+   - `--cerneala`: cerneală pe alb, la orice lățime (pagina 404). */
+
+.linie-statii--noapte {
+  --culoare-linie: var(--noapte-text-2);
+  --fond-linie: var(--noapte);
+}
+
+/* Pe fundalul întunecat linia ia culoarea grupului paginii (`data-grup` vine de la containerul firimiturilor, din Base.astro),
+   în variantele deschise din subsol (Footer.astro), nu `--culoare` din tokens.css: galbenul închis n-ar avea 3:1 pe `--noapte`.
+   Fără grup (Servicii, Cum lucrez, Despre, Contact, listele), linia rămâne gri. */
+[data-grup='vizibilitate'] .linie-statii--noapte {
+  --culoare-linie: var(--blue-light);
+}
+
+[data-grup='diagnostic'] .linie-statii--noapte {
+  --culoare-linie: var(--green);
+}
+
+[data-grup='constructie'] .linie-statii--noapte {
+  --culoare-linie: var(--yellow);
+}
+
+[data-grup='reparatie'] .linie-statii--noapte {
+  --culoare-linie: var(--red);
+}
+
+.linie-statii--cerneala {
+  --culoare-linie: var(--ink);
+  --fond-linie: var(--paper);
+}
+
+/* Stația mică are 14px (0,875rem), cea curentă 24px (1,5rem); ambele stau într-un loc de 24px, ca toate stațiile să aibă
+   centrul pe aceeași linie. base.css pune colțuri drepte peste tot; doar stațiile se rotunjesc. */
+.linie-statii {
+  position: relative;
+  display: flex;
+  /* Un strop de aer între etichete: fără el, „Acasă” și „Servicii” se citesc lipite când textul e mărit. */
+  column-gap: 0.25rem;
+  margin-block: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Linia: 4px, ca liniile hărții din bandă. Trece prin centrul stațiilor (0,25rem de sus + 0,75rem = 1rem). */
+.linie-statii::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: calc(1rem - 2px);
+  height: 4px;
+  background: var(--culoare-linie);
+}
+
+/* Stațiile împart lățimea după lungimea etichetei. Una scurtă își păstrează lățimea naturală: `min-width` rămâne `auto`, deci
+   nu coboară sub cel mai lung cuvânt al ei (nici sub cei 44px ai linkului). Doar o etichetă lungă se strânge și se rupe, la
+   cuvinte, sub stația ei; nu iese din ecran. */
+.linie-statii li {
+  display: flex;
+  flex: 1 1 auto;
+  justify-content: center;
+}
+
+.linie-statii a,
+.linie-statii [aria-current='page'] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: 0.25rem;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+.linie-statii a {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.linie-statii [aria-current='page'] {
+  font-weight: 700;
+}
+
+.linie-statii a::before,
+.linie-statii [aria-current='page']::before {
+  content: '';
+  position: relative;
+  flex: none;
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-block: 0.3125rem 0.4375rem;
+  border: 3px solid var(--culoare-linie);
+  border-radius: 50%;
+  background: var(--fond-linie);
+}
+
+/* „Ești aici” (§5.4), ca `.harta__aici`: cerc plin albastru, cu inel alb. */
+.linie-statii [aria-current='page']::before {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-block: 0 0.125rem;
+  border-color: var(--paper);
+  background: var(--blue);
+}
+
+/* Ecran îngust sau text foarte mărit (320px la 200%, adică sub 22,5rem): etichetele scurte nu mai încap una lângă alta nici
+   întregi. Doar ultima, a paginii curente, poate să se rupă și în mijlocul cuvântului, ca fâșia să nu iasă din ecran; stațiile
+   cu link rămân întregi, altfel ar coborî sub 44px. */
+@media (max-width: 22.49rem) {
+  .linie-statii [aria-current='page'] {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Fâșia întunecată (doar varianta `noapte`, doar sub 48rem): iese din marginile containerului și ține toată lățimea ecranului.
+   Linia de pe `::before` o ia pe toată, de la un capăt la altul. Marginile dinăuntru sunt mici (stațiile stau oricum în
+   mijlocul etichetelor), ca la 320px cu text la 200% să rămână loc pentru toate etichetele. Culorile etichetelor sunt cele
+   deschise ale subsolului (`--blue-light`, 6,53:1 pe fundalul întunecat). */
+@media (max-width: 47.98rem) {
+  .linie-statii--noapte {
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: 0.5rem;
+    background: var(--fond-linie);
+  }
+
+  .linie-statii--noapte a {
+    color: var(--blue-light);
+  }
+
+  .linie-statii--noapte [aria-current='page'] {
+    color: var(--noapte-text);
+  }
+}
+
+/* Cu culorile forțate (modul de contrast ridicat), `background` devine Canvas și linia dispare: ea trece pe culoarea textului.
+   Stațiile rămân goale (fundal Canvas, contur din culoarea sistemului), deci acoperă linia ca până acum; stația curentă, „Ești
+   aici”, se umple cu Highlight, ca `.destinatie__aici` din „Am primit cererea ta”, și rămâne mai mare decât celelalte. */
+@media (forced-colors: active) {
+  .linie-statii::before {
+    background: CanvasText;
+  }
+
+  .linie-statii [aria-current='page']::before {
+    background: Highlight;
+  }
+}

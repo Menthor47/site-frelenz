@@ -35,7 +35,7 @@ Pornește de la `plan-site-alex-ionescu.md` (planul lui Alex) și de la deciziil
 | 1b | Găzduire | Cloudflare Workers cu fișiere statice (recomandarea actuală Cloudflare pentru proiecte noi), cu DNS-ul domeniului mutat la Cloudflare. Înlocuiește „Cloudflare Pages” din plan. |
 | 2 | Statistici | Niciun script de statistici: Search Console, Bing Webmaster Tools și statisticile Cloudflare de pe server. Fără banner de cookie-uri. Cloudflare Web Analytics rămâne oprit, inclusiv injectarea automată. |
 | 3 | Culori | Hexurile din plan, cu albastrul dominant. Proporții: 60% alb, 30% culoare, 10% negru (subsolul). |
-| 4 | Pagina Acasă | Zona de sus are un singur rol: H1-ul „Consultant SEO din București”, un subtitlu de o frază și butonul „Cere o ofertă”, peste harta de metrou. Urmează „De unde pornești?” (schema de linie din vagon), traseul cu cele două formate, proiectele, întrebările frecvente și îndemnul final. Fișa paginii se mută pe `/proiecte/acest-site/`. |
+| 4 | Pagina Acasă | Zona de sus are un singur rol: H1-ul „Consultant SEO din București”, un subtitlu de o frază și butonul „Cere o ofertă”, peste harta de metrou. Urmează „De unde pornești?” (schema de linie din vagon), traseul cu cele două formate, proiectele, întrebările frecvente și îndemnul final. Fișa paginii se mută pe `/proiecte/acest-site/`. Refăcută de decizia 33 (2026-10-24): „De unde pornești?” devine alegătorul din hero, iar secțiunea separată dispare. |
 | 5 | Harta de metrou | Animată doar pe Acasă: trenuri continue, cu un buton mic „Oprește trenurile”. Pe paginile de serviciu, de studiu de caz și de ghid e statică, cu linia grupului în față și marcajul „Ești aici”. Pe celelalte pagini, vezi tabelul din 5.6. Înlocuită de decizia 28 (2026-10-23) pentru trenuri și banda de sus. |
 | 6 | Ghiduri | 2 la lansare: „De ce nu apare site-ul meu în Google” și „Ce este GEO și prin ce diferă de SEO și AEO”. Secțiunea apare în meniu și în sitemap doar după ce Alex aprobă textele. |
 | 7 | Google Business Profile | Da, cu zonă deservită (București și Ilfov) și adresa ascunsă. Îl face Alex. Recenzii doar de la clienți reali. |
@@ -51,7 +51,7 @@ Pornește de la `plan-site-alex-ionescu.md` (planul lui Alex) și de la deciziil
 | 17 | Marcaje în producție | [DE COMPLETAT] nu apare niciodată pe site-ul public. Un câmp opțional gol nu afișează nimic. Marcajele se văd doar în previzualizarea locală (`DRAFT=1`, construită separat, în `dist-draft/`), iar `check:launch` cade dacă textul apare în `dist/`. |
 | 18 | Datele firmei în subsol | Subsolul are varianta scurtă (denumire, CUI, număr la Registrul Comerțului, „București”) și linkul „Date de identificare”. Adresa completă stă pe `/contact/#date-firma`, în Termeni și în Politica de confidențialitate. |
 | 19 | Logo | „Alex Ionescu, consultant SEO”: virgula e intenționată și albastră. |
-| 20 | Formular | Funcționează fără JavaScript: browserul validează, iar serverul aplică aceleași reguli, dintr-un singur fișier. Cu JavaScript pornit (decizia 30), trimiterea se face din pagină, iar o eroare lasă mesajul în câmpuri. Singura regulă pe care browserul n-o poate verifica e limita de linkuri: mesajele cu peste 3 linkuri nu pleacă, iar regula e scrisă sub câmp. |
+| 20 | Formular | Funcționează fără JavaScript: browserul validează, iar serverul aplică aceleași reguli, dintr-un singur fișier. Cu JavaScript pornit (decizia 30), trimiterea se face din pagină, iar o eroare lasă mesajul în câmpuri. Singura regulă pe care browserul n-o poate verifica e limita de linkuri: mesajele cu peste 3 linkuri nu pleacă, iar regula e scrisă sub câmp. Refăcută de decizia 32 (2026-10-24): formularul devine un traseu în trei stații, cu erorile sub câmp. |
 | 21 | Aprobare | Alex aprobă pagină cu pagină. Fiecare serviciu are 4 întrebări frecvente. |
 | 22 | Despre fără studii | Decizia lui Alex din 2026-10-22: pagina Despre nu are secțiunea „Studii”, iar experiența îi ține locul. |
 | 23 | szitrans | Firma e a vărului lui Alex, care i-a lăsat proiectul: acordul (#7) e dat. Alex a făcut site-ul și SEO-ul (2026-10-22). |
@@ -59,9 +59,13 @@ Pornește de la `plan-site-alex-ionescu.md` (planul lui Alex) și de la deciziil
 | 25 | Banda de sus a Acasă (1b) | Întunecată, ca un prag: fundal `#0E1116`, text `#E8ECF2`, liniile și trenurile luminate, plăcuța H1-ului albă. Aleasă de Alex pe 2026-10-23 dintr-un set de patru variante. Excepție de la §5.1 („Doar temă luminoasă”), doar pentru această bandă. Pe telefon, butonul „Oprește trenurile” stă deasupra hărții, pe dreapta, iar plăcuța H1-ului coboară cu el. Extinsă de decizia 28: pe toate paginile. |
 | 26 | Traseul „Cum lucrăm” de pe Acasă (2a) | Fundal `#D9E4F7`, pe toată lățimea, aleasă de Alex pe 2026-10-23. Are 1,28:1 față de alb, unde `--tint-blue` (`#EAF0FB`) are 1,14:1. `--tint-blue` rămâne pentru celelalte locuri. |
 | 27 | Trenurile (3a) | Rămân doar pe Acasă, aleși de Alex pe 2026-10-23. Paginile de serviciu, de studiu, de ghid, `/servicii/`, `/cum-lucrez/`, `/despre/` și `/contact/` au harta statică, fără trenuri și fără buton de oprire. Un tren care trece o singură dată ar fi o extindere separată, nu e în spec. Înlocuită de decizia 28 (2026-10-23). |
-| 28 | Antet, bandă și trenuri pe toate paginile (înlocuiește 27, extinde 25) | Antetul e întunecat pe toate paginile, ca banda de sus (fundal `#0E1116`). Pe fiecare pagină cu hartă, banda are trenuri, linia grupului plină cu „Ești aici” și butonul „Oprește trenurile”. Butonul e mai mic (text 12,8px; din 2026-10-24, 14,4px, `--text-sm`, ca toate mărimile să fie pe scară), cu fundal `#EAF0FB` și text `#14161A` (14,97:1), contur 1px `--ink`, zona de atingere 44px. Aleasă de Alex pe 2026-10-23. Reface §5.1, §5.6, §5.7 și §9.1. |
+| 28 | Antet, bandă și trenuri pe toate paginile (înlocuiește 27, extinde 25) | Antetul e întunecat pe toate paginile, ca banda de sus (fundal `#0E1116`). Pe fiecare pagină cu hartă, banda are trenuri, linia grupului plină cu „Ești aici” și butonul „Oprește trenurile”. Butonul e mai mic (text 12,8px; din 2026-10-24, 14,4px, `--text-sm`, ca toate mărimile să fie pe scară), cu fundal `#EAF0FB` și text `#14161A` (14,97:1), contur 1px `--ink`, zona de atingere 44px. Aleasă de Alex pe 2026-10-23. Reface §5.1, §5.6, §5.7 și §9.1. Refăcută, doar sub 48rem, de decizia 31 (2026-10-24): pe telefon banda cu harta lipsește pe paginile interioare. |
 | 29 | Suprafețe stratificate (2026-10-23) | Fundal `--suprafata` sub bandă, carduri albe cu contur `--card-contur` pentru secțiunile de conținut; Servicii cu șase carduri în grilă; Despre cu profil; Contact pe două coloane. Detalii în `docs/superpowers/specs/2026-10-23-layered-surfaces-design.md`. Benzile de îndemn și fișa folosesc și ele `#D9E4F7`. După revizuirea din aceeași zi, alese de Alex: ghidurile, studiile de caz și listele `/proiecte/` și `/ghiduri/` au conținutul într-un singur card alb (titlul rămâne pe suprafață); pe `/servicii/`, liniile cu un singur serviciu (Diagnostic, Construcție) stau alături, pe același rând. |
-| 30 | Formular cu JavaScript (2026-10-24) | Cu JavaScript pornit, formularul se trimite din pagină: `fetch` la `/api/contact`, cu aceleași câmpuri ca POST-ul obișnuit, iar fetch urmează redirecționarea 303 a Worker-ului, deci pagina de ajungere spune rezultatul. Worker-ul nu se schimbă. La o eroare, mesajul rămâne în câmpuri, explicația apare sub buton și focusul trece pe ea. Trimiterea reușită merge la „Am primit cererea ta”. Nu se scrie nimic în browser (fără cookie-uri, fără stocare locală), deci Politica de cookie-uri rămâne adevărată și nu e nevoie de banner. Fără JavaScript, rămâne POST-ul obișnuit, cu paginile de răspuns. Schimbare cerută pe 2026-10-24, cu două condiții: niciun mesaj pierdut și o experiență mai bună. Reface rândul 20, „Formularul” din 3.5, §3 (arhitectura), §9.1 și §10 (verificările). |
+| 30 | Formular cu JavaScript (2026-10-24) | Cu JavaScript pornit, formularul se trimite din pagină: `fetch` la `/api/contact`, cu aceleași câmpuri ca POST-ul obișnuit, iar fetch urmează redirecționarea 303 a Worker-ului, deci pagina de ajungere spune rezultatul. Worker-ul nu se schimbă. La o eroare, mesajul rămâne în câmpuri, explicația apare sub buton și focusul trece pe ea. Trimiterea reușită merge la „Am primit cererea ta”. Nu se scrie nimic în browser (fără cookie-uri, fără stocare locală), deci Politica de cookie-uri rămâne adevărată și nu e nevoie de banner. Fără JavaScript, rămâne POST-ul obișnuit, cu paginile de răspuns. Schimbare cerută pe 2026-10-24, cu două condiții: niciun mesaj pierdut și o experiență mai bună. Reface rândul 20, „Formularul” din 3.5, §3 (arhitectura), §9.1 și §10 (verificările). Refăcută de decizia 32 (2026-10-24): erorile apar sub câmp, iar serviciul ales vine din link. |
+| 31 | Pe telefon, harta și firimiturile (2026-10-24) | Pe telefon (sub 48rem), banda cu harta lipsește pe paginile interioare; firimiturile devin linia de metrou, iar trenurile rulează doar de la 48rem. Pasul 1 din „Cum se desfășoară” are linkul spre cerere. Reface decizia 28 (doar sub 48rem), §5.6 și §9.2. |
+| 32 | Formularul de contact ca traseu (2026-10-24) | Formularul de contact e un traseu în trei stații, cu erorile sub câmp, contorul și serviciul ales din link; pagina de mulțumire arată „Ce urmează”. Reface deciziile 20 și 30, §3.5 și §4.5. |
+| 33 | Alegătorul de pe Acasă (2026-10-24) | Pe Acasă, „De unde pornești?” e alegătorul din hero, doar CSS; secțiunea separată dispare. Reface decizia 4, §4.3 și §5.7 (M3). |
+| 34 | Traseele în cerneală (2026-10-24) | Traseele de lucru sunt în cerneală (plin și punctat); culorile grupurilor sunt doar pentru servicii. Proiectele arată serviciile folosite ca traseu. 404 are linia paginilor principale. Reface §5.2, §4.3 și §4.6. |
 
 ---
 
@@ -98,6 +102,8 @@ siteulet/
       proiecte/*.md         studii de caz (cu acord și aprobat)
       ghiduri/*.md          ghiduri (cu aprobat)
     layouts/                Base, Service, CaseStudy, Guide, Legal
+                            + Schelet (head, antet, <main>, subsol), pus în Base; Acasă îl folosește direct, fără bandă și firimituri
+                            (spec-ul metroul îmbunătățit, nota de la început: bugetul de CSS al paginii Acasă)
     components/             vezi 3.3
     pages/                  rute, inclusiv llms.txt, robots.txt, imaginile OG și iconițele PNG
     styles/                 tokens.css, base.css, componente
@@ -128,6 +134,7 @@ Fiecare componentă are un singur rol și își primește datele prin props, din
 | `MetroMap` | harta SVG: `variant="animated"` pe Acasă și `variant="banda"` pe banda de sus a celorlalte pagini, cu trenuri (decizia 28); `variant="static"` fără trenuri. `line` e opțional: cu `line`, linia aceea e plină și are „Ești aici”; fără `line`, toate liniile sunt estompate. Unde apare și cum, vezi tabelul din 5.6. | tokenuri de culoare |
 | `FaraRupere` | textul primit, cu cuvintele cu cratimă ținute întregi pe un rând (§5.3); pentru titlurile, răspunsul direct, listele și întrebările frecvente din colecții | props |
 | `LineDiagram` | „De unde pornești?”: fiecare rând e un tronson scurt de linie, cu stația-problemă, segmentul în culoarea grupului și capătul de linie cu serviciul, ca link; linkul are problema ca descriere (`aria-describedby`) | colecția servicii (câmpurile `problema`, `ordine`) |
+| `AlegatorTraseu` | decizia 33 înlocuiește `LineDiagram`: „De unde pornești?” e alegătorul din zona de sus a paginii Acasă, un formular `GET /contact/` cu șase butoane radio și un panou „Traseul tău” pe serviciu, doar din CSS (spec-ul metroul îmbunătățit, §3) | colecția servicii (pașii, `ordine`), `PasiTraseu` |
 | `RouteMap` | cele două trasee (remediere unică, abonament), desenate static | text din conținut |
 | `PasiTraseu` | pașii unei secvențe desenați ca linie de metrou: stații numerotate (contor CSS), linia în culoarea grupului sau, pentru pașii comuni ambelor trasee, în ambele culori alăturate; verticală, sau orizontală cu textul sub stații într-un container de cel puțin 48rem | props |
 | `PageFacts` | fișa paginii, doar pe `/proiecte/acest-site/` (vezi 5.5) | script inline mic |
@@ -365,6 +372,8 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
    - segmentul, în culoarea grupului;
    - capătul de linie, cu serviciul, ca link.
 
+   *Refăcut de decizia 33: „De unde pornești?” e acum alegătorul din zona de sus (`AlegatorTraseu`), nu un card separat; vezi spec-ul metroul îmbunătățit, §3. Opțiunile folosesc etichetele scurte din §8 al acelui spec; ciornele rândurilor de mai jos rămân doar câmpul `problema` al serviciilor (blocul cu servicii înrudite de pe paginile de serviciu).*
+
    Semantic e o listă `<ul>` de linkuri, în ordinea câmpului `ordine` (nu e o secvență, deci nu are numere). Desenul e doar forma ei. Ciornele rândurilor:
    - SEO (albastru): „Clienții nu te găsesc în Google când caută ce vinzi.”
    - AEO/GEO (albastru): „Firma ta nu apare când cineva întreabă ChatGPT despre domeniul tău.”
@@ -376,6 +385,8 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
    - **Linia remedierii unice:** Evaluare → Ofertă → Lucru → Raport. Se desenează în #8A5A00 (5,18:1 pe #EAF0FB), nu în galbenul tare, care pe fundalul albastru deschis are doar 1,63:1.
    - **Linia abonamentului**, albastră: aceleași stații, plus o buclă lunară.
    - **Etichete text vizibile** pe fiecare traseu, „Remediere unică” și „Remediere + abonament lunar”, ca diferența să nu stea doar în culoare.
+
+   *Refăcut de decizia 34: ambele trasee sunt acum în cerneală (`--ink`); remedierea unică se termină într-o stație plină, iar bucla abonamentului e punctată. Culorile de mai sus nu se mai folosesc; vezi spec-ul metroul îmbunătățit, §6.*
    - **Stațiile din buclă** le confirmă Alex. Până atunci sunt un marcaj blocant (registrul, #15). Fără prețuri.
 5. **„Proiecte”**, cu 1–3 intrări: context, ce am făcut, rezultatul (doar dacă e verificabil; altfel rândul lipsește) și link. Dacă nu există niciun proiect publicabil, secțiunea lipsește (3.4).
 6. **Întrebări frecvente generale**, 4–5, vizibile, fără acordeon. Nu repetă întrebările de pe paginile de servicii. Exemple: „Afișezi prețuri?”, „Ce se întâmplă după ce trimit cererea?”, „Lucrezi și cu firme din afara Bucureștiului?”, „Pot cere doar o remediere, fără abonament?”.
@@ -385,6 +396,7 @@ Zona de sus are un singur rol: să spună în 3 secunde ce face Alex și unde se
 ### 4.4 Pagina de serviciu (un singur șablon pentru toate 6)
 
 1. **Banda de sus:** harta întunecată, cu trenuri și buton de oprire, linia grupului în față și marcajul „Ești aici” pe ea. Sub bandă, firimiturile.
+   - *Pe telefon (sub 48rem) decizia 31 schimbă asta: banda lipsește, iar firimiturile devin linia de metrou, cu pagina curentă ca stație mare; vezi spec-ul metroul îmbunătățit, §5.*
 2. **H1-ul** cu cuvântul-cheie, apoi `raspunsDirect`: 2–3 fraze despre ce e serviciul și cui îi folosește.
 3. **„Pentru cine e”** și **„Semne că ai nevoie”**.
 4. **„Ce primești”:** lista de livrabile.
@@ -591,7 +603,7 @@ Pe tot site-ul sunt două mișcări automate, ambele pe paginile cu hartă (Acas
 |---|---|---|---|---|
 | M1 | Liniile hărții se desenează | o dată, la încărcarea fiecărei pagini cu hartă (Acasă și banda de sus) | `stroke-dashoffset`, ~600ms, `ease-out`, doar CSS. H1-ul, subtitlul și butonul nu se animă niciodată. | liniile apar desenate, instant |
 | M2 | Trenurile pe hartă | continuu, pe Acasă și pe banda fiecărei pagini, după M1 | vezi 5.6. Halo-ul are opacitate 0,7 pe toate hărțile, fiindcă toate au fundal întunecat (decizia 28), ca trenurile să se vadă ca lumini. | trenurile și butonul ascunse |
-| M3 | Segmentul din „De unde pornești?” devine banda paginii de serviciu | la clic, la navigare | CSS nativ: `@view-transition { navigation: auto; }` declarat doar în `@media (prefers-reduced-motion: no-preference)`, cu `view-transition-name` unic pe fiecare serviciu, dat prin clasă. Durata 300ms, `ease-in-out`. Pe celelalte navigări, cross-fade-ul implicit e oprit (`animation: none` pe `::view-transition-old(root)` și `::view-transition-new(root)`), ca singura mișcare să fie segmentul. Fără ClientRouter. | navigare normală, fără tranziție (la fel în Firefox și Samsung Internet) |
+| M3 | Segmentul din „De unde pornești?” devine banda paginii de serviciu | la clic, la navigare | CSS nativ: `@view-transition { navigation: auto; }` declarat doar în `@media (prefers-reduced-motion: no-preference)`, cu `view-transition-name` unic pe fiecare serviciu, dat prin clasă. Durata 300ms, `ease-in-out`. Pe celelalte navigări, cross-fade-ul implicit e oprit (`animation: none` pe `::view-transition-old(root)` și `::view-transition-new(root)`), ca singura mișcare să fie segmentul. Fără ClientRouter. Refăcut de decizia 33: segmentul de la care pleacă tranziția e linia din panoul „Traseul tău” al alegătorului de pe Acasă (spec-ul metroul îmbunătățit, §3). | navigare normală, fără tranziție (la fel în Firefox și Samsung Internet) |
 | M4 | Micro-interacțiuni | hover, focus | subliniere în 150ms | fără tranziții |
 
 **Tăiate față de varianta anterioară:** completarea animată a fișei și traseul desenat la derulare. Traseul explică cele două moduri de lucru, așa că e desenat complet de la început.
@@ -815,10 +827,10 @@ Toate merg într-un contract-tip separat, verificat de un avocat, cu acceptare e
 ### 9.1 Bugete
 
 - **JavaScript:**
-  - ~1 KB pe fiecare pagină cu hartă (trenurile și butonul de oprire);
+  - ~1 KB pe fiecare pagină cu hartă (trenurile și butonul de oprire); măsurat pe 2026-10-25: 1317 de octeți necomprimat;
   - sub 1 KB pe `/proiecte/acest-site/` (fișa);
   - 0 KB pe paginile fără hartă (legale, 404, paginile de răspuns ale formularului);
-  - pe `/contact/`, scriptul formularului (decizia 30) se adaugă la cel al trenurilor: ~1,1 KB (1131 de octeți necomprimat, 632 cu gzip, măsurat în `dist/` pe 2026-10-24). `qa:page` îi permite paginii al doilea script după clasa `formular`.
+  - pe `/contact/`, scriptul formularului (decizia 30) se adaugă la cel al trenurilor: ~1,1 KB (1131 de octeți necomprimat, 632 cu gzip, măsurat în `dist/` pe 2026-10-24). `qa:page` îi permite paginii al doilea script după clasa `formular`. După decizia 32 (formularul în trei stații), scriptul are voie să crească cu cel mult 2 KB, deci plafonul e 3179 de octeți; măsurat pe 2026-10-25: 3014 de octeți necomprimat (păzit de `tests/e2e/buget-script.spec.ts`).
 - **CSS:** cel mult 25 KB pe pagină, necomprimat.
 - **Fonturi:** o singură familie, Atkinson Hyperlegible Next variabilă, cu latin și latin-ext, ~53–60 KB, ambele subseturi preîncărcate.
 - **Greutatea paginii Acasă:** sub 150 KB transferați. Se măsoară în producție, cu Brotli și cache gol (auditul `total-byte-weight` din Lighthouse, rulat pe domeniu). Pe `wrangler dev` nu există compresia Cloudflare, deci măsurătoarea de acolo nu contează.

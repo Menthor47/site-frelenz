@@ -72,7 +72,8 @@ describe('/servicii/ (§4.5)', () => {
   // Cardul e cardul comun al site-ului (`carte`, decizia 29), cu bara liniei deasupra: același fundal, contur și padding.
   test('fiecare serviciu e un card `carte`, cu o singură legătură, spre pagina lui', async () => {
     const h = main(await render(PaginaServicii));
-    // Astro pune pe fiecare element atributul `data-astro-cid-…` (stiluri cu scop), deci eticheta nu se încheie după `class`.
+    // Eticheta poate avea și alte atribute după `class`, deci nu se încheie după el. Clasa de scop a lui Astro (`astro-…`) o
+    // scoate `render` (helpers.ts).
     const carduri = [...h.matchAll(/<article class="([^"]*)"[^>]*>([\s\S]*?)<\/article>/g)].filter((m) => /\bserviciu-card\b/.test(m[1] ?? ''));
     expect(carduri).toHaveLength(SERVICII.length);
     for (const [, clase, continut] of carduri) {

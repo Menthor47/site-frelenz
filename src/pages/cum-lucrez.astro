@@ -121,7 +121,8 @@ const PASI = [
   }
 
   /* Cele două formate sunt variante egale, ca traseele de deasupra: alăturate de la un card de 40rem, fiecare cu eșantionul
-     liniei lui (galbenul închis pentru remedierea unică, albastrul pentru abonament, ca în RouteMap), sub textul la măsura lui. */
+     liniei lui, sub textul la măsura lui. Ca în RouteMap (A-14), ambele sunt în cerneală și se deosebesc prin formă: linia
+     plină pentru remedierea unică, linia punctată pentru abonament (bucla lunară). */
   /* Containerul e cardul: o interogare nu se aplică elementului care o declară. */
   .cum__formate {
     container-type: inline-size;
@@ -150,31 +151,38 @@ const PASI = [
     margin: 0;
   }
 
+  /* Eșantionul e chenarul de sus al unui element fără înălțime (0,5rem gros), nu un fundal: așa poate fi plin sau punctat, iar
+     cu culorile forțate își păstrează forma. */
   .format::before {
     content: '';
     display: block;
     width: 2.5rem;
-    height: 0.5rem;
+    height: 0;
     margin-bottom: 0.75rem;
-    background: var(--culoare);
+    border-top: 0.5rem solid var(--culoare);
   }
 
+  /* Cerneala are 18,11:1 pe alb (suprafața cardului), mult peste pragul de 3:1 pentru grafică. */
   .format--unic {
-    --culoare: var(--yellow-dark);
+    --culoare: var(--ink);
   }
 
   .format--abonament {
-    --culoare: var(--blue);
+    --culoare: var(--ink);
+  }
+
+  .format--abonament::before {
+    border-top-style: dashed;
   }
 
   .cum__pret {
     font-weight: 700;
   }
 
-  /* Cu culorile forțate, eșantioanele trec pe culoarea textului, ca liniile din RouteMap. */
+  /* Cu culorile forțate, eșantioanele trec pe culoarea textului, ca liniile din RouteMap; forma (plin sau punctat) rămâne. */
   @media (forced-colors: active) {
     .format::before {
-      background: CanvasText;
+      border-top-color: CanvasText;
     }
   }
 </style>

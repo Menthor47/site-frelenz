@@ -14,6 +14,17 @@ for (const cale of ['/servicii/seo/', '/contact/', '/despre/']) {
   });
 }
 
+// Pe telefon banda e ascunsă (display: none), deci nici butonul trenurilor nu mai are focus; firimiturile (linia) rămân ținta.
+test('/servicii/seo/ la 375×667: după „Sari la conținut”, Tab ajunge la primul link din firimituri', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto('/servicii/seo/');
+  await page.keyboard.press('Tab');
+  await expect(page.locator('a.sari')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Tab');
+  await expect(page.locator('nav[aria-label="Firimituri"] a').first()).toBeFocused();
+});
+
 test('Acasă: după „Sari la conținut”, Tab ajunge în <main>', async ({ page }) => {
   await page.goto('/');
   await page.keyboard.press('Tab');

@@ -1,6 +1,7 @@
-/* M3 (§5.7, ruling R5): la clic pe un rând din „De unde pornești?”, segmentul colorat devine banda de sus a paginii de
-   serviciu. CSS nativ, fără ClientRouter și fără JavaScript: ambele pagini declară tranziția între documente, iar cele
-   două capete au același `view-transition-name`, dat prin clasa `vt-<slug>` (LineDiagram pe segment, Base pe bandă).
+/* M3 (§5.7, ruling R5): la clic pe „Vezi pagina …” din panoul „Traseul tău” al alegătorului de pe Acasă, linia serviciului
+   devine banda de sus a paginii de serviciu. CSS nativ, fără ClientRouter și fără JavaScript: ambele pagini declară tranziția
+   între documente, iar cele două capete au același `view-transition-name`, dat prin clasa `vt-<slug>` (AlegatorTraseu pe
+   linia din panou, Base pe bandă).
    Cu „reduced motion” sau într-un browser fără suport (Firefox, Samsung Internet), navigarea e cea obișnuită. */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
@@ -52,18 +53,11 @@
 }
 
 /* O bandă fără pereche pe cealaltă pagină (venind de la /servicii/ sau de la un serviciu înrudit) n-are în ce se
-   transforma: apare și dispare pe loc, ca root-ul, în loc să se estompeze 300ms. */
-::view-transition-old(segment-seo):only-child,
-::view-transition-new(segment-seo):only-child,
-::view-transition-old(segment-optimizare-aeo-geo):only-child,
-::view-transition-new(segment-optimizare-aeo-geo):only-child,
-::view-transition-old(segment-audit-seo):only-child,
-::view-transition-new(segment-audit-seo):only-child,
-::view-transition-old(segment-creare-site):only-child,
-::view-transition-new(segment-creare-site):only-child,
-::view-transition-old(segment-redesign-site):only-child,
-::view-transition-new(segment-redesign-site):only-child,
-::view-transition-old(segment-mentenanta-site):only-child,
-::view-transition-new(segment-mentenanta-site):only-child {
+   transforma: apare și dispare pe loc, ca root-ul, în loc să se estompeze 300ms. `*` prinde toate numele de pe site:
+   segmentele de mai sus și root-ul, care oricum n-are animație (regula de la început). Doi selectori acoperă toate numele,
+   fără câte o regulă pe segment, ca să încapă sub limita de 25 KB de CSS pe pagină (§9.1 „Bugete” din spec-ul principal). Un nume nou de
+   tranziție ar intra și el aici. */
+::view-transition-old(*):only-child,
+::view-transition-new(*):only-child {
   animation: none;
 }

@@ -1,12 +1,26 @@
 ---
-// 404 (§4.5): spune ce s-a întâmplat și duce spre Acasă, Servicii și Contact. Fără hartă (§5.6), fără firimituri,
-// noindex și lipsă din sitemap (src/lib/seo.ts). Cloudflare o servește pentru orice adresă inexistentă
-// (`not_found_handling: "404-page"` din wrangler.jsonc).
+// 404 (§4.5, spec metroul îmbunătățit §6): spune ce s-a întâmplat și duce spre cele cinci pagini din meniu, pe o linie cu stații
+// în cerneală, ca firimiturile de pe telefon (linie-statii.css), dar la toate lățimile. „?” e stația ruptă, la care a coborât
+// vizitatorul: decor, legat punctat de capătul liniei. Dacă textul mărit nu lasă cele cinci stații pe un rând, ele trec pe rânduri
+// noi, iar fiecare rând are linia lui (stilurile de mai jos). Fără hartă (§5.6), fără firimituri, noindex și lipsă din sitemap
+// (src/lib/seo.ts), fără script. Cloudflare o servește pentru orice adresă inexistentă (`not_found_handling: "404-page"` din
+// wrangler.jsonc).
+import '../styles/linie-statii.css';
 import { paginaAprobata } from '../approvals';
 import Base from '../layouts/Base.astro';
 import { PAGINI_STATICE } from '../lib/routes';
 
 const CALE = '/404/';
+
+// Paginile din meniul principal (Header.astro), în ordinea lui; „Acasă” e logo-ul antetului, aici prima stație. Proiecte și
+// Ghiduri lipsesc: ele apar în meniu doar când există conținut (§3.4), iar 404 nu citește colecțiile.
+const STATII = [
+  { href: '/', text: 'Acasă' },
+  { href: '/servicii/', text: 'Servicii' },
+  { href: '/cum-lucrez/', text: 'Cum lucrez' },
+  { href: '/despre/', text: 'Despre' },
+  { href: '/contact/', text: 'Contact' },
+];
 ---
 
 <Base
@@ -21,11 +35,19 @@ const CALE = '/404/';
     <p class="negasit__text">
       Adresa pe care ai deschis-o nu duce la nicio pagină de pe site. Poate a fost scrisă greșit sau pagina s-a mutat.
     </p>
-    <ul class="negasit__linkuri">
-      <li><a href="/">Acasă</a></li>
-      <li><a href="/servicii/">Servicii</a></li>
-      <li><a href="/contact/">Contact</a></li>
-    </ul>
+    <p class="negasit__fraza">Ai coborât la o stație care nu e pe hartă. Alege una de mai jos.</p>
+    <div class="negasit__harta">
+      {/* Stația ruptă: decor. Fără nume, fără focus; nu stă în listă, deci nu intră în numele niciunui link. */}
+      <svg class="negasit__rupta" viewBox="0 0 28 66" aria-hidden="true" focusable="false">
+        <path class="negasit__conector" d="M5.2 22.8C2 26 2 30 2 36V64"></path>
+        <circle class="negasit__cerc" cx="14" cy="14" r="12.5"></circle>
+        <path class="negasit__semn" d="M10.3 11.4C10.3 8.5 12 7 14 7s3.7 1.4 3.7 3.7c0 2.9-3.7 3.1-3.7 6.1"></path>
+        <circle class="negasit__punct" cx="14" cy="20.6" r="1.5"></circle>
+      </svg>
+      <ul class="linie-statii linie-statii--cerneala">
+        {STATII.map((statie) => <li><a href={statie.href}>{statie.text}</a></li>)}
+      </ul>
+    </div>
   </div>
 </Base>
 
@@ -40,17 +62,101 @@ const CALE = '/404/';
     line-height: 1.45;
   }
 
-  .negasit__linkuri {
-    margin: 1.5rem 0 0;
-    padding: 0;
-    list-style: none;
+  .negasit__fraza {
+    margin-block: 1rem 0;
+    font-weight: 700;
   }
 
-  /* Zona de atingere de 44px (§5.8): linkurile sunt singure pe rând. */
-  .negasit__linkuri a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    font-weight: 700;
+  /* Loc deasupra liniei pentru stația ruptă (3rem), ca desenul ei să coboare până la linie. Linia trece prin centrul stațiilor,
+     la 1rem de sus (linie-statii.css): conectorul se oprește acolo (4rem de la capătul de sus al desenului). */
+  .negasit__harta {
+    position: relative;
+    max-width: 36rem;
+    margin-top: 1rem;
+    padding-top: 3rem;
+  }
+
+  /* Cinci etichete scurte încap pe un rând la 320px cu textul obișnuit; când textul e mărit (de la ~110% la 320px, ~150% la 412px)
+     nu mai încap, iar stațiile trec pe rânduri noi, în loc să iasă din ecran. Fiecare rând are linia lui: linia listei
+     (`::before` din linie-statii.css) ar trece doar pe primul rând, deci aici se oprește, iar fiecare stație desenează segmentul ei
+     de linie pe `li::before`. `li`-urile cresc (`flex: 1 1 auto`) și umplu rândul, iar fără `column-gap` segmentele vecine se
+     suprapun cu 1px (vezi `inset-inline` mai jos): rândul are linia de la un capăt la altul. Segmentul are poziția și grosimea
+     liniei listei (4px, centrat la 1rem de sus) și stă sub stație: cercul de pe `a::before` e desenat după el și îl acoperă, ca
+     pe linia listei. Spațiul dintre etichete (0,25rem, ca în linie-statii.css) vine din `padding-inline` al `li`, care rămâne în
+     interiorul segmentului. */
+  .negasit__harta .linie-statii {
+    flex-wrap: wrap;
+    column-gap: 0;
+    row-gap: 0.5rem;
+    font-size: var(--text-sm);
+  }
+
+  .negasit__harta .linie-statii::before {
+    content: none;
+  }
+
+  .negasit__harta .linie-statii li {
+    position: relative;
+    padding-inline: 0.125rem;
+  }
+
+  .negasit__harta .linie-statii li::before {
+    content: '';
+    position: absolute;
+    /* -0,5px în loc de 0: la un ecran cu scalare fracționară (1,25, 1,5, 2,625…) marginile segmentelor vecine s-ar netezi într-o
+       cusătură mai deschisă, de un pixel de ecran, la fiecare hotar; cu 0,5px în plus se suprapun și linia rămâne întreagă. */
+    inset-inline: -0.5px;
+    top: calc(1rem - 2px);
+    height: 4px;
+    background: var(--culoare-linie);
+  }
+
+  /* Cu culorile forțate (modul de contrast ridicat), `background` devine Canvas și segmentele dispar, ca linia din
+     linie-statii.css: ele trec pe culoarea textului. */
+  @media (forced-colors: active) {
+    .negasit__harta .linie-statii li::before {
+      background: CanvasText;
+    }
+  }
+
+  /* Desenul se măsoară în rem, ca linia: la text mărit, conectorul ajunge tot în dreptul ei. `pointer-events: none`, fiindcă
+     desenul acoperă colțul de sus al zonei de atingere a lui „Acasă”. */
+  .negasit__rupta {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1.75rem;
+    height: 4.125rem;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  /* Conectorul: puncte de 4px (grosimea liniei), cu capete rotunde, de la stația ruptă până la capătul liniei. */
+  .negasit__conector {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 0.01 7;
+  }
+
+  /* Cercul stației are conturul rupt în patru, ca să nu pară o stație obișnuită. */
+  .negasit__cerc {
+    fill: var(--paper);
+    stroke: var(--ink);
+    stroke-width: 3;
+    stroke-dasharray: 15 4.635;
+    stroke-dashoffset: -2.3;
+  }
+
+  .negasit__semn {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  .negasit__punct {
+    fill: var(--ink);
   }
 </style>

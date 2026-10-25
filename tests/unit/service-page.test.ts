@@ -92,6 +92,18 @@ describe('Service.astro (§4.4)', () => {
     expect(h).toMatch(/<ul\b[^>]*>\s*<li\b[^>]*>Livrabilul unu/);
   });
 
+  // §5, „Pasul 1 are acțiune”: în „Cum se desfășoară”, doar primul pas are linkul spre formular, cu serviciul ales dinainte.
+  test.each(SERVICII.map((s) => s.slug))('%s: pasul 1 duce la /contact/?serviciu=<slug>', async (slug) => {
+    const h = main(await pagina({ serviciu: { ...serviciu, slug } }));
+    const ol = [...h.matchAll(/<ol\b[^>]*>([\s\S]*?)<\/ol>/g)].map((m) => m[1] ?? '').find((l) => l.includes('Pasul'));
+    const [primul = '', ...celelalte] = [...(ol ?? '').matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)].map((m) => m[1] ?? '');
+    expect(primul).toMatch(new RegExp(String.raw`<a\b[^>]*href="/contact/\?serviciu=${slug}"[^>]*>\s*Trimite cererea`));
+    expect(celelalte).toHaveLength(2);
+    for (const rand of celelalte) expect(rand).not.toContain('<a');
+    // Singurul link spre formular din „Cum se desfășoară”; îndemnul de la sfârșit rămâne separat.
+    expect(ol?.match(/<a\b/g)).toHaveLength(1);
+  });
+
   test('cele 4 întrebări frecvente sunt vizibile', async () => {
     const text = textOf(main(await pagina()));
     for (const n of [1, 2, 3, 4]) expect(text).toContain(`Întrebarea ${n}? Răspunsul ${n}.`);
@@ -210,11 +222,14 @@ describe('transitions.css (M3, §5.7, ruling R5)', () => {
     expect(css).toMatch(/::view-transition-old\(root\),\s*::view-transition-new\(root\)\s*\{\s*animation: none;\s*\}/));
 
   // Banda fără pereche pe cealaltă pagină (de la /servicii/ sau de la un serviciu înrudit) nu are cu ce se transforma:
-  // fără regula asta s-ar estompa 300ms, deci ar fi încă o mișcare pe lângă segment.
+  // fără regula asta s-ar estompa 300ms, deci ar fi încă o mișcare pe lângă segment. Regula poate numi segmentul sau poate
+  // folosi `*`, care le prinde pe toate (doi selectori acoperă toate numele, pentru limita de 25 KB de CSS pe pagină, §9.1 „Bugete” din spec-ul principal).
   test.each(SERVICII.map((s) => s.slug))('segment-%s fără pereche apare și dispare fără animație', (slug) => {
     const reguli = [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)].filter((m) => /animation: none;/.test(m[2] ?? '')).map((m) => m[1] ?? '');
     for (const parte of ['old', 'new']) {
-      expect(reguli.some((s) => s.includes(`::view-transition-${parte}(segment-${slug}):only-child`))).toBe(true);
+      const numit = `::view-transition-${parte}(segment-${slug}):only-child`;
+      const toate = `::view-transition-${parte}(*):only-child`;
+      expect(reguli.some((s) => s.includes(numit) || s.includes(toate))).toBe(true);
     }
   });
 

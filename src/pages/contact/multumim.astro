@@ -1,7 +1,21 @@
 ---
-// „Am primit cererea ta” (§3.5, §8): ultimul verb din lanț. Spune ce urmează, fără termen de răspuns (#18).
+// „Am primit cererea ta” (§3.5, §8; spec metroul îmbunătățit, §4): ultimul verb din lanț. Sub titlu, linia se termină în
+// stația albastră „Destinație”, apoi „Ce urmează”, cu trei opriri. Fără termen de răspuns (#18): timpul apare doar după ce
+// Alex îl dă, ca marcaj ascuns în producție.
+import PasiTraseu from '../../components/PasiTraseu.astro';
 import RaspunsFormular from '../../components/RaspunsFormular.astro';
 import { PAGINI_STATICE } from '../../lib/routes';
+
+// Desenul de sub titlu e decor (`aria-hidden`, fără text alternativ): lista „Ce urmează” duce tot conținutul. Nu e harta din
+// bandă (§5.6), de aceea clasa lui e `destinatie`, nu `harta`: pagina n-are bandă și testele cer zero `.harta`. Are trei stații
+// mici (câte una pentru fiecare grup al formularului) și stația albastră a destinației, cu eticheta ei.
+
+// Cele trei opriri, din răspunsul aprobat odată cu Acasă (întrebarea „Ce se întâmplă după ce trimit cererea?”, §8).
+const OPRIRI = [
+  { text: 'Mă uit la site-ul tău și la ce mi-ai scris.' },
+  { text: 'Îți trimit oferta: ce lucrez, în ce ordine și ce primești.' },
+  { text: 'Lucrul începe doar după ce accepți oferta.' },
+];
 ---
 
 <RaspunsFormular
@@ -9,6 +23,112 @@ import { PAGINI_STATICE } from '../../lib/routes';
   descriere={PAGINI_STATICE['/contact/multumim/'].descriere}
   cale="/contact/multumim/"
 >
-  <p>Mă uit la ce mi-ai scris și la site-ul tău, apoi îți trimit oferta: ce lucrez, în ce ordine și ce primești.</p>
+  <svg class="destinatie" viewBox="0 0 360 68" aria-hidden="true" focusable="false">
+    <path class="destinatie__linie" d="M24 24H300"></path>
+    <circle class="destinatie__statie" cx="24" cy="24" r="8"></circle>
+    <circle class="destinatie__statie" cx="116" cy="24" r="8"></circle>
+    <circle class="destinatie__statie" cx="208" cy="24" r="8"></circle>
+    <circle class="destinatie__aici" cx="300" cy="24" r="16"></circle>
+    <text class="destinatie__eticheta" x="352" y="62" text-anchor="end">Destinație</text>
+  </svg>
+  <section class="urmeaza" aria-labelledby="urmeaza-titlu">
+    <h2 id="urmeaza-titlu">Ce urmează</h2>
+    <PasiTraseu pasi={OPRIRI} />
+  </section>
   <p>Până atunci, poți vedea <a href="/cum-lucrez/">cum lucrez</a> sau te poți întoarce la <a href="/">pagina de pornire</a>.</p>
 </RaspunsFormular>
+
+<style>
+  /* Desenul ține 360 de unități pe 68; la `22,5rem` o unitate e un pixel, iar pe ecran îngust se micșorează cu lățimea (la
+     320px, scara 0,8). Rămâne aliniat la stânga, ca restul paginii. `svg.destinatie` are specificitate peste `.raspuns > *`
+     din RaspunsFormular, care îi dădea altfel lățimea de 48rem. */
+  svg.destinatie {
+    display: block;
+    width: 100%;
+    max-width: 22.5rem;
+    height: auto;
+    margin-block: 1.5rem 2.5rem;
+  }
+
+  /* Linia e cerneală (§5.2), cu capete rotunde (§5.8); stațiile, ca pe hartă: cerc alb cu contur de cerneală. */
+  .destinatie__linie {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 6;
+    stroke-linecap: round;
+  }
+
+  .destinatie__statie {
+    fill: var(--paper);
+    stroke: var(--ink);
+    stroke-width: 3;
+  }
+
+  /* „Destinație” (§5.4), ca „Ești aici” de pe hartă (`.harta__aici`): cerc plin albastru, cu inel alb. Eticheta o numește cu
+     litere, ca stația să nu fie doar o culoare. */
+  .destinatie__aici {
+    fill: var(--blue);
+    stroke: var(--paper);
+    stroke-width: 5;
+  }
+
+  .destinatie__eticheta {
+    fill: var(--ink);
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  /* „Ce urmează”: opririle sunt desenate de PasiTraseu (stații numerotate pe o linie verticală). Linia lui ia `--culoare`, care
+     pe această pagină n-are grup: aici e cerneală, ca linia de deasupra. */
+  .urmeaza {
+    --culoare: var(--ink);
+    margin-bottom: 2rem;
+  }
+
+  .urmeaza h2 {
+    font-size: var(--text-lg);
+  }
+
+  /* RaspunsFormular dă paragrafelor --text-md și rând de 1,45, iar opririle le urmează, ca lista să aibă același text cu
+     restul paginii. PasiTraseu așază stația pe mijlocul primului rând (`--prim`, calculat pentru --text-base cu rând de 1,6),
+     deci aici se recalculează pentru rândul de pe această pagină. `overflow-wrap` e plasa de siguranță: un cuvânt mai lat
+     decât coloana se rupe, nu iese din pagină. */
+  .urmeaza :global(.pasi-traseu) {
+    --text-oprire: var(--text-md);
+    --prim: calc(var(--text-oprire) * 1.45);
+  }
+
+  .urmeaza :global(.pasi-traseu__text) {
+    font-size: var(--text-oprire);
+    overflow-wrap: break-word;
+  }
+
+  /* Ecran îngust sau text foarte mărit (320px la 200%, adică sub 22,5rem): coloana de lângă stație rămâne de ~5rem, iar
+     „primești.” la --text-md s-ar rupe în două. Opririle coboară la --text-base, ca în restul site-ului. */
+  @media (max-width: 22.49rem) {
+    .urmeaza :global(.pasi-traseu) {
+      --text-oprire: var(--text-base);
+    }
+  }
+
+  /* Cu culorile forțate (modul de contrast ridicat), desenul trece pe culorile sistemului. */
+  @media (forced-colors: active) {
+    .destinatie__linie {
+      stroke: CanvasText;
+    }
+
+    .destinatie__statie {
+      fill: Canvas;
+      stroke: CanvasText;
+    }
+
+    .destinatie__aici {
+      fill: Highlight;
+      stroke: Canvas;
+    }
+
+    .destinatie__eticheta {
+      fill: CanvasText;
+    }
+  }
+</style>

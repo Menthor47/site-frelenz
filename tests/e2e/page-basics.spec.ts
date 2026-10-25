@@ -39,7 +39,7 @@ test('elementele de bază', async ({ page }) => {
   const scripturi = await page.locator('script:not([type="application/ld+json"])').evaluateAll((els) => els.map((s) => (s as HTMLScriptElement).src || s.textContent?.slice(0, 60) || '(gol)'));
   expect.soft(scripturi.length, `scripturi în afară de JSON-LD (permise ${permise}): ${scripturi.join(' | ')}`).toBeLessThanOrEqual(permise);
 
-  expect.soft(await zoneAtingereMici(page), 'zone de atingere sub 44×44px (butoane, câmpuri, meniu, subsol, rândurile din linie)').toEqual([]);
+  expect.soft(await zoneAtingereMici(page), 'zone de atingere sub 44×44px (butoane, câmpuri, meniu, subsol, opțiunile alegătorului)').toEqual([]);
   expect.soft(await incalcariCsp(page), 'încălcări CSP').toEqual([]);
 
   const titlu = await page.title();

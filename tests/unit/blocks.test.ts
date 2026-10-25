@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs';
 import Faq from '../../src/components/Faq.astro';
-import LineDiagram from '../../src/components/LineDiagram.astro';
 import RouteMap from '../../src/components/RouteMap.astro';
 import { render, textOf } from './helpers';
 
-// „De unde pornești?”, cele două trasee și întrebările frecvente (§4.3 punctele 3, 4 și 6, §5.2, §5.8, §9.2).
+// Cele două trasee și întrebările frecvente (§4.3 punctele 4 și 6, §5.2, §5.8, §9.2). „De unde pornești?” e acum alegătorul
+// din hero (AlegatorTraseu), cu testele lui în alegator-traseu.test.ts.
 // Starea DRAFT e simulată: în producție `Placeholder` nu scrie nimic, în previzualizare scrie marcajul.
 const stare = vi.hoisted(() => ({ draft: false }));
 
@@ -32,119 +32,6 @@ const scapa = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 function declaratii(stiluri: string, selector: string): string | undefined {
   return new RegExp(`(?:^|[{}])\\s*${scapa(selector)}\\s*\\{([^}]*)\\}`).exec(stiluri)?.[1];
 }
-
-/** Valorile `href` din HTML, în ordinea în care apar. */
-const hrefuri = (html: string): string[] => [...html.matchAll(/<a\b[^>]*\bhref="([^"]+)"/g)].map((m) => m[1] ?? '');
-
-// ——— LineDiagram ———
-
-const randuriExemplu = [
-  { slug: 'seo', nume: 'SEO', grup: 'vizibilitate', problema: 'Clienții nu te găsesc în Google când caută ce vinzi.' },
-  { slug: 'optimizare-aeo-geo', nume: 'Optimizare AEO și GEO', grup: 'vizibilitate', problema: 'Firma ta nu apare când cineva întreabă ChatGPT despre domeniul tău.' },
-  { slug: 'audit-seo', nume: 'Audit SEO', grup: 'diagnostic', problema: 'Vizitele din Google au scăzut și nu știi de ce.' },
-  { slug: 'creare-site', nume: 'Creare site', grup: 'constructie', problema: 'Nu ai încă un site sau ai doar o pagină de Facebook.' },
-  { slug: 'redesign-site', nume: 'Redesign site', grup: 'reparatie', problema: 'Site-ul arată învechit și nu mai seamănă cu firma de acum.' },
-  { slug: 'mentenanta-site', nume: 'Mentenanță site', grup: 'reparatie', problema: 'Site-ul n-a mai fost actualizat de mult și se încarcă greu pe telefon.' },
-];
-const r = randuriExemplu[0]!;
-
-describe('LineDiagram', () => {
-  test('e o listă neordonată, în ordinea primită', async () => {
-    const h = await render(LineDiagram, { randuri: randuriExemplu });
-    expect(h).toMatch(/^<ul|<ul /);
-    expect(h).not.toContain('<ol');
-    expect([...h.matchAll(/href="(\/servicii\/[^"]+)"/g)].map((m) => m[1])).toEqual(randuriExemplu.map((x) => `/servicii/${x.slug}/`));
-  });
-
-  test('nu sortează: ordinea primită rămâne, chiar dacă nu e cea a serviciilor', async () => {
-    const inversat = [...randuriExemplu].reverse();
-    const h = await render(LineDiagram, { randuri: inversat });
-    expect(hrefuri(h)).toEqual(inversat.map((x) => `/servicii/${x.slug}/`));
-  });
-
-  test('linkul fiecărui rând are ca descriere problema rândului (aria-describedby), cu id-uri unice', async () => {
-    const h = await render(LineDiagram, { randuri: randuriExemplu });
-    const legaturi = [...h.matchAll(/<a\b[^>]*\baria-describedby="([^"]+)"[^>]*>/g)].map((m) => m[1] ?? '');
-    expect(legaturi).toHaveLength(randuriExemplu.length);
-    expect(new Set(legaturi).size).toBe(legaturi.length);
-    legaturi.forEach((id, i) => {
-      expect(textOf(new RegExp(`<p\\b[^>]*\\bid="${id}"[^>]*>([\\s\\S]*?)</p>`).exec(h)?.[1] ?? '')).toBe(randuriExemplu[i]!.problema);
-    });
-  });
-
-  test('fiecare rând e un <li class="linie-rand"> cu grupul lui și cu un singur link, capătul de linie (R11)', async () => {
-    const h = await render(LineDiagram, { randuri: randuriExemplu });
-    const randuri = [...h.matchAll(/<li\b[^>]*class="linie-rand"[^>]*>([\s\S]*?)<\/li>/g)];
-    expect(randuri).toHaveLength(randuriExemplu.length);
-    randuri.forEach((rand, i) => {
-      expect(rand[0]).toContain(`data-grup="${randuriExemplu[i]!.grup}"`);
-      expect(rand[1]!.match(/<a\b/g)).toHaveLength(1);
-    });
-  });
-
-  test('segmentul galben are grupul constructie', async () =>
-    expect(await render(LineDiagram, { randuri: [{ ...r, grup: 'constructie' }] })).toContain('data-grup="constructie"'));
-
-  test('stația-problemă și capătul de linie: textul problemei, apoi numele serviciului ca text de link', async () => {
-    const h = await render(LineDiagram, { randuri: randuriExemplu });
-    const text = textOf(h);
-    for (const x of randuriExemplu) expect(text).toContain(x.problema);
-    expect([...h.matchAll(/<a\b[^>]*>([^<]*)<\/a>/g)].map((m) => m[1]!.trim())).toEqual(randuriExemplu.map((x) => x.nume));
-    // Problema vine înaintea linkului în fiecare rând, ca să se citească „problemă → serviciu”.
-    for (const x of randuriExemplu) expect(text.indexOf(x.problema)).toBeLessThan(text.indexOf(x.nume, text.indexOf(x.problema)));
-  });
-
-  test('segmentul fiecărui rând poartă clasa vt-<slug> (R5) și e desenat, nu citit', async () => {
-    const h = await render(LineDiagram, { randuri: randuriExemplu });
-    for (const x of randuriExemplu) {
-      expect(h).toMatch(new RegExp(`<span\\b[^>]*class="[^"]*\\bvt-${x.slug}\\b[^"]*"[^>]*aria-hidden="true"`));
-    }
-    // Clasele vt-<slug> sunt unice: o tranziție cere un nume unic pe pagină.
-    const clase = [...h.matchAll(/\bvt-[a-z0-9-]+/g)].map((m) => m[0]);
-    expect(new Set(clase).size).toBe(clase.length);
-  });
-
-  test('fără atribute style (CSP) și fără script', async () => {
-    const h = await render(LineDiagram, { randuri: randuriExemplu });
-    expect(h).not.toMatch(/\sstyle=/);
-    expect(h).not.toContain('<script');
-  });
-
-  test('CSS: segmentul ia culoarea grupului din tokens.css, iar construcția folosește galbenul închis (§5.2)', () => {
-    const stiluri = css('LineDiagram');
-    const tokenuri = readFileSync(new URL('../../src/styles/tokens.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
-    expect(declaratii(tokenuri, "[data-grup='vizibilitate']")).toMatch(/--culoare:\s*var\(--blue\)/);
-    expect(declaratii(tokenuri, "[data-grup='diagnostic']")).toMatch(/--culoare:\s*var\(--green\)/);
-    expect(declaratii(tokenuri, "[data-grup='constructie']")).toMatch(/--culoare:\s*var\(--yellow-dark\)/);
-    expect(declaratii(tokenuri, "[data-grup='reparatie']")).toMatch(/--culoare:\s*var\(--red\)/);
-    // Componenta nu-și mai redefinește culorile: o singură sursă.
-    expect(stiluri).not.toMatch(/\[data-grup=/);
-    expect(declaratii(stiluri, '.linie-rand__segment')).toMatch(/background:\s*var\(--culoare\)/);
-    // Galbenul tare nu apare nicăieri în grafica cu sens (1,86:1 pe alb).
-    expect(stiluri).not.toMatch(/var\(--yellow\)/);
-    expect(stiluri).not.toMatch(/#F5B21B/i);
-  });
-
-  test('CSS: zona de atingere de 44px pe link, fără chenar, iar rotunjirea doar la stații', () => {
-    const stiluri = css('LineDiagram');
-    const capat = declaratii(stiluri, '.linie-rand__capat') ?? '';
-    expect(capat).toMatch(/min-height:\s*44px/);
-    expect(capat).toMatch(/min-width:\s*44px/);
-    expect(capat).not.toMatch(/border(?!-radius)/);
-    const rotunjiri = [...stiluri.matchAll(/border-radius:\s*([^;}]+)/g)].map((m) => m[1]!.trim());
-    expect(rotunjiri.every((v) => v === '50%' || v === '0')).toBe(true);
-  });
-
-  test('o problemă cu marcaj nu apare ca text brut: în producție dispare, în previzualizare e marcajul', async () => {
-    const cuMarcaj = [{ ...r, problema: '[DE COMPLETAT:#4]' }];
-    expect(await render(LineDiagram, { randuri: cuMarcaj })).not.toContain('DE COMPLETAT');
-    stare.draft = true;
-    const h = await render(LineDiagram, { randuri: cuMarcaj });
-    expect(h).toContain('class="marcaj"');
-    expect(h).toContain('[DE COMPLETAT:#4]');
-    expect(h).toContain('href="/servicii/seo/"');
-  });
-});
 
 // ——— RouteMap ———
 
@@ -217,12 +104,23 @@ describe('RouteMap', () => {
     expect(t).not.toMatch(/lei|ron|€|eur/i);
   });
 
-  test('CSS: remedierea unică în galbenul închis, abonamentul în albastru (§5.2)', () => {
+  // A-14 (spec §6): culorile grupurilor rămân doar pentru servicii. Ambele trasee sunt în cerneală, iar diferența dintre ele
+  // stă în formă: remedierea unică e linia plină, care se termină într-o stație plină; abonamentul continuă cu bucla punctată.
+  test('RouteMap nu folosește culorile grupurilor: ambele trasee în --ink, bucla punctată', () => {
     const stiluri = css('RouteMap');
-    expect(declaratii(stiluri, '.traseu--unic')).toMatch(/--culoare:\s*var\(--yellow-dark\)/);
-    expect(declaratii(stiluri, '.traseu--abonament')).toMatch(/--culoare:\s*var\(--blue\)/);
-    expect(stiluri).not.toMatch(/var\(--yellow\)/);
-    expect(stiluri).not.toMatch(/#F5B21B/i);
+    expect(stiluri).not.toMatch(/--(?:yellow|blue|green|red)/);
+    expect(stiluri).not.toMatch(/#F5B21B|#8A5A00/i);
+    expect(declaratii(stiluri, '.traseu--unic')).toMatch(/--culoare:\s*var\(--ink\)/);
+    expect(declaratii(stiluri, '.traseu--abonament')).toMatch(/--culoare:\s*var\(--ink\)/);
+    // Bucla e chenarul liniei: același chenar, dar punctat.
+    expect(declaratii(stiluri, '.bucla')).toMatch(/border-style:\s*dashed/);
+  });
+
+  test('CSS: capătul remedierii unice e o stație plină, a abonamentului rămâne goală', () => {
+    const stiluri = css('RouteMap');
+    const plina = declaratii(stiluri, '.traseu--unic .pasi > .pas:last-child::before');
+    expect(plina).toMatch(/background:\s*var\(--ink\)/);
+    expect(stiluri).not.toMatch(/\.traseu--abonament[^{]*::before\s*\{[^}]*background:\s*var\(--ink\)/);
   });
 
   test('CSS: colțuri rotunjite doar la stații (§5.8)', () => {

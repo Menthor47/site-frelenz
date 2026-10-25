@@ -159,13 +159,12 @@ describe('Termenii site-ului (§7.4)', () => {
 });
 
 describe('404 (§4.5)', () => {
-  test('noindex, fără hartă și fără firimituri, cu linkuri spre Acasă, Servicii și Contact', async () => {
+  // Cele cinci stații (linkurile din meniu) sunt verificate în tests/unit/shell.test.ts, `describe('404')`.
+  test('noindex, fără hartă și fără firimituri', async () => {
     const h = await render(Pagina404);
     expect(h).toMatch(/<meta name="robots" content="noindex"/);
     expect(main(h)).not.toContain('class="harta');
     expect(main(h)).not.toContain('aria-label="Firimituri"');
-    for (const cale of ['/', '/servicii/', '/contact/']) expect(main(h)).toContain(`href="${cale}"`);
-    expect(main(h)).toMatch(/<a href="\/"[^>]*>Acasă<\/a>/);
     expect(titluri(main(h), 1)).toEqual(['Pagina nu există']);
   });
 

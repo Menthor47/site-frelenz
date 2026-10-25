@@ -104,7 +104,7 @@ export async function elementeCareDepasesc(page: Page): Promise<string[]> {
 }
 
 /** Ce trebuie să aibă cel puțin 44×44px (§5.8). Linkurile din interiorul textului sunt exceptate. */
-const ZONE_DE_ATINGERE = ['button', 'input:not([type=hidden])', 'select', 'textarea', 'header nav a', 'footer a', '.buton-cta', '.linie-rand a', '.firimituri a'];
+const ZONE_DE_ATINGERE = ['button', 'input:not([type=hidden])', 'select', 'textarea', 'header nav a', 'footer a', '.buton-cta', '.alegator label', '.firimituri a'];
 const ATINGERE_MIN = 44;
 
 /**

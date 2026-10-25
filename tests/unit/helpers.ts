@@ -6,10 +6,26 @@ type Componenta = Parameters<AstroContainer['renderToString']>[0];
 // Un singur container pentru tot fișierul de test: crearea lui costă mai mult decât o randare.
 let container: Promise<AstroContainer> | undefined;
 
-/** HTML-ul unei componente `.astro`, randată cu `props` și, opțional, cu HTML în sloturi (ex. corpul unui ghid). */
+/**
+ * Clasa de scop a stilurilor Astro (`astro-xxxxxxxx`): cu `scopedStyleStrategy: 'class'` (astro.config.mjs; spec-ul metroul îmbunătățit, nota de la început) Astro o
+ * adaugă în atributul `class` al fiecărui element dintr-o componentă cu stiluri cu scop, fără atributul separat
+ * `data-astro-cid-…`. Testele verifică clasele scrise în componente, deci clasa de scop se scoate (iar un `class` rămas gol
+ * dispare), ca să rămână doar clasele scrise de mână.
+ */
+const CLASA_DE_SCOP = /^astro-[a-z0-9]{8}$/;
+
+function faraClaseDeScop(html: string): string {
+  return html.replace(/\sclass="([^"]*)"/g, (atribut, valoare: string) => {
+    const clase = valoare.split(/\s+/).filter((c) => c !== '' && !CLASA_DE_SCOP.test(c));
+    if (clase.length === valoare.split(/\s+/).filter((c) => c !== '').length) return atribut;
+    return clase.length > 0 ? ` class="${clase.join(' ')}"` : '';
+  });
+}
+
+/** HTML-ul unei componente `.astro`, randată cu `props` și, opțional, cu HTML în sloturi (ex. corpul unui ghid), fără clasele de scop. */
 export async function render(Component: Componenta, props: Record<string, unknown> = {}, slots: Record<string, string> = {}): Promise<string> {
   container ??= AstroContainer.create();
-  return (await container).renderToString(Component, { props, slots });
+  return faraClaseDeScop(await (await container).renderToString(Component, { props, slots }));
 }
 
 /**
@@ -29,6 +45,21 @@ export function cardulUnic(html: string): { inainte: string; card: string } | nu
     if (adancime === 0) return { inainte: html.slice(0, start), card: html.slice(start, etichete.lastIndex) };
   }
   return null;
+}
+
+/**
+ * `<div>`-ul care începe la poziția `start`, cu tot conținutul lui, până la `</div>`-ul care îl închide (se numără `<div>`-urile
+ * din interior). `start` e poziția unei etichete `<div …>` din `html`.
+ */
+export function divComplet(html: string, start: number): string {
+  const etichete = /<(\/?)div\b[^>]*>/g;
+  etichete.lastIndex = start;
+  let adancime = 0;
+  for (let m = etichete.exec(html); m !== null; m = etichete.exec(html)) {
+    adancime += m[1] === '/' ? -1 : 1;
+    if (adancime === 0) return html.slice(start, etichete.lastIndex);
+  }
+  throw new Error(`<div>-ul de la poziția ${start} nu se închide în HTML-ul randat`);
 }
 
 /** Etichetele care despart cuvinte; restul etichetelor (`span`, `a`, `strong`) dispar fără să lase spațiu. */

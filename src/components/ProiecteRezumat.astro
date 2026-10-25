@@ -4,6 +4,10 @@
 // nu se scrie ca text brut (§3.4): în previzualizare trece prin `Placeholder`, iar în producție câmpul lipsește cu tot cu
 // elementul lui (paragraf, rând de listă), ca la `Faq`. Un rezultat cu marcaj nu e verificabil, deci rândul lui lipsește;
 // un proiect al cărui titlu e încă marcaj nu apare deloc, pentru că linkul n-ar avea text.
+// Stațiile vizitate (spec metroul îmbunătățit, §6): sub titlu, serviciile proiectului ca un traseu mic, fiecare segment în
+// culoarea grupului lui și cu numele scris dedesubt. Cât timp serviciile sunt provizorii (`serviciiDeConfirmat`, ex. #8),
+// traseul lipsește: în producție nu se scrie nimic, în previzualizare apare marcajul, ca la `Faq` și `LegalId`.
+import { cereServiciu } from '../form-rules';
 import { DRAFT } from '../lib/env';
 import { lunaAn } from '../lib/format';
 import { faraMarcaje, hasMarker } from '../lib/marker';
@@ -16,8 +20,12 @@ interface Props {
     context: string;
     ceAmFacut: readonly string[];
     rezultate: readonly { text: string; sursa: string; data: Date }[];
+    /** Slug-urile serviciilor, în ordinea din frontmatter (prima dă linia proiectului). */
+    servicii: readonly string[];
+    /** Marcajul [DE COMPLETAT:#n] cât timp `servicii` sunt provizorii; zod dă `undefined` la câmpul absent. */
+    serviciiDeConfirmat?: string | undefined;
   }[];
-  /** Nivelul titlului fiecărui proiect: 3 sub un H2 „Proiecte” (Acasă), 2 direct sub H1 (/proiecte/). */
+  /** Nivelul titlului fiecărui proiect: 3 sub H2-ul secțiunii „Proiecte: stații vizitate” (Acasă), 2 direct sub H1 (/proiecte/). */
   nivelTitlu?: 2 | 3;
 }
 
@@ -31,6 +39,9 @@ const vizibile = faraMarcaje(proiecte, (p) => hasMarker(p.titlu), DRAFT).map((p)
   context: faraMarcaje([p.context], hasMarker, DRAFT)[0],
   ceAmFacut: faraMarcaje(p.ceAmFacut, hasMarker, DRAFT),
   rezultat: faraMarcaje(p.rezultate, rezultatCuMarcaj, DRAFT)[0],
+  // Un slug necunoscut oprește build-ul, cu numele proiectului (ca în CaseStudy.astro).
+  statii: p.serviciiDeConfirmat === undefined ? p.servicii.map((slug) => cereServiciu(slug, `proiecte/${p.slug}`)) : [],
+  deConfirmat: DRAFT ? p.serviciiDeConfirmat : undefined,
 }));
 ---
 
@@ -41,6 +52,22 @@ const vizibile = faraMarcaje(proiecte, (p) => hasMarker(p.titlu), DRAFT).map((p)
         <Titlu>
           <a href={`/proiecte/${p.slug}/`}><TextSauMarcaj valoare={p.titlu} /></a>
         </Titlu>
+        {
+          p.statii.length > 0 && (
+            <ul class="proiect__traseu" aria-label="Servicii folosite">
+              {p.statii.map((s) => (
+                <li data-grup={s.grup}>{s.nume}</li>
+              ))}
+            </ul>
+          )
+        }
+        {
+          p.deConfirmat !== undefined && (
+            <p>
+              <TextSauMarcaj valoare={p.deConfirmat} />
+            </p>
+          )
+        }
         {
           p.context !== undefined && (
             <p>
@@ -90,5 +117,79 @@ const vizibile = faraMarcaje(proiecte, (p) => hasMarker(p.titlu), DRAFT).map((p)
 
   .proiecte__rezultat {
     font-weight: 700;
+  }
+
+  /* Stațiile vizitate: serviciile proiectului, ca un traseu mic de segmente. Fiecare serviciu e un segment în culoarea
+     grupului lui (`--culoare`, din `data-grup`, tokens.css) și are numele scris dedesubt, în varianta închisă a culorii
+     (`--culoare-text`, 4,5:1 pe alb; galbenul tare n-ar trece), deci nimic nu se spune doar în culoare. Stațiile sunt albe,
+     cu contur `--ink`, centrate pe capetele segmentelor; colțurile rotunde sunt permise doar lor (§5.8). Traseul nu e
+     interactiv. Pe ecran îngust segmentele trec pe rânduri noi, fiecare rând cu stațiile lui. */
+  .proiect__traseu {
+    /* Diametrul stației (cu tot conturul), grosimea segmentului și a conturului. */
+    --d: 1rem;
+    --t: 0.375rem;
+    --b: 3px;
+    display: grid;
+    /* `1fr` (nu o lățime maximă fixă): numărul de coloane se calculează din minim, deci pe 375px încap două. `min(7rem, 100%)`:
+       la 320px cu textul mărit la 200%, 7rem (224px) e mai lat decât interiorul cardului și împingea pagina la 337px; așa,
+       sub 7rem rămâne o singură coloană, cât rândul. */
+    grid-template-columns: repeat(auto-fill, minmax(min(7rem, 100%), 1fr));
+    row-gap: 0.5rem;
+    /* Stațiile din capetele unui rând ies cu o jumătate de diametru din primul și ultimul segment: padding-ul le ține în pagină. */
+    margin: 1rem 0;
+    padding: 0 calc(var(--d) / 2);
+    list-style: none;
+  }
+
+  /* Segmentul e fundalul rândului, pe verticala stațiilor; numele stă sub el. */
+  .proiect__traseu li {
+    position: relative;
+    padding: calc(var(--d) + 0.25rem) 0.75rem 0 0;
+    background: linear-gradient(var(--culoare), var(--culoare)) 0 calc((var(--d) - var(--t)) / 2) / 100% var(--t) no-repeat;
+    color: var(--culoare-text);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  /* Fiecare segment își desenează ambele stații. Cele dintre doi vecini se suprapun exact (alb cu contur, același loc), iar
+     `::before` al vecinului, desenat după fundalul lui, acoperă segmentul care ar trece peste jumătatea stației. */
+  .proiect__traseu li::before,
+  .proiect__traseu li::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    box-sizing: border-box;
+    width: var(--d);
+    height: var(--d);
+    border: var(--b) solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+  }
+
+  .proiect__traseu li::before {
+    left: calc(var(--d) / -2);
+  }
+
+  .proiect__traseu li::after {
+    right: calc(var(--d) / -2);
+  }
+
+  /* Cu culorile forțate (modul de contrast ridicat), Chrome calculează `background-image: none` pentru un gradient, deci
+     segmentul ar dispărea (PasiTraseu își desenează linia cu `background-color`, care rămâne). Aici rândul iese din ajustarea
+     automată și își ia singur culorile sistemului: segmentul și numele în culoarea textului, stațiile pline în culoarea
+     paginii, cu contur în culoarea textului. */
+  @media (forced-colors: active) {
+    .proiect__traseu li {
+      forced-color-adjust: none;
+      background-image: linear-gradient(CanvasText, CanvasText);
+      color: CanvasText;
+    }
+
+    .proiect__traseu li::before,
+    .proiect__traseu li::after {
+      border-color: CanvasText;
+      background: Canvas;
+    }
   }
 </style>

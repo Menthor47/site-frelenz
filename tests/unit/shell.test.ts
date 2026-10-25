@@ -384,3 +384,63 @@ describe('Base', () => {
     }
   });
 });
+
+// 404 (spec metroul îmbunătățit, §6): fraza din §8 și cele cinci pagini din meniu, pe linia cu stații în cerneală; stația ruptă „?” e decor.
+describe('404', () => {
+  const principal = async () => {
+    const h = await render(Pagina404);
+    return h.slice(h.indexOf('<main'), h.indexOf('</main>'));
+  };
+  /** Lista cu stații din 404 și conținutul ei; `null` dacă nu există o listă cu exact clasele liniei în cerneală. */
+  const lista = (html: string) => {
+    const m = /<(ul|ol)\b[^>]*\sclass="linie-statii linie-statii--cerneala"[^>]*>([\s\S]*?)<\/\1>/.exec(html);
+    return m ? { eticheta: m[1] ?? '', continut: m[2] ?? '' } : null;
+  };
+
+  test('404: fraza și cele cinci stații, în ordinea meniului', async () => {
+    const main = await principal();
+    // Fraza stă sub paragraful existent, nu în locul lui.
+    expect(textOf(main)).toContain('Ai coborât la o stație care nu e pe hartă. Alege una de mai jos.');
+    expect(main.indexOf('nu duce la nicio pagină')).toBeGreaterThan(-1);
+    expect(main.indexOf('nu duce la nicio pagină')).toBeLessThan(main.indexOf('Ai coborât la o stație'));
+
+    const statii = lista(main);
+    expect(statii, 'lista cu clasele „linie-statii linie-statii--cerneala”').not.toBeNull();
+    const linkuri = [...(statii?.continut ?? '').matchAll(/<a\b[^>]*\shref="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => [m[1], textOf(m[2] ?? '')]);
+    expect(linkuri).toEqual([
+      ['/', 'Acasă'],
+      ['/servicii/', 'Servicii'],
+      ['/cum-lucrez/', 'Cum lucrez'],
+      ['/despre/', 'Despre'],
+      ['/contact/', 'Contact'],
+    ]);
+    // Câte un `li` pe stație, și niciuna nu e „aici”: pagina nu e pe hartă.
+    expect(statii?.continut.match(/<li\b/g)).toHaveLength(5);
+    expect(statii?.continut).not.toContain('aria-current');
+    // Lista cu trei linkuri de dinainte a dispărut.
+    expect(main).not.toContain('negasit__linkuri');
+    expect(hrefuri(main)).toEqual(linkuri.map(([href]) => href));
+
+    // „În ordinea meniului”: după Acasă (logo-ul antetului) vin aceleași pagini, în aceeași ordine, ca în meniul principal.
+    const antet = await render(Header, { cale: '/404/' });
+    const meniu = antet.slice(antet.indexOf('<nav'), antet.indexOf('</nav>'));
+    expect(['/', ...hrefuri(meniu)]).toEqual(linkuri.map(([href]) => href));
+    expect([...meniu.matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/g)].map((m) => textOf(m[1] ?? ''))).toEqual(linkuri.slice(1).map(([, text]) => text));
+  });
+
+  test('stația ruptă e aria-hidden', async () => {
+    const main = await principal();
+    const svg = /<svg\b[^>]*>[\s\S]*?<\/svg>/.exec(main)?.[0] ?? '';
+    // Un singur desen în pagină: stația „?”. Decor pur: ascuns cititorului de ecran, fără nume, fără ținte de focus.
+    expect(main.match(/<svg\b/g)).toHaveLength(1);
+    expect(svg).toMatch(/^<svg\b[^>]*\saria-hidden="true"/);
+    expect(svg).not.toMatch(/\s(?:tabindex|role|aria-label|aria-labelledby|style)=/);
+    expect(svg).not.toMatch(/<(?:title|desc|text|a|foreignObject)\b/);
+    // Culorile stau în CSS, din tokenuri (`--ink`, `--paper`): niciun `fill`/`stroke` ca atribut și nicio culoare scrisă în desen.
+    expect(svg).not.toMatch(/\s(?:fill|stroke)(?:-[a-z]+)?=/);
+    expect(svg).not.toMatch(/#[0-9a-f]{3,8}\b|\b(?:rgb|hsl)a?\(|currentColor/i);
+    // Nu stă în lista de linkuri, deci nu poate intra în numele niciunui link.
+    expect(lista(main)?.continut).not.toContain('<svg');
+    expect(main).not.toMatch(/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*<svg\b/);
+  });
+});
