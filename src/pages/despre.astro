@@ -1,8 +1,11 @@
 ---
 // /despre/ (§4.5): cine e Alex, din faptele din spec (§1), apoi biografia, experiența și instrumentele (#4). Fără studii:
-// Alex a cerut, pe 2026-10-22, ca experiența să le țină locul. Textele vin din repo-urile lui Alex, confirmate de el:
-// szitrans.eu apare cu numele (acordul, #7) și devine link spre studiul lui doar când acela se construiește (§3.4), ca
-// să nu ducă niciodată spre o pagină lipsă; magazinul rămâne anonim. Pagina așteaptă aprobarea lui Alex
+// Alex a cerut, pe 2026-10-22, ca experiența să le țină locul. Pe 2026-10-25 a cerut ca „Experiență” să arate patru
+// proiecte, ca patru carduri, și să pomenească și acest site. Faptele vin din repo-urile lui și din răspunsurile lui:
+// szitrans.eu (acordul, #7), Amsterdam Headshop (acordul magazinului, confirmat de Alex pe 2026-10-25), Grabber (aplicația
+// și magazinul ei, ale lui Alex) și AETHER // LABS (conceptul lui, găzduit neschimbat la /concepte/aether-labs/). Fiecare
+// card duce spre site-ul lui; szitrans.eu și Amsterdam Headshop primesc și linkul spre studiul de caz, doar când acela se
+// construiește (§3.4), ca să nu ducă niciodată spre o pagină lipsă. Pagina așteaptă aprobarea lui Alex
 // (src/approvals.ts). Profilurile apar doar dacă `site.profiluri` nu e gol
 // (#5), cu `rel="me"`. Fără fotografie și fără cadru gol până există una reală (#6).
 // Stratul de suprafețe (§4.5): pe desktop două coloane, povestea în carduri la stânga, un card de profil la dreapta (numele,
@@ -23,16 +26,16 @@ import { PAGINI_STATICE } from '../lib/routes';
 
 const CALE = '/despre/';
 
-/** O secțiune care e încă marcaj lipsește în producție (§3.4). `legatura`: textul care devine link spre un studiu de caz. */
-const SECTIUNI: readonly { titlu: string; text: string; legatura?: { text: string; proiect: string } }[] = [
+/** O secțiune care e încă marcaj lipsește în producție (§3.4). `proiecte`: sub text vin cardurile proiectelor. */
+const SECTIUNI: readonly { titlu: string; text: string; proiecte?: true }[] = [
   {
     titlu: 'Cine sunt',
     text: 'Lucrez singur. Când îmi scrii, vorbești direct cu cel care face lucrarea: eu mă uit la site, eu fac oferta și eu fac modificările. La final primești un raport cu ce am schimbat.',
   },
   {
     titlu: 'Experiență',
-    legatura: { text: 'szitrans.eu', proiect: 'szitrans' },
-    text: 'Am construit szitrans.eu, site-ul bilingv, în engleză și spaniolă, al unei firme de transport și logistică din Spania, și m-am ocupat de SEO-ul lui: am pus datele reale ale firmei în datele structurate și în etichetele meta, ca Google și motoarele AI să găsească peste tot aceleași informații, și am adăugat toate paginile, în ambele limbi, în harta site-ului.\n\nUn magazin online pe WordPress și WooCommerce primește comenzi și în timp ce îl modific, așa că am pornit de la o copie locală, iar pe site-ul live a ajuns doar cod testat. I-am adus la zi subsolul și paginile legale, cu datele comerciantului și linkurile ANPC, am tradus bannerul de cookie-uri în română și i-am adăugat butonul de refuz.\n\nIar site-ul pe care îl citești acum l-am construit tot eu, pagină cu pagină.',
+    proiecte: true,
+    text: 'Patru proiecte la care am lucrat, de la site-ul unei firme la o aplicație a mea. Al cincilea e chiar site-ul pe care îl citești acum: l-am construit tot eu, pagină cu pagină.',
   },
   {
     titlu: 'Instrumente',
@@ -40,20 +43,55 @@ const SECTIUNI: readonly { titlu: string; text: string; legatura?: { text: strin
   },
 ];
 
+/**
+ * Cardurile din „Experiență”, în ordinea cerută de Alex. Tot cardul e clicabil: linkul din titlu îl acoperă. `adresa` e rândul
+ * de jos, care spune unde duce clicul. `studiu`: slug-ul studiului de caz, legat doar când acela se construiește (§3.4).
+ */
+const PROIECTE: readonly { nume: string; href: string; tip: string; text: string; adresa: string; studiu?: string }[] = [
+  {
+    nume: 'szitrans.eu',
+    href: 'https://szitrans.eu/',
+    tip: 'Site de firmă, în engleză și spaniolă',
+    text: 'Site-ul unei firme de transport și logistică din Málaga. L-am construit și m-am ocupat de SEO-ul lui: am pus datele reale ale firmei în datele structurate și în etichetele meta și am adăugat toate paginile, în ambele limbi, în harta site-ului.',
+    adresa: 'szitrans.eu',
+    studiu: 'szitrans',
+  },
+  {
+    nume: 'Amsterdam Headshop',
+    href: 'https://www.amsterdam-headshop.ro/',
+    tip: 'Magazin online pe WordPress și WooCommerce',
+    text: 'Magazinul primește comenzi și în timp ce lucrez la el, așa că am pornit de la o copie locală, iar pe site-ul live a ajuns doar cod testat. I-am adus la zi subsolul și paginile legale, cu datele comerciantului și linkurile ANPC, am tradus bannerul de cookie-uri în română și i-am adăugat butonul de refuz.',
+    adresa: 'amsterdam-headshop.ro',
+    studiu: 'amsterdam-headshop',
+  },
+  {
+    nume: 'Grabber',
+    href: 'https://grab.agseo.pro/',
+    tip: 'Aplicație pentru Windows, cu magazinul ei',
+    text: 'O aplicație a mea, pentru Windows, care descarcă audio și video de pe web, plus magazinul ei online, pe Cloudflare Workers. Plata se face în SOL sau USDC și e verificată direct pe blockchain, iar cheia de licență apare pe pagină, fără cont.',
+    adresa: 'grab.agseo.pro',
+  },
+  {
+    nume: 'AETHER // LABS',
+    href: '/concepte/aether-labs/',
+    tip: 'Concept de site',
+    text: 'Un concept de design pentru un studio imaginar de artiști digitali și programatori: particule animate în fundal, cursor propriu, filtre pentru lucrări și secțiuni care apar la derulare. Studioul, echipa și cifrele sunt inventate: e un exercițiu de stil, nu un client.',
+    adresa: 'Deschide conceptul',
+  },
+];
+
 /** Uneltele din profil: exact cele pe care le numește secțiunea „Instrumente” de mai sus, în ordinea din text. */
 const UNELTE = ['Astro', 'React', 'TypeScript', 'Cloudflare', 'WordPress', 'WooCommerce', 'PHP', 'Lighthouse', 'axe', 'Playwright', 'Git'] as const;
 
 const publicate = new Set(proiectePublicabile((await getCollection('proiecte')).map((intrare) => intrare.data), DRAFT).map((p) => p.slug));
-const sectiuni = faraMarcaje(SECTIUNI, (s) => hasMarker(s.text), DRAFT).map((s) => {
-  const l = s.legatura;
-  const legatura = l !== undefined && publicate.has(l.proiect) ? { text: l.text, href: `/proiecte/${l.proiect}/` } : undefined;
-  // Un paragraf pe linia goală. Linkul stă doar în paragraful în care apare, nu în toată secțiunea.
-  const paragrafe = s.text.split('\n\n').map((par) => {
-    const poz = legatura === undefined ? -1 : par.indexOf(legatura.text);
-    return poz < 0 || legatura === undefined ? { text: par } : { inainte: par.slice(0, poz), ...legatura, dupa: par.slice(poz + legatura.text.length) };
-  });
-  return { titlu: s.titlu, paragrafe };
-});
+// Un paragraf pe linia goală.
+const sectiuni = faraMarcaje(SECTIUNI, (s) => hasMarker(s.text), DRAFT).map((s) => ({ ...s, paragrafe: s.text.split('\n\n') }));
+const proiecte = PROIECTE.map((p) => ({
+  ...p,
+  studiu: p.studiu !== undefined && publicate.has(p.studiu) ? `/proiecte/${p.studiu}/` : undefined,
+  // Linkurile spre alte site-uri primesc săgeata „↗”; conceptul, găzduit aici, primește „→”.
+  sageata: p.href.startsWith('/') ? '→' : '↗',
+}));
 // Aceeași regulă ca `sameAs` din JSON-LD: fără valori goale sau marcaje.
 const profiluri = site.profiluri.filter(areValoare);
 ---
@@ -89,14 +127,30 @@ const profiluri = site.profiluri.filter(areValoare);
               <h2>{s.titlu}</h2>
               {s.paragrafe.map((par) => (
                 <p>
-                  {'href' in par ? (
-                    // Pe un singur rând: un rând nou între link și text ar pune un spațiu înaintea virgulei de după link.
-                    <>{par.inainte}<a href={par.href}>{par.text}</a>{par.dupa}</>
-                  ) : (
-                    <TextSauMarcaj valoare={par.text} />
-                  )}
+                  <TextSauMarcaj valoare={par} />
                 </p>
               ))}
+              {s.proiecte && (
+                <ul class="despre__proiecte">
+                  {proiecte.map((p) => (
+                    <li class="proiect-exp">
+                      <h3 class="proiect-exp__nume">
+                        <a class="proiect-exp__link" href={p.href}>{p.nume}</a>
+                      </h3>
+                      <p class="proiect-exp__tip">{p.tip}</p>
+                      <p>{p.text}</p>
+                      <p class="proiect-exp__adresa" aria-hidden="true">
+                        {p.adresa} <span>{p.sageata}</span>
+                      </p>
+                      {p.studiu && (
+                        <p class="proiect-exp__studiu">
+                          <a href={p.studiu}>Studiul de caz</a>
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
           ))
         }
@@ -199,6 +253,73 @@ const profiluri = site.profiluri.filter(areValoare);
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  /* Cardurile proiectelor din „Experiență”: două pe rând când încap, unul pe telefon. Stau pe `--suprafata` în cardul alb
+     și au sus o linie de cerneală, ca traseele de lucru (decizia 34: culorile grupurilor rămân doar pentru servicii). */
+  .despre__proiecte {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .proiect-exp {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.25rem;
+    border-top: 4px solid var(--ink);
+    background: var(--suprafata);
+  }
+
+  .proiect-exp > * {
+    margin: 0;
+  }
+
+  .proiect-exp:hover {
+    box-shadow: inset 0 0 0 1px var(--ink);
+  }
+
+  .proiect-exp__nume {
+    font-size: var(--text-md);
+    letter-spacing: 0;
+  }
+
+  /* Tot cardul e clicabil (zona de atingere, §5.8): linkul din titlu îl acoperă, iar numele proiectului rămâne numele linkului. */
+  .proiect-exp__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .proiect-exp__tip {
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+
+  /* Rândul de jos spune unde duce clicul; `margin-top: auto` îl ține jos când cardurile de pe același rând au înălțimi diferite. */
+  .proiect-exp__adresa {
+    margin-top: auto;
+    padding-top: 0.25rem;
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+
+  /* Linkul spre studiul de caz stă deasupra celui care acoperă cardul, ca să se poată apăsa separat. */
+  .proiect-exp__studiu {
+    position: relative;
+    z-index: 1;
+  }
+
+  .proiect-exp__studiu a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 
   /* Uneltele din profil curg pe rânduri, fără buline, fără chenare și fără marginea implicită a listei, ca să stea la

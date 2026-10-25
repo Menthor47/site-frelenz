@@ -20,7 +20,7 @@ export const REGISTRU: Record<number, RandRegistru> = {
   5: { ce: 'Profiluri pentru sameAs (LinkedIn etc.)', cine: 'Alex', blocheaza: false },
   6: { ce: 'Fotografie reală', cine: 'Alex', blocheaza: false },
   7: { ce: 'Acordul de la szitrans (dat, decizia 23), plus rezultate verificabile și capturi datate', cine: 'Alex', blocheaza: false },
-  8: { ce: 'Textul studiului anonim al magazinului online (și serviciile folosite), aprobat, cu capturi anonimizate', cine: 'Alex', blocheaza: false },
+  8: { ce: 'Textul studiului Amsterdam Headshop (și serviciile folosite), aprobat, cu capturi', cine: 'Alex', blocheaza: false },
   9: { ce: 'Acordul mayalashes', cine: 'Alex', blocheaza: false },
   10: { ce: 'Rezultatele din studiile de caz (cifre, perioadă, sursă)', cine: 'Alex', blocheaza: false },
   11: { ce: 'Scorurile acestui site, măsurate în producție', cine: 'eu, după lansare', blocheaza: false },

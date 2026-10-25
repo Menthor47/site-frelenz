@@ -1,0 +1,2056 @@
+<!DOCTYPE html>
+<html lang="ro" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AETHER // LABS — Unde Codul Devine Pânză</title>
+  
+  <!-- Syne, Plus Jakarta Sans & Space Mono, găzduite pe site (fonte/fonte.css), în locul Google Fonts -->
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="fonte/fonte.css">
+
+  <style>
+    /* ==========================================================================
+       1. DESIGN TOKENS & VARIABILE CSS (Inspirate din Arta Neo-Psihedelică)
+       ========================================================================== */
+    :root {
+      /* Baza Dark Mode Profund */
+      --bg-void: #090A10;
+      --bg-obsidian: #0D111A;
+      --bg-glass: rgba(255, 255, 255, 0.03);
+      --bg-glass-hover: rgba(255, 255, 255, 0.06);
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(0, 229, 255, 0.45);
+
+      /* Paleta Cromatică Vibrantă */
+      --cyan-electric: #00E5FF;
+      --turquoise-flux: #00FFA3;
+      --magenta-cosmic: #E024C3;
+      --violet-deep: #7928CA;
+      --amber-solar: #FF5E00;
+      --tangerine-glow: #FFAA00;
+      --lime-organic: #50FA7B;
+
+      /* Text & Lizibilitate (WCAG AAA) */
+      --text-primary: #EDEDED;
+      --text-secondary: #A0A5B5;
+      --text-muted: #646B82;
+
+      /* Gradiente Semantice */
+      --grad-psychedelic: linear-gradient(135deg, var(--cyan-electric) 0%, var(--magenta-cosmic) 50%, var(--tangerine-glow) 100%);
+      --grad-aurora: linear-gradient(90deg, var(--turquoise-flux), var(--cyan-electric), var(--violet-deep));
+      --grad-solar: linear-gradient(135deg, var(--amber-solar), var(--tangerine-glow));
+      --grad-cyber: linear-gradient(135deg, var(--magenta-cosmic), var(--violet-deep));
+
+      /* Tipografie */
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+
+      /* Spațiere & Layout */
+      --container-max: 1320px;
+      --radius-sm: 12px;
+      --radius-md: 20px;
+      --radius-lg: 28px;
+      --radius-pill: 9999px;
+
+      /* Umbre & Luminiscență */
+      --shadow-glass: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      --glow-cyan: 0 0 25px rgba(0, 229, 255, 0.35);
+      --glow-magenta: 0 0 30px rgba(224, 36, 195, 0.35);
+      --glow-solar: 0 0 30px rgba(255, 94, 0, 0.4);
+      
+      /* Tranziții */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ==========================================================================
+       2. RESET & BASE STYLES
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      background-color: var(--bg-void);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 0%, var(--bg-obsidian) 0%, var(--bg-void) 75%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      selection-background-color: var(--magenta-cosmic);
+    }
+
+    ::selection {
+      background: var(--magenta-cosmic);
+      color: #fff;
+    }
+
+    /* Ascunde cursorul nativ pe desktop pentru cursorul custom */
+    @media (pointer: fine) {
+      body, a, button, input, textarea {
+        cursor: none;
+      }
+    }
+
+    /* Scrollbar personalizat */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-void);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, var(--cyan-electric), var(--magenta-cosmic));
+      border-radius: 4px;
+    }
+
+    /* ==========================================================================
+       3. BACKGROUND CANVAS & AURORA MESH BLURS
+       ========================================================================== */
+    #cosmos-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.75;
+    }
+
+    .aurora-container {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .aurora-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(110px);
+      opacity: 0.28;
+      animation: floatAurora 18s infinite alternate ease-in-out;
+    }
+
+    .aurora-1 {
+      width: 550px;
+      height: 550px;
+      background: var(--cyan-electric);
+      top: -150px;
+      left: -100px;
+    }
+
+    .aurora-2 {
+      width: 600px;
+      height: 600px;
+      background: var(--magenta-cosmic);
+      top: 35%;
+      right: -200px;
+      animation-delay: -6s;
+    }
+
+    .aurora-3 {
+      width: 500px;
+      height: 500px;
+      background: var(--amber-solar);
+      bottom: -150px;
+      left: 20%;
+      opacity: 0.2;
+      animation-delay: -12s;
+    }
+
+    @keyframes floatAurora {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(60px, -40px) scale(1.12); }
+      100% { transform: translate(-40px, 50px) scale(0.92); }
+    }
+
+    /* ==========================================================================
+       4. CUSTOM CURSOR & PARTICLE TRAIL
+       ========================================================================== */
+    #custom-cursor-dot {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 10px;
+      height: 10px;
+      background: var(--turquoise-flux);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 15px var(--turquoise-flux), 0 0 30px var(--cyan-electric);
+      transition: width 0.25s var(--ease-out-expo), height 0.25s var(--ease-out-expo), background 0.25s;
+    }
+
+    #custom-cursor-ring {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(0, 229, 255, 0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s var(--ease-out-expo), height 0.3s var(--ease-out-expo), border-color 0.3s, background 0.3s;
+    }
+
+    body.cursor-hover #custom-cursor-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--tangerine-glow);
+    }
+
+    body.cursor-hover #custom-cursor-ring {
+      width: 60px;
+      height: 60px;
+      border-color: var(--magenta-cosmic);
+      background: rgba(224, 36, 195, 0.08);
+      backdrop-filter: blur(2px);
+    }
+
+    @media (pointer: coarse) {
+      #custom-cursor-dot, #custom-cursor-ring {
+        display: none;
+      }
+    }
+
+    /* ==========================================================================
+       5. UTILITARE & LAYOUT GLOBAL
+       ========================================================================== */
+    .container {
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    section {
+      padding: 120px 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--turquoise-flux);
+      background: rgba(0, 255, 163, 0.07);
+      border: 1px solid rgba(0, 255, 163, 0.25);
+      padding: 6px 16px;
+      border-radius: var(--radius-pill);
+      margin-bottom: 20px;
+    }
+
+    .section-tag::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--lime-organic);
+      box-shadow: 0 0 10px var(--lime-organic);
+      animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.4); }
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 4.5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+
+    .text-gradient {
+      background: var(--grad-psychedelic);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      background-size: 200% auto;
+      animation: gradientFlow 6s linear infinite;
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    /* Scroll Reveal Animation Classes */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.9s var(--ease-out-expo), transform 0.9s var(--ease-out-expo);
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ==========================================================================
+       6. FLOATING PILL NAVBAR
+       ========================================================================== */
+    .navbar-wrapper {
+      position: fixed;
+      top: 24px;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      padding: 0 20px;
+      pointer-events: none;
+    }
+
+    .navbar {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 36px;
+      padding: 12px 16px 12px 24px;
+      background: rgba(13, 17, 26, 0.65);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-pill);
+      box-shadow: var(--shadow-glass);
+      transition: border-color 0.3s, transform 0.3s;
+    }
+
+    .navbar:hover {
+      border-color: rgba(0, 229, 255, 0.3);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: 0.04em;
+    }
+
+    .logo-vortex {
+      width: 32px;
+      height: 32px;
+      animation: spinSlow 14s linear infinite;
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      transition: color 0.25s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: var(--grad-aurora);
+      transition: width 0.3s var(--ease-out-expo);
+      border-radius: 2px;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .btn-cta-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: #090A10;
+      background: linear-gradient(135deg, var(--turquoise-flux), var(--cyan-electric), var(--tangerine-glow));
+      background-size: 200% 200%;
+      text-decoration: none;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
+      transition: transform 0.25s var(--ease-out-expo), box-shadow 0.25s;
+      animation: gradientFlow 5s ease infinite;
+    }
+
+    .btn-cta-nav:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 0 30px rgba(255, 170, 0, 0.55);
+    }
+
+    /* ==========================================================================
+       7. HERO SECTION
+       ========================================================================== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 140px;
+      padding-bottom: 90px;
+      position: relative;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 18px;
+      background: rgba(224, 36, 195, 0.08);
+      border: 1px solid rgba(224, 36, 195, 0.35);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #F490E7;
+      margin-bottom: 28px;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.7rem, 5.4vw, 4.9rem);
+      font-weight: 800;
+      line-height: 1.06;
+      letter-spacing: -0.03em;
+      margin-bottom: 28px;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+      color: var(--text-secondary);
+      max-width: 620px;
+      margin-bottom: 42px;
+      font-weight: 400;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .btn-primary-glow {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 34px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(135deg, var(--amber-solar) 0%, var(--magenta-cosmic) 55%, var(--violet-deep) 100%);
+      color: #fff;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      border: 1px solid rgba(255, 170, 0, 0.5);
+      box-shadow: var(--glow-solar), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+      transition: transform 0.3s var(--ease-out-expo), box-shadow 0.3s;
+    }
+
+    .btn-primary-glow:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 0 45px rgba(224, 36, 195, 0.65), 0 0 20px rgba(255, 170, 0, 0.5);
+    }
+
+    .btn-secondary-glass {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      border-radius: var(--radius-pill);
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      transition: all 0.3s var(--ease-out-expo);
+    }
+
+    .btn-secondary-glass:hover {
+      background: rgba(0, 229, 255, 0.08);
+      border-color: var(--cyan-electric);
+      box-shadow: var(--glow-cyan);
+      transform: translateY(-3px);
+    }
+
+    /* Sculptura Vizuală 3D-like din Hero (Inspirată de Vortexul Fractal & Bicicleta Cosmică) */
+    .hero-visual-portal {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-width: 500px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .portal-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px dashed rgba(0, 229, 255, 0.3);
+      animation: spinSlow 35s linear infinite;
+    }
+
+    .portal-ring-inner {
+      position: absolute;
+      inset: 35px;
+      border-radius: 50%;
+      border: 1px solid rgba(224, 36, 195, 0.35);
+      animation: spinSlow 22s linear infinite reverse;
+    }
+
+    .portal-core {
+      position: relative;
+      width: 82%;
+      height: 82%;
+      border-radius: 36% 64% 63% 37% / 41% 44% 56% 59%;
+      background: radial-gradient(circle at 30% 30%, var(--cyan-electric), var(--magenta-cosmic) 45%, var(--amber-solar) 80%, var(--bg-void) 95%);
+      box-shadow: 0 0 80px rgba(224, 36, 195, 0.4), inset 0 0 50px rgba(0, 255, 163, 0.4);
+      animation: morphFluid 10s ease-in-out infinite alternate;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    @keyframes morphFluid {
+      0% { border-radius: 36% 64% 63% 37% / 41% 44% 56% 59%; transform: rotate(0deg) scale(1); }
+      50% { border-radius: 58% 42% 38% 62% / 53% 60% 40% 47%; transform: rotate(8deg) scale(1.04); }
+      100% { border-radius: 42% 58% 67% 33% / 36% 52% 48% 64%; transform: rotate(-6deg) scale(0.98); }
+    }
+
+    .floating-orb {
+      position: absolute;
+      border-radius: 50%;
+      box-shadow: inset -6px -6px 16px rgba(0,0,0,0.6), 0 10px 25px rgba(0,0,0,0.5);
+      animation: floatOrb 5s ease-in-out infinite alternate;
+    }
+
+    .orb-1 {
+      width: 68px;
+      height: 68px;
+      top: 6%;
+      right: 10%;
+      background: radial-gradient(circle at 30% 30%, var(--turquoise-flux), #044962);
+    }
+
+    .orb-2 {
+      width: 48px;
+      height: 48px;
+      bottom: 10%;
+      left: 6%;
+      background: radial-gradient(circle at 30% 30%, var(--tangerine-glow), var(--magenta-cosmic));
+      animation-delay: -2.5s;
+    }
+
+    .orb-3 {
+      width: 28px;
+      height: 28px;
+      top: 22%;
+      left: 4%;
+      background: radial-gradient(circle at 30% 30%, var(--lime-organic), var(--cyan-electric));
+      animation-delay: -1.2s;
+    }
+
+    @keyframes floatOrb {
+      from { transform: translateY(0px) translateX(0px); }
+      to { transform: translateY(-18px) translateX(10px); }
+    }
+
+    .hero-stats-bar {
+      margin-top: 70px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      padding: 28px 36px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+    }
+
+    .stat-item h4 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      background: var(--grad-aurora);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .stat-item p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       8. MANIFEST & FILOSOFIE (Simbioza: Rigoare Algoritmică vs Expresie Psihedelică)
+       ========================================================================== */
+    .manifest-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 180px 1fr;
+      gap: 24px;
+      align-items: center;
+      margin-top: 60px;
+    }
+
+    .manifest-card {
+      padding: 42px;
+      border-radius: var(--radius-lg);
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s var(--ease-out-expo), border-color 0.4s;
+    }
+
+    .manifest-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .manifest-card.left-algo {
+      border-top: 2px solid var(--cyan-electric);
+    }
+
+    .manifest-card.right-psy {
+      border-top: 2px solid var(--magenta-cosmic);
+    }
+
+    .manifest-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .manifest-card p {
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      font-size: 1.02rem;
+    }
+
+    .manifest-list {
+      list-style: none;
+      display: grid;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    .manifest-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-primary);
+    }
+
+    .manifest-nexus {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .nexus-svg {
+      width: 100%;
+      height: 260px;
+      overflow: visible;
+    }
+
+    /* ==========================================================================
+       9. CATALOGUL DE SERVICII (Grilă Bento Interactivă cu Spotlight)
+       ========================================================================== */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+      margin-top: 56px;
+    }
+
+    .bento-card {
+      grid-column: span 6;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.35s var(--ease-out-expo), border-color 0.35s;
+    }
+
+    .bento-card.span-7 { grid-column: span 7; }
+    .bento-card.span-5 { grid-column: span 5; }
+
+    /* Efectul de Spotlight Cromatic la Hover */
+    .bento-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(0, 229, 255, 0.13),
+        rgba(224, 36, 195, 0.08) 40%,
+        transparent 80%
+      );
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+    }
+
+    .bento-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(0, 229, 255, 0.4);
+      box-shadow: var(--shadow-glass), 0 0 35px rgba(0, 229, 255, 0.12);
+    }
+
+    .bento-card:hover::before {
+      opacity: 1;
+    }
+
+    .bento-icon-wrap {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .bento-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.65rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .bento-card p {
+      color: var(--text-secondary);
+      font-size: 0.98rem;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .tech-stack-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      position: relative;
+      z-index: 2;
+      margin-top: auto;
+    }
+
+    .tech-pill {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      background: rgba(9, 10, 16, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--turquoise-flux);
+      transition: all 0.25s;
+    }
+
+    .bento-card:hover .tech-pill {
+      border-color: rgba(0, 255, 163, 0.4);
+      background: rgba(0, 255, 163, 0.08);
+    }
+
+    /* ==========================================================================
+       10. SHOWCASE / PORTOFOLIU SELECTAT (Cu Filtre Dinamice)
+       ========================================================================== */
+    .portfolio-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: var(--bg-glass);
+      padding: 6px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border-glass);
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.88rem;
+      padding: 10px 20px;
+      border-radius: var(--radius-pill);
+      transition: all 0.3s var(--ease-out-expo);
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(224, 36, 195, 0.25));
+      color: var(--text-primary);
+      border: 1px solid rgba(0, 229, 255, 0.4);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+    }
+
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+    }
+
+    .project-card {
+      border-radius: var(--radius-lg);
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      overflow: hidden;
+      transition: all 0.45s var(--ease-out-expo);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .project-card.hidden {
+      display: none;
+    }
+
+    .project-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(224, 36, 195, 0.5);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(224, 36, 195, 0.2);
+    }
+
+    .project-visual {
+      height: 300px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Artwork generativ inspirat direct din cele 3 imagini încărcate de utilizator */
+    .art-bicycle-horizon {
+      background: linear-gradient(180deg, #04394E 0%, #00FFA3 35%, #FFAA00 68%, #7928CA 100%);
+    }
+
+    .art-fractal-swirl {
+      background: radial-gradient(circle at 60% 40%, #00E5FF, #E024C3 45%, #FF5E00 75%, #090A10 100%);
+    }
+
+    .art-cosmic-mycelium {
+      background: radial-gradient(circle at 75% 25%, #2D46B9 0%, #090A10 60%), linear-gradient(135deg, #090A10 0%, #3A1053 100%);
+    }
+
+    .art-neural-synth {
+      background: conic-gradient(from 120deg at 50% 50%, #090A10, #00E5FF, #7928CA, #50FA7B, #090A10);
+    }
+
+    .project-ui-overlay {
+      position: absolute;
+      inset: 20px;
+      border-radius: var(--radius-md);
+      background: rgba(9, 10, 16, 0.55);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.45s var(--ease-out-expo), background 0.45s;
+    }
+
+    .project-card:hover .project-ui-overlay {
+      transform: scale(0.97);
+      background: rgba(9, 10, 16, 0.35);
+    }
+
+    .ui-window-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .ui-window-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .project-body {
+      padding: 32px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .project-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--tangerine-glow);
+      margin-bottom: 10px;
+    }
+
+    .project-body h3 {
+      font-family: var(--font-display);
+      font-size: 1.55rem;
+      margin-bottom: 12px;
+    }
+
+    .project-body p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
+
+    /* ==========================================================================
+       11. SECȚIUNEA „COLECTIVUL” (Echipa cu Avataruri Hibride)
+       ========================================================================== */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-top: 56px;
+    }
+
+    .member-card {
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s var(--ease-out-expo), border-color 0.35s;
+    }
+
+    .member-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--turquoise-flux);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .avatar-hybrid {
+      width: 130px;
+      height: 130px;
+      margin: 0 auto 22px;
+      position: relative;
+      border-radius: 50%;
+      padding: 4px;
+      background: var(--grad-psychedelic);
+    }
+
+    .avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--bg-obsidian);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .member-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+    }
+
+    .member-role {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--cyan-electric);
+      margin-bottom: 14px;
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .member-bio {
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+    }
+
+    /* ==========================================================================
+       12. CONTACT & FOOTER (Cu Micro-Elemente Faze Lunare & Curbe Topografice)
+       ========================================================================== */
+    .contact-box {
+      background: linear-gradient(145deg, rgba(13, 17, 26, 0.85), rgba(9, 10, 16, 0.95));
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(0, 229, 255, 0.25);
+      border-radius: var(--radius-lg);
+      padding: 64px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-glass), 0 0 60px rgba(121, 40, 202, 0.2);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 60px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 15px 18px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.96rem;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--cyan-electric);
+      background: rgba(0, 229, 255, 0.04);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+    }
+
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .moon-phases {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 32px 0;
+      opacity: 0.8;
+    }
+
+    footer {
+      padding: 60px 0 40px;
+      border-top: 1px solid var(--border-glass);
+      position: relative;
+      z-index: 2;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .footer-flex {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* ==========================================================================
+       13. RESPONSIVE DESIGN & ACCESSIBILITY (prefers-reduced-motion)
+       ========================================================================== */
+    @media (max-width: 1024px) {
+      .hero-grid,
+      .manifest-wrapper,
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+      .manifest-nexus {
+        height: 100px;
+      }
+      .nexus-svg {
+        transform: rotate(90deg);
+        height: 120px;
+      }
+      .bento-card, .bento-card.span-7, .bento-card.span-5 {
+        grid-column: span 12;
+      }
+      .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .hero-stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      .portfolio-grid,
+      .team-grid {
+        grid-template-columns: 1fr;
+      }
+      .contact-box {
+        padding: 32px 24px;
+      }
+      section {
+        padding: 80px 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+  <style>
+    /* Banda conceptului: spune că pagina e un exercițiu de design și duce înapoi la site. */
+    .concept-alex {
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      z-index: 9000;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 4px 12px;
+      width: max-content;
+      max-width: calc(100% - 24px);
+      padding: 6px 8px 6px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      background: rgba(5, 5, 12, 0.92);
+      color: #f2f2f7;
+      font: 400 13px/1.4 'Space Mono', monospace;
+      text-align: center;
+    }
+
+    .concept-alex a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 12px;
+      border-radius: 999px;
+      color: #00e5ff;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+
+    .concept-alex a:focus-visible {
+      outline: 2px solid #00e5ff;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BANDA CONCEPTULUI (adăugată pe site-ul lui Alex Ionescu) -->
+  <aside class="concept-alex" aria-label="Despre această pagină">
+    <span>Concept de design făcut de Alex Ionescu. Studioul, echipa și cifrele sunt inventate.</span>
+    <a href="/despre/">← Înapoi la site</a>
+  </aside>
+
+  <!-- CURSOR CUSTOM -->
+  <div id="custom-cursor-dot"></div>
+  <div id="custom-cursor-ring"></div>
+
+  <!-- AURORA MESH BLURS ÎN FUNDAL -->
+  <div class="aurora-container" aria-hidden="true">
+    <div class="aurora-blob aurora-1"></div>
+    <div class="aurora-blob aurora-2"></div>
+    <div class="aurora-blob aurora-3"></div>
+  </div>
+
+  <!-- CANVAS INTERACTIV 3D-LIKE (Particule Cosmice & Valuri Cromatice Fluide) -->
+  <canvas id="cosmos-canvas" aria-hidden="true"></canvas>
+
+  <!-- 1. FLOATING PILL NAVBAR -->
+  <header class="navbar-wrapper">
+    <nav class="navbar" aria-label="Navigație principală">
+      <a href="#" class="brand-logo">
+        <!-- Logo Vortex Spiralat în Gradient -->
+        <svg class="logo-vortex" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="vortexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00FFA3"/>
+              <stop offset="50%" stop-color="#00E5FF"/>
+              <stop offset="100%" stop-color="#E024C3"/>
+            </linearGradient>
+          </defs>
+          <path d="M32 6C17.64 6 6 17.64 6 32C6 42.5 12.5 51.5 21.5 55.5C15.5 49.5 13 40.5 16 32C19 23.5 28 19 36.5 22C45 25 49 34 45.5 42C42 50 32.5 53 25 49" stroke="url(#vortexGrad)" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="32" cy="32" r="6" fill="#FFAA00"/>
+        </svg>
+        <span>AETHER<span style="color: var(--cyan-electric)">//</span>LABS</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#manifest">Manifest</a></li>
+        <li><a href="#servicii">Servicii</a></li>
+        <li><a href="#portofoliu">Colecție</a></li>
+        <li><a href="#colectiv">Colectiv</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+      <a href="#contact" class="btn-cta-nav">
+        <span>Inițiază un Proiect</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- 2. HERO SECTION -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-grid">
+          <div class="hero-content reveal active">
+            <div class="hero-badge">
+              <span>✦ COLECTIV DE ARTIȘTI DIGITALI & ARHITECȚI SOFTWARE</span>
+            </div>
+            <h1 class="hero-title">
+              Unde Codul Devine <span class="text-gradient">Pânză</span> și Tehnologia Devine <span class="text-gradient">Emoție</span>.
+            </h1>
+            <p class="hero-subtitle">
+              Suntem o sinergie de ingineri de sistem și artiști vizuali. Construim experiențe web imersive, software creativ și identități digitale care refuză banalul.
+            </p>
+            <div class="hero-actions">
+              <a href="#portofoliu" class="btn-primary-glow">
+                <span>Explorează Lucrările</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+              </a>
+              <a href="#servicii" class="btn-secondary-glass">
+                <span>Descoperă Serviciile</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Sculptură Vizuală Interactivă (Inspirată din cele 3 imagini) -->
+          <div class="hero-visual-portal reveal active">
+            <div class="portal-ring"></div>
+            <div class="portal-ring-inner"></div>
+            <div class="floating-orb orb-1"></div>
+            <div class="floating-orb orb-2"></div>
+            <div class="floating-orb orb-3"></div>
+            
+            <div class="portal-core" id="interactive-portal">
+              <!-- Geometrie Suprarealistă Interioară (Spițe Radiale + Ochi Cosmic + Curbe Fluide) -->
+              <svg viewBox="0 0 300 300" width="88%" height="88%" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Spițe radiale inspirate de roțile bicicletei psihedelice -->
+                <g opacity="0.45" stroke="#090A10" stroke-width="2">
+                  <line x1="150" y1="20" x2="150" y2="280"/>
+                  <line x1="20" y1="150" x2="280" y2="150"/>
+                  <line x1="58" y1="58" x2="242" y2="242"/>
+                  <line x1="242" y1="58" x2="58" y2="242"/>
+                </g>
+                <!-- Inele Concentrice & Galaxie -->
+                <circle cx="150" cy="150" r="95" stroke="#00FFA3" stroke-width="1.5" stroke-dasharray="6 6"/>
+                <ellipse cx="150" cy="150" rx="125" ry="48" transform="rotate(-28 150 150)" stroke="#EDEDED" stroke-width="2"/>
+                <circle cx="150" cy="150" r="38" fill="#090A10" stroke="#FFAA00" stroke-width="3"/>
+                <circle cx="150" cy="150" r="14" fill="#50FA7B"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bară de Metrici Tehnico-Artistice -->
+        <div class="hero-stats-bar reveal">
+          <div class="stat-item">
+            <h4>60 FPS</h4>
+            <p>// Shaders & WebGL Fluidity</p>
+          </div>
+          <div class="stat-item">
+            <h4>99.98%</h4>
+            <p>// Cloud Architecture Uptime</p>
+          </div>
+          <div class="stat-item">
+            <h4>42+</h4>
+            <p>// Instalații & Platforme Lansate</p>
+          </div>
+          <div class="stat-item">
+            <h4>WCAG AAA</h4>
+            <p>// Contrast & Accesibilitate</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. SECȚIUNEA MANIFEST & FILOSOFIE -->
+    <section id="manifest">
+      <div class="container">
+        <div class="reveal" style="text-align: center; max-width: 760px; margin: 0 auto;">
+          <span class="section-tag">01 // Manifest & Filosofie</span>
+          <h2 class="section-title">Simbioza Dintre <span class="text-gradient">Algoritm</span> și <span class="text-gradient">Vis Suprarealist</span></h2>
+          <p style="color: var(--text-secondary); font-size: 1.08rem;">
+            Nu credem în granița artificială dintre emisfera stângă și emisfera dreaptă. Fiecare linie de cod este o tușă de pensulă luminiscentă; fiecare arhitectură de server este o rețea micelială vie.
+          </p>
+        </div>
+
+        <div class="manifest-wrapper reveal">
+          <!-- Coloana Stângă: Rigoare Algoritmică -->
+          <div class="manifest-card left-algo">
+            <h3>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-electric)" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              Rigoare Algoritmică
+            </h3>
+            <p>
+              Fundații ingineresti impecabile. Scriem cod scalabil, sigur și ultra-performant, capabil să proceseze fluxuri masive de date și geometrii 3D în timp real fără compromisuri.
+            </p>
+            <ul class="manifest-list">
+              <li><span style="color: var(--cyan-electric)">▹</span> Arhitectură Microservicii & Edge Computing</li>
+              <li><span style="color: var(--cyan-electric)">▹</span> Custom GLSL Shaders & Raymarching</li>
+              <li><span style="color: var(--cyan-electric)">▹</span> Clean Code, CI/CD & Securitate Criptografică</li>
+              <li><span style="color: var(--cyan-electric)">▹</span> Latență sub-milisecundă pentru interacțiuni live</li>
+            </ul>
+          </div>
+
+          <!-- Nucleul Comun cu Vectori Luminoși Interconectați -->
+          <div class="manifest-nexus" aria-hidden="true">
+            <svg class="nexus-svg" viewBox="0 0 180 260" fill="none">
+              <defs>
+                <linearGradient id="streamGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+                  <stop offset="0%" stop-color="#00E5FF"/>
+                  <stop offset="50%" stop-color="#50FA7B"/>
+                  <stop offset="100%" stop-color="#E024C3"/>
+                </linearGradient>
+              </defs>
+              <!-- Curbe energetice care unesc stânga cu dreapta -->
+              <path d="M0 60 C 60 60, 60 130, 90 130 C 120 130, 120 60, 180 60" stroke="url(#streamGrad)" stroke-width="2.5" stroke-dasharray="6 4"/>
+              <path d="M0 130 L 180 130" stroke="url(#streamGrad)" stroke-width="3"/>
+              <path d="M0 200 C 60 200, 60 130, 90 130 C 120 130, 120 200, 180 200" stroke="url(#streamGrad)" stroke-width="2.5" stroke-dasharray="6 4"/>
+              <!-- Nucleu central -->
+              <circle cx="90" cy="130" r="26" fill="#090A10" stroke="#00FFA3" stroke-width="2"/>
+              <circle cx="90" cy="130" r="10" fill="#FFAA00"/>
+            </svg>
+          </div>
+
+          <!-- Coloana Dreaptă: Expresie Psihedelică Pură -->
+          <div class="manifest-card right-psy">
+            <h3>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--magenta-cosmic)" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+              Expresie Psihedelică Pură
+            </h3>
+            <p>
+              Evadăm din șabloanele corporatiste sterile. Creăm lumi vizuale hipnotice, cromatică sinestezică și narațiuni interactive care rămân întipărite în memoria utilizatorului.
+            </p>
+            <ul class="manifest-list">
+              <li><span style="color: var(--magenta-cosmic)">▹</span> Direcție Artistică Neo-Psihedelică & Suprarealistă</li>
+              <li><span style="color: var(--magenta-cosmic)">▹</span> Sisteme Generative Bazate pe Sunet & Mișcare</li>
+              <li><span style="color: var(--magenta-cosmic)">▹</span> Micro-interacțiuni Organice & Tipografie Cinetică</li>
+              <li><span style="color: var(--magenta-cosmic)">▹</span> Echilibru Cromatic între Dark Void și Neon Pur</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. CATALOGUL DE SERVICII PROFESIONALE (Bento Grid) -->
+    <section id="servicii">
+      <div class="container">
+        <div class="reveal">
+          <span class="section-tag">02 // Arhitectură & Capacități</span>
+          <h2 class="section-title">Servicii Construite la Intersecția <span class="text-gradient">Arte-Inginerie</span></h2>
+        </div>
+
+        <div class="bento-grid">
+          <!-- Card 1 -->
+          <article class="bento-card span-7 reveal">
+            <div>
+              <div class="bento-icon-wrap">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-electric)" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              </div>
+              <h3>Dezvoltare Web & Experiențe Creative</h3>
+              <p>
+                Construim ecosisteme web imersive, site-uri 3D WebGL/WebGPU cu fizică în timp real, platforme e-commerce avangardiste și aplicații Full-Stack cu arhitectură impecabilă.
+              </p>
+            </div>
+            <div class="tech-stack-pills">
+              <span class="tech-pill">React / Next.js</span>
+              <span class="tech-pill">Three.js</span>
+              <span class="tech-pill">WebGPU</span>
+              <span class="tech-pill">TypeScript</span>
+              <span class="tech-pill">GSAP</span>
+            </div>
+          </article>
+
+          <!-- Card 2 -->
+          <article class="bento-card span-5 reveal">
+            <div>
+              <div class="bento-icon-wrap">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--magenta-cosmic)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94"/></svg>
+              </div>
+              <h3>Artă Generativă & Algoritmică</h3>
+              <p>
+                Instalații digitale interactive pentru muzee și festivaluri, vizualizări de date complexe în timp real, sisteme audio-reactive și pipeline-uri creative custom.
+              </p>
+            </div>
+            <div class="tech-stack-pills">
+              <span class="tech-pill">GLSL Shaders</span>
+              <span class="tech-pill">Python</span>
+              <span class="tech-pill">TouchDesigner</span>
+              <span class="tech-pill">p5.js</span>
+            </div>
+          </article>
+
+          <!-- Card 3 -->
+          <article class="bento-card span-5 reveal">
+            <div>
+              <div class="bento-icon-wrap">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--tangerine-glow)" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+              </div>
+              <h3>Branding & Direcție Artistică</h3>
+              <p>
+                Identități vizuale psihedelic-moderniste, sisteme de design scalabile, ilustrație suprarealistă custom, grafică vectorială complexă și motion design 3D.
+              </p>
+            </div>
+            <div class="tech-stack-pills">
+              <span class="tech-pill">Blender 3D</span>
+              <span class="tech-pill">Figma Tokens</span>
+              <span class="tech-pill">Houdini</span>
+              <span class="tech-pill">Spline</span>
+            </div>
+          </article>
+
+          <!-- Card 4 -->
+          <article class="bento-card span-7 reveal">
+            <div>
+              <div class="bento-icon-wrap">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--lime-organic)" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+              </div>
+              <h3>Consultanță & Arhitectură IT</h3>
+              <p>
+                Optimizare extremă de performanță, arhitectură cloud nativă, integrări AI/ML pentru fluxuri creative și transformare digitală orientată pe experiența utilizatorului.
+              </p>
+            </div>
+            <div class="tech-stack-pills">
+              <span class="tech-pill">Rust</span>
+              <span class="tech-pill">Node.js</span>
+              <span class="tech-pill">Kubernetes</span>
+              <span class="tech-pill">PyTorch</span>
+              <span class="tech-pill">GraphQL</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. SHOWCASE / PORTOFOLIU SELECTAT (Inspirat din Imaginile Utilizatorului) -->
+    <section id="portofoliu">
+      <div class="container">
+        <div class="portfolio-header reveal">
+          <div>
+            <span class="section-tag">03 // Lucrări Selectate</span>
+            <h2 class="section-title">Colecția de <span class="text-gradient">Artefacte Digitale</span></h2>
+          </div>
+
+          <!-- Filtre Dinamice -->
+          <div class="filter-tabs" role="tablist" aria-label="Filtre portofoliu">
+            <button class="filter-btn active" data-filter="all">Toate</button>
+            <button class="filter-btn" data-filter="web">Dezvoltare Web</button>
+            <button class="filter-btn" data-filter="art">Artă Digitală</button>
+            <button class="filter-btn" data-filter="installations">Instalații Interactive</button>
+          </div>
+        </div>
+
+        <div class="portfolio-grid">
+          <!-- Proiect 1: Inspirat din Imaginea 1 (Bicicleta Suprarealistă în Peisaj Cosmic) -->
+          <article class="project-card reveal" data-category="web">
+            <div class="project-visual art-bicycle-horizon">
+              <div class="project-ui-overlay">
+                <div class="ui-window-dots">
+                  <span style="background:#FF5E00"></span>
+                  <span style="background:#FFAA00"></span>
+                  <span style="background:#50FA7B"></span>
+                </div>
+                <!-- Ilustrație SVG a bicicletei suprarealiste & spițelor prismatice -->
+                <svg viewBox="0 0 260 120" width="85%" height="75%" style="margin: auto;" fill="none">
+                  <circle cx="65" cy="75" r="32" stroke="#00E5FF" stroke-width="4" fill="rgba(255,94,0,0.25)"/>
+                  <circle cx="195" cy="75" r="32" stroke="#00E5FF" stroke-width="4" fill="rgba(80,250,123,0.25)"/>
+                  <path d="M65 75 L115 38 L180 38 L130 75 Z" stroke="#E024C3" stroke-width="4" stroke-linejoin="round"/>
+                  <path d="M180 38 L195 75" stroke="#E024C3" stroke-width="4"/>
+                  <!-- Turnul suprarealist pe șa -->
+                  <path d="M100 38 Q115 5 130 38 Z" fill="#00FFA3"/>
+                  <circle cx="155" cy="24" r="8" fill="#FFAA00"/>
+                </svg>
+                <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #EDEDED; display:flex; justify-content:space-between;">
+                  <span>WEBGL CONFIGURATOR 3D</span>
+                  <span>98.4 FPS</span>
+                </div>
+              </div>
+            </div>
+            <div class="project-body">
+              <div>
+                <div class="project-meta">
+                  <span>DEZVOLTARE WEB // E-COMMERCE 3D</span>
+                  <span>2026</span>
+                </div>
+                <h3>Project Velocipede: Surreal Mobility</h3>
+                <p>
+                  Experiență interactivă de configurare 3D în timp real, unde utilizatorii personalizează vehicule concept într-un deșert bioluminiscent randat în WebGPU.
+                </p>
+              </div>
+              <div class="tech-stack-pills">
+                <span class="tech-pill">Three.js</span>
+                <span class="tech-pill">React Three Fiber</span>
+                <span class="tech-pill">GLSL</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Proiect 2: Inspirat din Imaginea 2 (Vortexul Fluid Fractal & Sferele 3D) -->
+          <article class="project-card reveal" data-category="art">
+            <div class="project-visual art-fractal-swirl">
+              <div class="project-ui-overlay">
+                <div class="ui-window-dots">
+                  <span style="background:#E024C3"></span>
+                  <span style="background:#00E5FF"></span>
+                  <span style="background:#50FA7B"></span>
+                </div>
+                <svg viewBox="0 0 260 120" width="85%" height="75%" style="margin: auto;" fill="none">
+                  <path d="M20 60 C 70 -10, 110 130, 160 50 C 190 10, 220 90, 245 45" stroke="#00FFA3" stroke-width="5" stroke-linecap="round"/>
+                  <path d="M20 80 C 80 20, 120 140, 180 40 C 210 0, 230 80, 245 65" stroke="#FFAA00" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="95" cy="40" r="14" fill="#00E5FF"/>
+                  <circle cx="175" cy="75" r="10" fill="#E024C3"/>
+                  <circle cx="140" cy="30" r="7" fill="#50FA7B"/>
+                </svg>
+                <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #EDEDED; display:flex; justify-content:space-between;">
+                  <span>NAVIER-STOKES FLUID ENGINE</span>
+                  <span>AUDIO-REACTIVE</span>
+                </div>
+              </div>
+            </div>
+            <div class="project-body">
+              <div>
+                <div class="project-meta">
+                  <span>ARTĂ DIGITALĂ // SHADER ENGINE</span>
+                  <span>2026</span>
+                </div>
+                <h3>Chroma Vortex: Fluid Dynamics</h3>
+                <p>
+                  Motor generativ de fluide 3D și fracții turbulente care transformă frecvențele muzicale simfonice în volute cromatice și sfere gravitaționale.
+                </p>
+              </div>
+              <div class="tech-stack-pills">
+                <span class="tech-pill">Custom GLSL</span>
+                <span class="tech-pill">WebAudio API</span>
+                <span class="tech-pill">Rust / WASM</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Proiect 3: Inspirat din Imaginea 3 (Cosmosul Blacklight, Ciupercile Neon & Galaxia) -->
+          <article class="project-card reveal" data-category="installations">
+            <div class="project-visual art-cosmic-mycelium">
+              <div class="project-ui-overlay">
+                <div class="ui-window-dots">
+                  <span style="background:#50FA7B"></span>
+                  <span style="background:#7928CA"></span>
+                  <span style="background:#00E5FF"></span>
+                </div>
+                <svg viewBox="0 0 260 120" width="85%" height="75%" style="margin: auto;" fill="none">
+                  <!-- Cometa diagonală -->
+                  <line x1="220" y1="10" x2="60" y2="55" stroke="#FF5E00" stroke-width="4" stroke-linecap="round"/>
+                  <!-- Planeta cu inel -->
+                  <circle cx="55" cy="35" r="14" fill="#00FFA3" opacity="0.8"/>
+                  <ellipse cx="55" cy="35" rx="26" ry="7" transform="rotate(20 55 35)" stroke="#00E5FF" stroke-width="2"/>
+                  <!-- Cupola de ciupercă neon -->
+                  <path d="M105 85 C 105 42, 165 42, 165 85 Z" fill="#E024C3" stroke="#50FA7B" stroke-width="2.5"/>
+                  <path d="M128 85 L 124 115 M142 85 L 146 115" stroke="#E024C3" stroke-width="5" stroke-linecap="round"/>
+                </svg>
+                <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #EDEDED; display:flex; justify-content:space-between;">
+                  <span>PROIECȚIE DOM 360° & LIDAR</span>
+                  <span>12K RESOLUTION</span>
+                </div>
+              </div>
+            </div>
+            <div class="project-body">
+              <div>
+                <div class="project-meta">
+                  <span>INSTALAȚII INTERACTIVE // BIOMIMETICĂ</span>
+                  <span>2025</span>
+                </div>
+                <h3>Mycelium Cosmos: Dome Projection</h3>
+                <p>
+                  Instalație imersivă cu senzori LiDAR în care vizitatorii declanșează creșterea unor păduri bioluminiscente și comete orbitale prin simpla mișcare a mâinilor.
+                </p>
+              </div>
+              <div class="tech-stack-pills">
+                <span class="tech-pill">TouchDesigner</span>
+                <span class="tech-pill">LiDAR Tracking</span>
+                <span class="tech-pill">Python</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Proiect 4 -->
+          <article class="project-card reveal" data-category="web">
+            <div class="project-visual art-neural-synth">
+              <div class="project-ui-overlay">
+                <div class="ui-window-dots">
+                  <span style="background:#00E5FF"></span>
+                  <span style="background:#FFAA00"></span>
+                  <span style="background:#E024C3"></span>
+                </div>
+                <svg viewBox="0 0 260 120" width="85%" height="75%" style="margin: auto;" fill="none">
+                  <polygon points="130,15 190,95 70,95" stroke="#00FFA3" stroke-width="3" fill="rgba(121,40,202,0.3)"/>
+                  <circle cx="130" cy="65" r="18" stroke="#FFAA00" stroke-width="2.5"/>
+                </svg>
+                <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #EDEDED; display:flex; justify-content:space-between;">
+                  <span>SYNTHESIZER & AI INTERFACE</span>
+                  <span>LOW-LATENCY</span>
+                </div>
+              </div>
+            </div>
+            <div class="project-body">
+              <div>
+                <div class="project-meta">
+                  <span>DEZVOLTARE WEB // INSTRUMENT CREATIV</span>
+                  <span>2026</span>
+                </div>
+                <h3>Hyperion: Neural Web Synthesizer</h3>
+                <p>
+                  Sintetizator polifonic în browser asistat de rețele neuronale, cu o interfață inspirată de hărțile stelare și geometria sacră.
+                </p>
+              </div>
+              <div class="tech-stack-pills">
+                <span class="tech-pill">WebAudio</span>
+                <span class="tech-pill">TensorFlow.js</span>
+                <span class="tech-pill">Next.js</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. SECȚIUNEA „COLECTIVUL” (Echipa) -->
+    <section id="colectiv">
+      <div class="container">
+        <div class="reveal" style="text-align: center; max-width: 720px; margin: 0 auto;">
+          <span class="section-tag">04 // Arhitecții Viziunii</span>
+          <h2 class="section-title">Minte Tehnică. <span class="text-gradient">Suflet Suprarealist</span>.</h2>
+          <p style="color: var(--text-secondary);">
+            Fiecare membru al colectivului nostru stăpânește atât rigoarea ingineriei software, cât și expresivitatea artei vizuale contemporane.
+          </p>
+        </div>
+
+        <div class="team-grid">
+          <!-- Membru 1 -->
+          <div class="member-card reveal">
+            <div class="avatar-hybrid">
+              <div class="avatar-inner">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                  <circle cx="50" cy="50" r="50" fill="#121826"/>
+                  <circle cx="50" cy="38" r="18" fill="#00E5FF" opacity="0.85"/>
+                  <path d="M20 90 C 20 62, 80 62, 80 90" fill="#7928CA"/>
+                  <!-- Aura psihedelică suprapusă -->
+                  <circle cx="50" cy="38" r="26" stroke="#FFAA00" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+                </svg>
+              </div>
+            </div>
+            <h3>Kaelen Vance</h3>
+            <div class="member-role">Creative Director &amp; Full-Stack Architect</div>
+            <p class="member-bio">12 ani în arhitecturi distribuite și artă generativă bazată pe fizica particulelor.</p>
+          </div>
+
+          <!-- Membru 2 -->
+          <div class="member-card reveal">
+            <div class="avatar-hybrid">
+              <div class="avatar-inner">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                  <circle cx="50" cy="50" r="50" fill="#121826"/>
+                  <circle cx="50" cy="38" r="18" fill="#E024C3" opacity="0.85"/>
+                  <path d="M20 90 C 20 62, 80 62, 80 90" fill="#00FFA3"/>
+                  <path d="M15 45 Q 50 10 85 45" stroke="#50FA7B" stroke-width="2" fill="none"/>
+                </svg>
+              </div>
+            </div>
+            <h3>Aria Solis</h3>
+            <div class="member-role">Lead Visual Artist &amp; GLSL Shader Engineer</div>
+            <p class="member-bio">Transformă ecuații matematice complexe în peisaje lichide și lumini hipnotice.</p>
+          </div>
+
+          <!-- Membru 3 -->
+          <div class="member-card reveal">
+            <div class="avatar-hybrid">
+              <div class="avatar-inner">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                  <circle cx="50" cy="50" r="50" fill="#121826"/>
+                  <circle cx="50" cy="38" r="18" fill="#FFAA00" opacity="0.85"/>
+                  <path d="M20 90 C 20 62, 80 62, 80 90" fill="#FF5E00"/>
+                  <polygon points="50,12 78,60 22,60" stroke="#00E5FF" stroke-width="1.5" fill="none"/>
+                </svg>
+              </div>
+            </div>
+            <h3>Dorian K.</h3>
+            <div class="member-role">Interactive Designer &amp; Machine Learning Eng.</div>
+            <p class="member-bio">Pionier în interfețe neuronale, computer vision și instalații senzoriale.</p>
+          </div>
+
+          <!-- Membru 4 -->
+          <div class="member-card reveal">
+            <div class="avatar-hybrid">
+              <div class="avatar-inner">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                  <circle cx="50" cy="50" r="50" fill="#121826"/>
+                  <circle cx="50" cy="38" r="18" fill="#50FA7B" opacity="0.85"/>
+                  <path d="M20 90 C 20 62, 80 62, 80 90" fill="#00E5FF"/>
+                  <circle cx="50" cy="50" r="36" stroke="#E024C3" stroke-width="1.5" fill="none"/>
+                </svg>
+              </div>
+            </div>
+            <h3>Lyra Novak</h3>
+            <div class="member-role">3D Worldbuilder &amp; Systems Performance Lead</div>
+            <p class="member-bio">Obsedată de geometria suprarealistă și optimizarea la nivel de microsecundă.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. CONTACT & BRIEF DE PROIECT -->
+    <section id="contact">
+      <div class="container">
+        <div class="contact-box reveal">
+          <div class="contact-grid">
+            <div>
+              <span class="section-tag">05 // Portal de Comunicare</span>
+              <h2 class="section-title">Ai o Viziune Care <span class="text-gradient">Sfidează Convenționalul?</span></h2>
+              <p style="color: var(--text-secondary); margin-bottom: 28px;">
+                Indiferent dacă lansezi un produs tech vizionar, o experiență web 3D sau o instalație imersivă, hai să proiectăm împreună arhitectura și universul ei vizual.
+              </p>
+
+              <!-- Micro-element decorativ: Fazele Lunii -->
+              <div class="moon-phases" aria-label="Element decorativ faze lunare">
+                <svg width="220" height="32" viewBox="0 0 220 32" fill="none">
+                  <circle cx="16" cy="16" r="10" stroke="#00E5FF" stroke-width="1.5"/>
+                  <path d="M56 6 A10 10 0 0 1 56 26 A7 10 0 0 0 56 6Z" fill="#00FFA3"/>
+                  <circle cx="106" cy="16" r="11" fill="url(#vortexGrad)"/>
+                  <path d="M156 6 A10 10 0 0 0 156 26 A7 10 0 0 1 156 6Z" fill="#E024C3"/>
+                  <circle cx="196" cy="16" r="10" stroke="#FFAA00" stroke-width="1.5" stroke-dasharray="3 3"/>
+                </svg>
+              </div>
+
+              <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-secondary);">
+                <p style="margin-bottom: 8px;"><strong style="color: var(--text-primary);">DIRECT:</strong> hello@aetherlabs.art</p>
+                <p><strong style="color: var(--text-primary);">STUDIO:</strong> București // Berlin // Cloud-Native</p>
+              </div>
+            </div>
+
+            <form id="project-form" onsubmit="handleFormSubmit(event)">
+              <div class="form-group">
+                <label for="name">Nume / Organizație</label>
+                <input type="text" id="name" class="form-control" placeholder="Ex: Alex Vance // Studio Nova" required />
+              </div>
+              <div class="form-group">
+                <label for="email">Adresă de Email</label>
+                <input type="email" id="email" class="form-control" placeholder="alex@domeniu.ro" required />
+              </div>
+              <div class="form-group">
+                <label for="service">Sfera Proiectului</label>
+                <select id="service" class="form-control" style="background-color: var(--bg-obsidian);">
+                  <option value="web">Dezvoltare Web Imersivă & WebGL</option>
+                  <option value="art">Artă Generativă & Instalație Interactivă</option>
+                  <option value="branding">Branding Neo-Psihedelic & Direcție Artistică</option>
+                  <option value="arch">Arhitectură Software & Consultanță</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="message">Brief-ul sau Ideea Ta</label>
+                <textarea id="message" class="form-control" placeholder="Povestește-ne despre universul pe care vrei să-l construim..." required></textarea>
+              </div>
+              <button type="submit" class="btn-primary-glow" style="width: 100%; justify-content: center; cursor: none;">
+                <span id="submit-text">Transmite Semnalul</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 8. FOOTER -->
+  <footer>
+    <div class="container footer-flex">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="color: var(--lime-organic);">●</span>
+        <span style="font-family: var(--font-mono); font-size: 0.8rem;">TOATE SISTEMELE CREATIVE OPERAȚIONALE // 2026 AETHER LABS</span>
+      </div>
+      <div style="display: flex; gap: 24px; font-family: var(--font-mono); font-size: 0.8rem;">
+        <a href="#" style="color: var(--text-secondary); text-decoration: none;">GitHub</a>
+        <a href="#" style="color: var(--text-secondary); text-decoration: none;">Behance</a>
+        <a href="#" style="color: var(--text-secondary); text-decoration: none;">ShaderToy</a>
+        <a href="#" style="color: var(--text-secondary); text-decoration: none;">X / Twitter</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       9. MOTORUL JAVASCRIPT: CANVAS FLUID & PARTICULE, CURSOR, BENTO GLOW, FILTRE
+       ========================================================================== -->
+  <script>
+    /* 1. CURSOR CUSTOM CU INEL DE URMĂRIRE FLUIDĂ */
+    const cursorDot = document.getElementById('custom-cursor-dot');
+    const cursorRing = document.getElementById('custom-cursor-ring');
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let ringX = mouseX;
+    let ringY = mouseY;
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursorDot.style.left = `${mouseX}px`;
+      cursorDot.style.top = `${mouseY}px`;
+    });
+
+    function animateCursorRing() {
+      ringX += (mouseX - ringX) * 0.18;
+      ringY += (mouseY - ringY) * 0.18;
+      cursorRing.style.left = `${ringX}px`;
+      cursorRing.style.top = `${ringY}px`;
+      requestAnimationFrame(animateCursorRing);
+    }
+    animateCursorRing();
+
+    document.querySelectorAll('a, button, input, textarea, select, .bento-card, .project-card').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    });
+
+    /* 2. BENTO CARDS MOUSE SPOTLIGHT TRACKING */
+    document.querySelectorAll('.bento-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+    });
+
+    /* 3. CANVAS INTERACTIV: PARTICULE COSMICE & CONEXIUNI NEURONALE/MICELIALE */
+    const canvas = document.getElementById('cosmos-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let particles = [];
+    const palette = ['#00E5FF', '#00FFA3', '#E024C3', '#7928CA', '#FFAA00', '#50FA7B'];
+
+    function resizeCanvas() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class CosmicParticle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.size = Math.random() * 2.6 + 0.8;
+        this.speedX = (Math.random() - 0.5) * 0.6;
+        this.speedY = (Math.random() - 0.5) * 0.6;
+        this.color = palette[Math.floor(Math.random() * palette.length)];
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        // Reacție subtilă la cursor
+        const dx = mouseX - this.x;
+        const dy = mouseY - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 160) {
+          this.x -= dx * 0.012;
+          this.y -= dy * 0.012;
+        }
+
+        if (this.x < 0 || this.x > width) this.speedX *= -1;
+        if (this.y < 0 || this.y > height) this.speedY *= -1;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = this.color;
+        ctx.fill();
+      }
+    }
+
+    const particleCount = window.innerWidth < 768 ? 35 : 75;
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new CosmicParticle());
+    }
+
+    function animateCosmos() {
+      ctx.clearRect(0, 0, width, height);
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+
+        // Linii fine luminescente între particule apropiate
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 130) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(0, 229, 255, ${(1 - dist / 130) * 0.18})`;
+            ctx.lineWidth = 0.8;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(animateCosmos);
+    }
+    animateCosmos();
+
+    /* 4. FILTRE DINAMICE PORTOFOLIU */
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
+
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.getAttribute('data-filter');
+
+        projectCards.forEach(card => {
+          const category = card.getAttribute('data-category');
+          if (filter === 'all' || category === filter) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    /* 5. SCROLL REVEAL (INTERSECTION OBSERVER) */
+    const revealElements = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { threshold: 0.12 });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+
+    /* 6. INTERACȚIUNE FORMULAR DE CONTACT */
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const btnText = document.getElementById('submit-text');
+      btnText.textContent = 'Semnal Recepionat în Vortex ✦';
+      e.target.reset();
+      setTimeout(() => {
+        btnText.textContent = 'Transmite Semnalul';
+      }, 4000);
+    }
+  </script>
+</body>
+</html>

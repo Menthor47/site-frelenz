@@ -16,10 +16,14 @@ async function paginiDinSitemap(cere: (cale: string) => Promise<string>): Promis
   return pagini;
 }
 
-/** Câte pagini HTML a construit build-ul (dist/, sau QA_DIST la previzualizare), fără `_astro`, `_test` și `_intern`. */
+/**
+ * Câte pagini HTML a construit build-ul (dist/, sau QA_DIST la previzualizare), fără `_astro`, `_test` și `_intern`. Fără
+ * `concepte/` nici ele: conceptele de design sunt pagini statice din public/, păstrate cum au fost făcute (noindex, în
+ * afara sitemap-ului), nu pagini ale site-ului, deci nu intră în bugetul lui.
+ */
 function paginiConstruite(): number {
   const dist = process.env.QA_DIST ?? 'dist';
-  return readdirSync(dist, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.html') && !f.startsWith('_')).length;
+  return readdirSync(dist, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.html') && !f.startsWith('_') && !/^concepte[\\/]/.test(f)).length;
 }
 
 test('CSS-ul fiecărei pagini publice rămâne sub 25 KB necomprimat', async ({ page }) => {

@@ -339,7 +339,7 @@ Volumele nu sunt verificate. Alex le confirmă în Keyword Planner înainte de l
 
 **Proiecte:**
 - `/proiecte/szitrans/`: doar cu acordul scris;
-- `/proiecte/magazin-online/`: anonim, fără nume, cu detalii care nu identifică clientul;
+- `/proiecte/amsterdam-headshop/`: cu numele magazinului, după acordul lui (confirmat de Alex pe 2026-10-25); până atunci a fost `/proiecte/magazin-online/`, anonim;
 - `/proiecte/acest-site/`: se construiește după prima măsurare în producție, într-o actualizare de după lansare;
 - `/proiecte/mayalashes/`: doar după acord.
 
@@ -951,7 +951,7 @@ Comanda `npm run check:launch` refuză lansarea până când:
 | 5 | Profiluri pentru `sameAs` (LinkedIn etc.) | Alex | Nu (opțional) |
 | 6 | Fotografie reală | Alex | Nu |
 | 7 | Acordul de la szitrans (dat, decizia 23), plus rezultate verificabile și capturi datate | Alex | Nu (fără el, pagina nu se construiește) |
-| 8 | Textul studiului anonim al magazinului online (și serviciile folosite), aprobat, cu capturi anonimizate | Alex | Nu (fără el, pagina nu se construiește) |
+| 8 | Textul studiului Amsterdam Headshop (și serviciile folosite), aprobat, cu capturi | Alex | Nu (fără el, pagina nu se construiește) |
 | 9 | Acordul mayalashes | Alex | Nu (fără el, pagina nu se construiește) |
 | 10 | Rezultatele din studiile de caz (cifre, perioadă, sursă) | Alex | Nu (fără ele, rândul lipsește) |
 | 11 | Scorurile acestui site, măsurate în producție | eu, după lansare | Nu (fără ele, pagina nu se construiește) |

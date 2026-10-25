@@ -26,9 +26,6 @@ beforeEach(() => {
   stare.proiecte.splice(0);
 });
 
-/** Studiul szitrans, publicabil (acord și aprobat) sau nu. */
-const szitrans = (aprobat: boolean) => ({ data: { slug: 'szitrans', client: 'szitrans.eu', acord: true, aprobat } });
-
 const main = (h: string) => h.slice(h.indexOf('<main'), h.indexOf('</main>'));
 const titluri = (h: string, nivel: number) =>
   [...h.matchAll(new RegExp(`<h${nivel}\\b[^>]*>([\\s\\S]*?)</h${nivel}>`, 'g'))].map((m) => textOf(m[1] ?? ''));
@@ -100,21 +97,43 @@ describe('/despre/ (§4.5)', () => {
     for (const u of unelte) expect(instrumente, u).toContain(u);
   });
 
-  test('szitrans.eu apare cu numele (acord, #7), magazinul online rămâne anonim', async () => {
-    const text = textOf(main(await render(PaginaDespre))).toLowerCase();
-    expect(text).toContain('szitrans.eu');
-    expect(text).not.toMatch(/amsterdam|headshop/);
+  // Cererea lui Alex din 2026-10-25: patru carduri, în ordinea lui, cu acordul magazinului; fiecare duce spre site-ul lui.
+  test('„Experiență” are cele patru carduri de proiect, în ordine, fiecare cu linkul spre site-ul lui', async () => {
+    const h = main(await render(PaginaDespre));
+    const experienta = /<h2\b[^>]*>Experiență<\/h2>([\s\S]*?)<\/section>/.exec(h)?.[1] ?? '';
+    const carduri = [...experienta.matchAll(/<li class="proiect-exp"[^>]*>([\s\S]*?)<\/li>/g)].map((m) => m[1] ?? '');
+    const linkuri = carduri.map((c) => /<h3\b[^>]*>\s*<a class="proiect-exp__link"[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/.exec(c)?.slice(1));
+    expect(linkuri).toEqual([
+      ['https://szitrans.eu/', 'szitrans.eu'],
+      ['https://www.amsterdam-headshop.ro/', 'Amsterdam Headshop'],
+      ['https://grab.agseo.pro/', 'Grabber'],
+      ['/concepte/aether-labs/', 'AETHER // LABS'],
+    ]);
+    // Conceptul spune că e un concept: studioul și cifrele de pe pagina lui nu sunt reale.
+    expect(textOf(carduri[3] ?? '')).toMatch(/Concept de site[\s\S]*sunt inventate/);
   });
 
-  test('szitrans.eu e link spre studiul de caz doar când acela se construiește', async () => {
-    const link = /<a href="\/proiecte\/szitrans\/"[^>]*>szitrans\.eu<\/a>/;
-    stare.proiecte.push(szitrans(false));
+  test('„Experiență” pomenește și acest site, pe lângă cele patru proiecte', async () => {
+    const h = main(await render(PaginaDespre));
+    const experienta = textOf(/<h2\b[^>]*>Experiență<\/h2>([\s\S]*?)<ul\b/.exec(h)?.[1] ?? '');
+    expect(experienta).toContain('Patru proiecte la care am lucrat');
+    expect(experienta).toContain('site-ul pe care îl citești acum');
+  });
+
+  test.each([
+    ['szitrans', 'szitrans.eu'],
+    ['amsterdam-headshop', 'Amsterdam Headshop'],
+  ])('cardul %s primește linkul spre studiul de caz doar când acela se construiește', async (slug, client) => {
+    const link = new RegExp(`<a href="/proiecte/${slug}/"[^>]*>Studiul de caz</a>`);
+    const studiu = (aprobat: boolean) => ({ data: { slug, client, acord: true, aprobat } });
+    stare.proiecte.push(studiu(false));
     expect(main(await render(PaginaDespre))).not.toMatch(link);
-    stare.proiecte.splice(0, 1, szitrans(true));
+    stare.proiecte.splice(0, 1, studiu(true));
     const h = main(await render(PaginaDespre));
     expect(h).toMatch(link);
-    // Linkul stă lipit de text: fără spațiu înaintea virgulei de după el.
-    expect(h).toMatch(/Am construit <a href="\/proiecte\/szitrans\/"[^>]*>szitrans\.eu<\/a>, site-ul bilingv/);
+    // Linkul stă în cardul proiectului, nu în altul.
+    const carduri = [...h.matchAll(/<li class="proiect-exp"[^>]*>[\s\S]*?<\/li>/g)].map((m) => m[0]);
+    expect(carduri.filter((c) => link.test(c))).toEqual(carduri.filter((c) => c.includes(`>${client}</a>`)));
   });
 
   test('fără fotografie și fără cadru gol', async () => {
